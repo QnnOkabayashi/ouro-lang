@@ -1,0 +1,17 @@
+---
+source: toolchain/sea_parse/src/resolver.rs
+expression: "case! { struct Thing { fn new(a: 1) { Thing } } }"
+---
+│ ╭─0 Struct(0) "struct"
+│ ├─1 StructIdent(SynDef(0)) "Thing"
+│ ├─2 StructBody "{"
+│ │ ╭─3 Fn "fn"
+│ │ ├─4 FnIdent(SynDef(1)) "new"
+│ │ │ ╭─5 FnParams "("
+│ │ │ ├─6 ExprInt "1"
+│ │ │ ├─7 FnParamsParam(SynDef(2)) "a"
+│ │ ├─8 FnParamsEnd(SubtreeSize(3)) ")"
+│ │ ├─9 FnBody "{"
+│ │ ├─10 ExprIdent(Local { def: 1 }) "Thing"
+│ ├─11 FnBodyEnd(SubtreeSize(5)) "}"
+├─12 StructBodyEnd(SubtreeSize(4)) "}"

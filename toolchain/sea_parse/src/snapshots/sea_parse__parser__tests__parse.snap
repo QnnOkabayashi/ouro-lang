@@ -1,0 +1,39 @@
+---
+source: toolchain/sea_parse/src/parser.rs
+expression: "case!\n{\n    fn a() { 1 + 2 * 3 } struct Foo\n    { struct Bar { fn foobar() { let a = 4; 0b11_11 } } } struct Baz {}\n}"
+---
+│ ╭─Fn "fn" 0..2
+│ ├─FnIdent(SynDef(0)) "a" 3..4
+│ │ ╭─FnParams "(" 4..5
+│ ├─FnParamsEnd(SubtreeSize(1)) ")" 5..6
+│ ├─FnBody "{" 7..8
+│ ├─ExprInt "1" 9..10
+│ ├─ExprInt "2" 13..14
+│ ├─ExprInt "3" 17..18
+│ ├─ExprMul "*" 15..16
+│ ├─ExprAdd "+" 11..12
+├─FnBodyEnd(SubtreeSize(9)) "}" 19..20
+│ ╭─Struct(0) "struct" 21..27
+│ ├─StructIdent(SynDef(1)) "Foo" 28..31
+│ ├─StructBody "{" 32..33
+│ │ ╭─Struct(1) "struct" 34..40
+│ │ ├─StructIdent(SynDef(2)) "Bar" 41..44
+│ │ ├─StructBody "{" 45..46
+│ │ │ ╭─Fn "fn" 47..49
+│ │ │ ├─FnIdent(SynDef(3)) "foobar" 50..56
+│ │ │ │ ╭─FnParams "(" 56..57
+│ │ │ ├─FnParamsEnd(SubtreeSize(1)) ")" 57..58
+│ │ │ ├─FnBody "{" 59..60
+│ │ │ ├─Let "let" 61..64
+│ │ │ ├─ExprInt "4" 69..70
+│ │ │ ├─LetEq "=" 67..68
+│ │ │ ├─LetIdent(SynDef(4)) "a" 65..66
+│ │ │ ├─LetSemi ";" 70..71
+│ │ │ ├─ExprInt "0b11_11" 72..79
+│ │ ├─FnBodyEnd(SubtreeSize(10)) "}" 80..81
+│ ├─StructBodyEnd(SubtreeSize(4)) "}" 82..83
+├─StructBodyEnd(SubtreeSize(4)) "}" 84..85
+│ ╭─Struct(2) "struct" 86..92
+│ ├─StructIdent(SynDef(5)) "Baz" 93..96
+│ ├─StructBody "{" 97..98
+├─StructBodyEnd(SubtreeSize(3)) "}" 98..99

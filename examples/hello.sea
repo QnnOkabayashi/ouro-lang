@@ -1,0 +1,16 @@
+struct Thing {
+    fn new() {
+        Thing {}
+    }
+}
+
+fn Vec(T: type) {
+    struct Impl {
+        t: T,
+    }
+    Impl
+}
+
+fn main() {
+
+}
