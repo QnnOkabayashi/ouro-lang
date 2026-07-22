@@ -1,0 +1,5 @@
+---
+source: toolchain/ouro_tokenize/ouro_tokenize_test.rs
+expression: "pprint_tokenize(\"0b_0\")"
+---
+Int 0..4

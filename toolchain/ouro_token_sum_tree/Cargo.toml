@@ -1,0 +1,18 @@
+[package]
+name = "ouro_token_sum_tree"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+path = "ouro_token_sum_tree.rs"
+
+[[test]]
+name = "ouro_token_sum_tree_test"
+path = "ouro_token_sum_tree_test.rs"
+
+[dependencies]
+arrayvec = "0.7.8"
+ouro_tokenize = { path = "../ouro_tokenize" }
+ouro_span = { path = "../ouro_span" }
+
+zed-sum-tree = "0.2.0"

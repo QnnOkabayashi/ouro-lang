@@ -1,5 +1,0 @@
----
-source: toolchain/sea_parse/src/tokenize.rs
-expression: "pprint_tokenize(\"0b0\")"
----
-Int 0..3

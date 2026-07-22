@@ -1,0 +1,9 @@
+---
+source: toolchain/ouro_tokenize/ouro_tokenize_test.rs
+expression: "pprint_tokenize(\"letter fn_ comptime_\")"
+---
+Ident 0..6 
+Whitespace 6..7 
+Ident 7..10 
+Whitespace 10..11 
+Ident 11..20

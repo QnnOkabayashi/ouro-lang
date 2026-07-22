@@ -1,0 +1,22 @@
+const Thing = struct {
+    const Self = This();
+
+    fn new(self: Self) {
+        self + i32
+    }
+};
+
+fn Vec(T: type) {
+    struct {
+        t: T + main(),//
+        y: foo(),
+    }
+}
+
+fn main() {
+    // stuff
+}
+
+fn foo() {
+
+}

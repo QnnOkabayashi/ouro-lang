@@ -1,0 +1,12 @@
+---
+source: toolchain/ouro_tokenize/ouro_tokenize_test.rs
+expression: "pprint_tokenize(r\"\n        \\\\Hello, world!\n        \\\\123 123\\\\\n        \")"
+---
+Newline 0..1 
+Whitespace 1..9 
+RawStr 9..24 
+Newline 24..25 
+Whitespace 25..33 
+RawStr 33..44 
+Newline 44..45 
+Whitespace 45..53

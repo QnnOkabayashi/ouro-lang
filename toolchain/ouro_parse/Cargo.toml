@@ -1,0 +1,20 @@
+[package]
+name = "ouro_parse"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+path = "ouro_parse.rs"
+
+[[test]]
+name = "ouro_parse_test"
+path = "ouro_parse_test.rs"
+
+[dependencies]
+ouro_index_vec = { path = "../ouro_index_vec" }
+ouro_tokenize = { path = "../ouro_tokenize" }
+ouro_parse_node = { path = "../ouro_parse_node" }
+
+[dev-dependencies]
+ouro_pprint = { path = "../ouro_pprint" }
+insta = { workspace = true }

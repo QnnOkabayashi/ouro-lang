@@ -1,0 +1,6 @@
+---
+source: toolchain/ouro_tokenize/ouro_tokenize_test.rs
+expression: "pprint_tokenize(\"123😎\")"
+---
+Int 0..3 
+Unrecognized 3..7

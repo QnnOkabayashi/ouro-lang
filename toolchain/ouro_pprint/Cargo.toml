@@ -1,0 +1,12 @@
+[package]
+name = "ouro_pprint"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+path = "ouro_pprint.rs"
+
+[dependencies]
+ouro_index_vec = { path = "../ouro_index_vec" }
+ouro_span = { path = "../ouro_span" }
+ouro_parse_node = { path = "../ouro_parse_node" }

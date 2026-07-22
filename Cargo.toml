@@ -1,11 +1,16 @@
 [workspace]
-members = [
-    "toolchain/sea_parse",
+members = ["toolchain/ouro_index_vec",
+    "toolchain/ouro_language_server",
+    "toolchain/ouro_parse",
+    "toolchain/ouro_parse_node",
+    "toolchain/ouro_pprint",
+    "toolchain/ouro_resolve",
+    "toolchain/ouro_span", "toolchain/ouro_token_sum_tree",
+    "toolchain/ouro_tokenize",
 ]
 resolver = "3"
 
 [workspace.dependencies]
-index_vec = "0.1.4"
 insta = "1.46.1"
 
 [profile.dev.package.insta]

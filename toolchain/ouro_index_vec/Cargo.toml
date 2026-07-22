@@ -1,0 +1,10 @@
+[package]
+name = "ouro_index_vec"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+path = "ouro_index_vec.rs"
+
+[dependencies]
+index_vec = "0.1.4"

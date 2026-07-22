@@ -1,9 +1,0 @@
----
-source: toolchain/sea_parse/src/tokenize.rs
-expression: "pprint_tokenize(\"let fn comptime\")"
----
-Let 0..3 
-Whitespace 3..4 
-Fn 4..6 
-Whitespace 6..7 
-Comptime 7..15

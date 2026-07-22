@@ -1,0 +1,22 @@
+[package]
+name = "ouro_resolve"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+path = "ouro_resolve.rs"
+
+[[test]]
+name = "ouro_resolve_test"
+path = "ouro_resolve_test.rs"
+
+[dependencies]
+ouro_index_vec = { path = "../ouro_index_vec" }
+ouro_span = { path = "../ouro_span" }
+ouro_tokenize = { path = "../ouro_tokenize" }
+ouro_parse_node = { path = "../ouro_parse_node" }
+ouro_parse = { path = "../ouro_parse" }
+
+[dev-dependencies]
+ouro_pprint = { path = "../ouro_pprint" }
+insta = { workspace = true }

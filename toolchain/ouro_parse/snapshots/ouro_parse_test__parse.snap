@@ -1,0 +1,48 @@
+---
+source: toolchain/ouro_parse/ouro_parse_test.rs
+expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const Bar = struct { fn foobar() { let a = 4; 0b11_11 } }; }; const Baz\n    = struct {};\n}"
+---
+│ ╭─Fn "fn" 0..2
+│ ├─FnIdent(SynDef(0)) "a" 3..4
+│ │ ╭─FnParams(SynFn(0)) "(" 4..5
+│ ├─FnParamsEnd(SubtreeSize(1)) ")" 5..6
+│ ├─FnBodyBegin "{" 7..8
+│ ├─ExprInt "1" 9..10
+│ ├─ExprInt "2" 13..14
+│ ├─ExprInt "3" 17..18
+│ ├─ExprMul "*" 15..16
+│ ├─ExprAdd "+" 11..12
+├─FnBodyEnd(SubtreeSize(9)) "}" 19..20
+├─Const "const" 21..26
+│ ╭─Struct(0) "struct" 33..39
+│ ├─StructBodyBegin "{" 40..41
+│ ├─Const "const" 42..47
+│ │ ╭─Struct(1) "struct" 54..60
+│ │ ├─StructBodyBegin "{" 61..62
+│ │ │ ╭─Fn "fn" 63..65
+│ │ │ ├─FnIdent(SynDef(1)) "foobar" 66..72
+│ │ │ │ ╭─FnParams(SynFn(1)) "(" 72..73
+│ │ │ ├─FnParamsEnd(SubtreeSize(1)) ")" 73..74
+│ │ │ ├─FnBodyBegin "{" 75..76
+│ │ │ ├─Let "let" 77..80
+│ │ │ ├─ExprInt "4" 85..86
+│ │ │ ├─LetEq "=" 83..84
+│ │ │ ├─LetIdent(SynDef(2)) "a" 81..82
+│ │ │ ├─LetSemi ";" 86..87
+│ │ │ ├─ExprInt "0b11_11" 88..95
+│ │ ├─FnBodyEnd(SubtreeSize(10)) "}" 96..97
+│ ├─StructBodyEnd(SubtreeSize(3)) "}" 98..99
+│ ├─ConstEq "=" 52..53
+│ ├─ConstIdent(SynDef(3)) "Bar" 48..51
+│ ├─ConstSemi ";" 99..100
+├─StructBodyEnd(SubtreeSize(7)) "}" 101..102
+├─ConstEq "=" 31..32
+├─ConstIdent(SynDef(4)) "Foo" 27..30
+├─ConstSemi ";" 102..103
+├─Const "const" 104..109
+│ ╭─Struct(2) "struct" 116..122
+│ ├─StructBodyBegin "{" 123..124
+├─StructBodyEnd(SubtreeSize(2)) "}" 124..125
+├─ConstEq "=" 114..115
+├─ConstIdent(SynDef(5)) "Baz" 110..113
+├─ConstSemi ";" 125..126

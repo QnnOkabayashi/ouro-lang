@@ -1,0 +1,10 @@
+[package]
+name = "ouro_span"
+version = "0.0.0"
+edition = "2024"
+
+[lib]
+path = "ouro_span.rs"
+
+[dependencies]
+ouro_index_vec = { path = "../ouro_index_vec" }

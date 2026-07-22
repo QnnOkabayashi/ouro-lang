@@ -1,9 +1,0 @@
----
-source: toolchain/sea_parse/src/tokenize.rs
-expression: "pprint_tokenize(\"a * 😎\")"
----
-Ident 0..1 
-Whitespace 1..2 
-Star 2..3 
-Whitespace 3..4 
-Unrecognized 4..8

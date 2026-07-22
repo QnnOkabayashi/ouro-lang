@@ -1,0 +1,14 @@
+---
+source: toolchain/ouro_resolve/ouro_resolve_test.rs
+expression: "case! { fn foo(T: type, n: T) {} }"
+---
+│ ╭─0 Fn "fn"
+│ ├─1 FnIdent(SynDef(0)) "foo"
+│ │ ╭─2 FnParams(SynFn(0)) "("
+│ │ ├─3 FnParamsIdent(SynDef(1)) "T"
+│ │ ├─4 ExprIdent(SynRef(0)) "type" -> Some(Builtin(Type))
+│ │ ├─5 FnParamsIdent(SynDef(2)) "n"
+│ │ ├─6 ExprIdent(SynRef(1)) "T" -> Some(Local { node: 3, scope_id: 1 })
+│ ├─7 FnParamsEnd(SubtreeSize(5)) ")"
+│ ├─8 FnBodyBegin "{"
+├─9 FnBodyEnd(SubtreeSize(4)) "}"

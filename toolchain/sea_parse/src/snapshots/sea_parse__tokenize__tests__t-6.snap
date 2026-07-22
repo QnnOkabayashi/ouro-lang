@@ -1,6 +1,0 @@
----
-source: toolchain/sea_parse/src/tokenize.rs
-expression: "pprint_tokenize(\"123😎\")"
----
-Int 0..3 
-Unrecognized 3..7

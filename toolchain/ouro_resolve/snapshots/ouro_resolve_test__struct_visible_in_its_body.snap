@@ -1,0 +1,20 @@
+---
+source: toolchain/ouro_resolve/ouro_resolve_test.rs
+expression: "case! { let Thing = struct { fn new(a: 1) { Thing } }; }"
+---
+├─0 Let "let"
+│ ╭─1 Struct(0) "struct"
+│ ├─2 StructBodyBegin "{"
+│ │ ╭─3 Fn "fn"
+│ │ ├─4 FnIdent(SynDef(0)) "new"
+│ │ │ ╭─5 FnParams(SynFn(0)) "("
+│ │ │ ├─6 FnParamsIdent(SynDef(1)) "a"
+│ │ │ ├─7 ExprInt "1"
+│ │ ├─8 FnParamsEnd(SubtreeSize(3)) ")"
+│ │ ├─9 FnBodyBegin "{"
+│ │ ├─10 ExprIdent(SynRef(0)) "Thing" -> Some(Local { node: 14, scope_id: 0 })
+│ ├─11 FnBodyEnd(SubtreeSize(5)) "}"
+├─12 StructBodyEnd(SubtreeSize(3)) "}"
+├─13 LetEq "="
+├─14 LetIdent(SynDef(2)) "Thing"
+├─15 LetSemi ";"
