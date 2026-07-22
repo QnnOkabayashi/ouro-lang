@@ -91,7 +91,8 @@ impl<'a> Interner<'a> {
 pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> Resolve {
     let mut next_scope_id = Counter::<ScopeId>::new();
     let root_scope = next_scope_id.next();
-    let mut open_scopes = vec![root_scope];
+    let mut open_scopes = vec![];
+    let mut curr_scope = root_scope;
     let mut interner = Interner::default();
     let builtins = [
         (interner.make_symbol("i32"), Referent::Builtin(Builtin::I32)),
@@ -113,7 +114,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
 
                 // If this is a function that is top level and is named main
                 if matches!(node_impl.kind, FnIdent(_))
-                    && open_scopes.len() == 1
+                    && open_scopes.is_empty()
                     && symbol == sym_main
                 {
                     top_level_main = Some(node);
@@ -127,15 +128,15 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                 ));
             }
             StructBodyBegin | FnParams(_) | ExprBlock => {
-                let next_scope = next_scope_id.next();
-                insts.push(Inst::ScopeTransition(next_scope));
-                open_scopes.push(next_scope);
+                open_scopes.push(curr_scope);
+                curr_scope = next_scope_id.next();
+                insts.push(Inst::ScopeTransition(curr_scope));
             }
             StructBodyEnd(_) | FnBodyEnd(_) | ExprBlockEnd(_) => {
-                let prev_scope = open_scopes
+                insts.push(Inst::ScopeTransition(curr_scope));
+                curr_scope = open_scopes
                     .pop()
                     .expect("should be associated with a start of the scope");
-                insts.push(Inst::ScopeTransition(prev_scope));
             }
             _ => {
                 // The node isn't relevant for name resolution.
@@ -143,7 +144,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
         }
     }
 
-    assert_eq!(open_scopes.len(), 1, "should have exactly one left");
+    assert!(open_scopes.is_empty(), "should have exactly one left");
 
     let mut open_scopes_table: Box<IndexSlice<ScopeId, [bool]>> =
         index_box![false; next_scope_id.next.index()];
@@ -177,7 +178,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                     }
                     symbol_to_referent[symbol] = Some(Referent::Local {
                         node: def,
-                        scope_id: *open_scopes.last().unwrap(),
+                        scope_id: curr_scope,
                     });
                 }
                 Inst::Ref(symbol, syn_ref) => {
@@ -195,14 +196,17 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                     );
                 }
                 Inst::ScopeTransition(scope_id) => {
-                    if *open_scopes.last().unwrap() == scope_id {
+                    if curr_scope == scope_id {
                         // Transitioning out of this scope
                         open_scopes_table[scope_id] = false;
-                        open_scopes.pop();
+                        curr_scope = open_scopes
+                            .pop()
+                            .expect("should have at least 1 scope left");
                     } else {
                         // Transitioning into this scope
                         open_scopes_table[scope_id] = true;
-                        open_scopes.push(scope_id);
+                        open_scopes.push(curr_scope);
+                        curr_scope = scope_id;
                     }
                 }
             }
