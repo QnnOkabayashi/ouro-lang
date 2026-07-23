@@ -1,12 +1,15 @@
 [workspace]
-members = ["toolchain/ouro_index_vec",
+members = [
+    "toolchain/ouro_index_vec",
     "toolchain/ouro_language_server",
     "toolchain/ouro_parse",
     "toolchain/ouro_parse_node",
     "toolchain/ouro_pprint",
     "toolchain/ouro_resolve",
-    "toolchain/ouro_span", "toolchain/ouro_token_sum_tree",
+    "toolchain/ouro_span",
+    "toolchain/ouro_token_sum_tree",
     "toolchain/ouro_tokenize",
+    "toolchain/ouro_typeck",
 ]
 resolver = "3"
 

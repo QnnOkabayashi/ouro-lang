@@ -586,6 +586,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "ouro_typeck"
+version = "0.0.0"
+
+[[package]]
 name = "percent-encoding"
 version = "2.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

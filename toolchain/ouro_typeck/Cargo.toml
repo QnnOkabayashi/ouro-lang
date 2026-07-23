@@ -1,0 +1,9 @@
+[package]
+name = "ouro_typeck"
+version = "0.0.0"
+edition = "2024"
+
+[lib]
+path = "ouro_typeck.rs"
+
+[dependencies]
