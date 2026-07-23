@@ -344,7 +344,7 @@ impl<'a> Parser<'a> {
                                     self.cursor.advance_1(),
                                     NodeKind::ExprCallEnd,
                                 );
-                                return Ok(());
+                                break;
                             }
                             Some(TokenImpl::Comma) if accept_comma => {
                                 self.parse_tree

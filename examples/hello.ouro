@@ -13,8 +13,19 @@ fn Vec(T: type) {
     }
 }
 
+fn print(s: string) {
+    struct {
+        fn fmt(io: Io) {
+            // print the stuff
+        }
+    }.fmt
+}
+
 fn main() {
     // stuff
+    print(
+        // "hello"
+    )(io)
 }
 
 fn foo() {

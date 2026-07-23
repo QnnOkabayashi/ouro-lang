@@ -38,3 +38,10 @@ fn test_parse() {
         const Baz = struct {};
     });
 }
+
+#[test]
+fn test_call_call() {
+    insta::assert_snapshot!(case! {
+        const CallCall = foo()();
+    });
+}

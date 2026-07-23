@@ -9,7 +9,6 @@ members = [
     "toolchain/ouro_span",
     "toolchain/ouro_token_sum_tree",
     "toolchain/ouro_tokenize",
-    "toolchain/ouro_typeck",
 ]
 resolver = "3"
 
