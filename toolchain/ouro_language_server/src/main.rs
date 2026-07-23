@@ -21,7 +21,7 @@ use tracing::{Level, info};
 use ouro_parse::Parse;
 use ouro_resolve::{Builtin, Referent, Resolve};
 use ouro_token_sum_tree::{RowColDelta, TokenSourceMap};
-use ouro_tokenize::{Token, Tokenize};
+use ouro_tokenize::Token;
 
 fn builtin_to_hover_description(builtin: Builtin) -> &'static str {
     match builtin {
@@ -32,8 +32,6 @@ fn builtin_to_hover_description(builtin: Builtin) -> &'static str {
 
 #[derive(Debug)]
 struct Analysis {
-    source: String,
-    tokenize: Tokenize,
     source_map: TokenSourceMap,
     parse: Parse,
     /// Given a Token, is it a SynRef?
@@ -63,8 +61,6 @@ impl Analysis {
             .then(|| ouro_resolve::resolve(&parse, &tokenize.ends, &source));
 
         Analysis {
-            source,
-            tokenize,
             source_map,
             parse,
             token_to_syn_ref,
@@ -142,7 +138,6 @@ async fn main() {
                     return future::ready(Ok(None));
                 };
                 let pos = params.text_document_position_params.position;
-                info!("Position: {pos:?}");
                 let Some(token) = analysis.source_map.position_to_token(RowColDelta {
                     row: pos.line,
                     column: Utf16Char::from_raw(pos.character),
@@ -150,9 +145,6 @@ async fn main() {
                     info!("position not found");
                     return future::ready(Ok(None));
                 };
-                let span = ouro_tokenize::span(token, &analysis.tokenize.ends);
-                let text = span.lookup(&analysis.source);
-                info!("Token: {token:?} ({span:?}) = '{text}'");
                 let Some(&syn_ref) = analysis.token_to_syn_ref.get(&token) else {
                     info!("token not a SynRef");
                     return future::ready(Ok(None));
@@ -176,6 +168,7 @@ async fn main() {
                 })))
             })
             .request::<lsp_request!("textDocument/definition"), _>(|state, params| {
+                let start = Instant::now();
                 let Some(analysis) = state
                     .uri_to_analysis
                     .get(&params.text_document_position_params.text_document.uri)
@@ -184,7 +177,6 @@ async fn main() {
                     return future::ready(Ok(None));
                 };
                 let pos = params.text_document_position_params.position;
-                info!("Position: {pos:?}");
                 let Some(token) = analysis.source_map.position_to_token(RowColDelta {
                     row: pos.line,
                     column: Utf16Char::from_raw(pos.character),
@@ -192,9 +184,6 @@ async fn main() {
                     info!("position not found");
                     return future::ready(Ok(None));
                 };
-                let span = ouro_tokenize::span(token, &analysis.tokenize.ends);
-                let text = span.lookup(&analysis.source);
-                info!("Token: {token:?} ({span:?}) = '{text}'");
                 let Some(&syn_ref) = analysis.token_to_syn_ref.get(&token) else {
                     info!("token not a SynRef");
                     return future::ready(Ok(None));
@@ -205,7 +194,7 @@ async fn main() {
                 };
                 let opt_referent = resolve.ref_to_referent[syn_ref];
                 let def = match opt_referent {
-                    Some(Referent::Local { node, .. }) => node,
+                    Some(Referent::Local { def, .. }) => def,
                     Some(Referent::Builtin(_)) | None => {
                         info!("SynRef doesn't refer to anything");
                         return future::ready(Ok(None));
@@ -217,6 +206,8 @@ async fn main() {
                     line: row_col_delta.row,
                     character: row_col_delta.column.raw(),
                 };
+
+                info!("Elapsed: {:?}", start.elapsed());
 
                 let response = GotoDefinitionResponse::Scalar(Location {
                     uri: params.text_document_position_params.text_document.uri,
@@ -236,7 +227,6 @@ async fn main() {
             })
             .notification::<lsp_notification!("textDocument/didOpen")>(|state, params| {
                 let document = params.text_document;
-                info!("Language ID: {}", document.language_id);
                 state
                     .uri_to_analysis
                     .insert(document.uri, Analysis::new(document.text));
@@ -250,7 +240,7 @@ async fn main() {
                     document.uri,
                     Analysis::new(text_document_content_change_event.text),
                 );
-                info!("reload time: {:?}", start.elapsed());
+                info!("Elapsed: {:?}", start.elapsed());
                 ControlFlow::Continue(())
             })
             .notification::<lsp_notification!("textDocument/didClose")>(|_, _params| {
