@@ -17,12 +17,6 @@ pub struct NodeImpl {
 }
 
 ouro_index_vec::define_index_type! {
-    /// A syntactic function.
-    pub struct SynFn = u32;
-    DEBUG_FORMAT = "SynFn({})";
-}
-
-ouro_index_vec::define_index_type! {
     /// A syntactic reference.
     pub struct SynRef = u32;
     DEBUG_FORMAT = "SynRef({})";
@@ -53,7 +47,7 @@ pub enum NodeKind {
     StructBodyEnd(SubtreeSize),
     Fn,
     FnIdent(SynDef),
-    FnParams(SynFn),
+    FnParams,
     FnParamsIdent(SynDef),
     FnParamsEnd(SubtreeSize),
     FnBodyBegin,

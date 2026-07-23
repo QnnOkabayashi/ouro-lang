@@ -4,7 +4,7 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 ---
 │ ╭─0 Fn "fn"
 │ ├─1 FnIdent(SynDef(0)) "foo"
-│ │ ╭─2 FnParams(SynFn(0)) "("
+│ │ ╭─2 FnParams "("
 │ │ ├─3 FnParamsIdent(SynDef(1)) "a"
 │ │ ├─4 ExprIdent(SynRef(0)) "i32" -> Some(Builtin(I32))
 │ │ ├─5 FnParamsIdent(SynDef(2)) "b"
@@ -27,7 +27,7 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 ├─22 FnBodyEnd(SubtreeSize(11)) "}"
 │ ╭─23 Fn "fn"
 │ ├─24 FnIdent(SynDef(4)) "add"
-│ │ ╭─25 FnParams(SynFn(1)) "("
+│ │ ╭─25 FnParams "("
 │ │ ├─26 FnParamsIdent(SynDef(5)) "a"
 │ │ ├─27 ExprIdent(SynRef(7)) "i32" -> Some(Builtin(I32))
 │ │ ├─28 FnParamsIdent(SynDef(6)) "b"

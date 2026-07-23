@@ -149,7 +149,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                     syn_ref,
                 ));
             }
-            StructBodyBegin | FnParams(_) | ExprBlock => {
+            StructBodyBegin | FnParams | ExprBlock => {
                 open_scopes.push(curr_scope);
                 let prev_scope = curr_scope;
                 curr_scope = next_scope_id.next();

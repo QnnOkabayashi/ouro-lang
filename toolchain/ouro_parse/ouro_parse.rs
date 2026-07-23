@@ -1,7 +1,5 @@
 use ouro_index_vec::{Counter, IndexSlice, IndexVec};
-use ouro_parse_node::{
-    Node, NodeImpl, NodeKind, SemRef, SubtreeSize, SynDef, SynFn, SynRef, SynStruct,
-};
+use ouro_parse_node::{Node, NodeImpl, NodeKind, SemRef, SubtreeSize, SynDef, SynRef, SynStruct};
 use ouro_tokenize::{Token, TokenImpl};
 
 struct ParseTree {
@@ -105,7 +103,6 @@ struct Parser<'a> {
     syn_refs: Counter<SynRef>,
     sem_refs: Counter<SemRef>,
     syn_structs: Counter<SynStruct>,
-    syn_fns: Counter<SynFn>,
 }
 
 impl<'a> Parser<'a> {
@@ -117,7 +114,6 @@ impl<'a> Parser<'a> {
             syn_refs: Counter::new(),
             sem_refs: Counter::new(),
             syn_structs: Counter::new(),
-            syn_fns: Counter::new(),
         }
     }
 
@@ -178,10 +174,8 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_fn_params(&mut self) -> Result<(), Error> {
-        self.parse_tree.push_introducer(
-            self.cursor.eat(TokenImpl::OpenParen)?,
-            NodeKind::FnParams(self.syn_fns.next()),
-        );
+        self.parse_tree
+            .push_introducer(self.cursor.eat(TokenImpl::OpenParen)?, NodeKind::FnParams);
         let mut accept_comma = false;
         loop {
             match self.cursor.peek() {
@@ -391,7 +385,6 @@ pub fn parse(tokens: &IndexSlice<Token, [TokenImpl]>) -> Parse {
         nodes: parser.parse_tree.nodes.into_boxed_slice(),
         syn_refs: parser.syn_refs,
         syn_defs: parser.syn_defs,
-        syn_fns: parser.syn_fns,
         ok,
     }
 }
@@ -401,6 +394,5 @@ pub struct Parse {
     pub nodes: Box<IndexSlice<Node, [NodeImpl]>>,
     pub syn_refs: Counter<SynRef>,
     pub syn_defs: Counter<SynDef>,
-    pub syn_fns: Counter<SynFn>,
     pub ok: Result<(), Error>,
 }

@@ -4,7 +4,7 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 ---
 │ ╭─Fn "fn" 0..2
 │ ├─FnIdent(SynDef(0)) "a" 3..4
-│ │ ╭─FnParams(SynFn(0)) "(" 4..5
+│ │ ╭─FnParams "(" 4..5
 │ ├─FnParamsEnd(SubtreeSize(1)) ")" 5..6
 │ ├─FnBodyBegin "{" 7..8
 │ ├─ExprInt "1" 9..10
@@ -21,7 +21,7 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ │ ├─StructBodyBegin "{" 61..62
 │ │ │ ╭─Fn "fn" 63..65
 │ │ │ ├─FnIdent(SynDef(1)) "foobar" 66..72
-│ │ │ │ ╭─FnParams(SynFn(1)) "(" 72..73
+│ │ │ │ ╭─FnParams "(" 72..73
 │ │ │ ├─FnParamsEnd(SubtreeSize(1)) ")" 73..74
 │ │ │ ├─FnBodyBegin "{" 75..76
 │ │ │ ├─Let "let" 77..80
