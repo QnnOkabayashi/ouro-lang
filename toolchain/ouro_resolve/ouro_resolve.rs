@@ -20,13 +20,35 @@ ouro_index_vec::define_index_type! {
     pub struct ScopeId = u32;
 }
 
+#[derive(Copy, Clone, Debug)]
+struct ScopeXor {
+    a: ScopeId,
+    b: ScopeId,
+}
+
+impl ScopeXor {
+    fn new(a: ScopeId, b: ScopeId) -> Self {
+        ScopeXor { a, b }
+    }
+
+    fn xor(self, a: ScopeId) -> ScopeId {
+        if a == self.a {
+            self.b
+        } else if a == self.b {
+            self.a
+        } else {
+            panic!("wasn't one of the original two")
+        }
+    }
+}
+
 #[derive(Copy, Clone)]
 enum Inst {
     Def(Symbol, Node),
     Ref(Symbol, SynRef),
     /// Each Inst::ScopeTransition has exactly one matching pair with the same ScopeId.
     /// These two form the edges of a scope.
-    ScopeTransition(ScopeId),
+    ScopeTransition(ScopeXor),
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -129,14 +151,16 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
             }
             StructBodyBegin | FnParams(_) | ExprBlock => {
                 open_scopes.push(curr_scope);
+                let prev_scope = curr_scope;
                 curr_scope = next_scope_id.next();
-                insts.push(Inst::ScopeTransition(curr_scope));
+                insts.push(Inst::ScopeTransition(ScopeXor::new(prev_scope, curr_scope)));
             }
             StructBodyEnd(_) | FnBodyEnd(_) | ExprBlockEnd(_) => {
-                insts.push(Inst::ScopeTransition(curr_scope));
+                let prev_scope = curr_scope;
                 curr_scope = open_scopes
                     .pop()
                     .expect("should be associated with a start of the scope");
+                insts.push(Inst::ScopeTransition(ScopeXor::new(prev_scope, curr_scope)));
             }
             _ => {
                 // The node isn't relevant for name resolution.
@@ -195,19 +219,12 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                         "ambiguous defs should have been caught when def was added"
                     );
                 }
-                Inst::ScopeTransition(scope_id) => {
-                    if curr_scope == scope_id {
-                        // Transitioning out of this scope
-                        open_scopes_table[scope_id] = false;
-                        curr_scope = open_scopes
-                            .pop()
-                            .expect("should have at least 1 scope left");
-                    } else {
-                        // Transitioning into this scope
-                        open_scopes_table[scope_id] = true;
-                        open_scopes.push(curr_scope);
-                        curr_scope = scope_id;
-                    }
+                Inst::ScopeTransition(xor) => {
+                    let prev = curr_scope;
+                    curr_scope = xor.xor(prev);
+                    let top_scope = prev.index().max(curr_scope.index());
+
+                    open_scopes_table[top_scope] ^= true;
                 }
             }
         };
