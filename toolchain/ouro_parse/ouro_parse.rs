@@ -318,6 +318,7 @@ impl<'a> Parser<'a> {
                         TokenImpl::OpenBrace,
                         TokenImpl::Ident,
                         TokenImpl::Int,
+                        TokenImpl::Struct,
                     ]),
                     actual,
                 });
