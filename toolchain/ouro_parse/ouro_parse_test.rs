@@ -45,3 +45,10 @@ fn test_call_call() {
         const CallCall = foo()();
     });
 }
+
+#[test]
+fn test_str() {
+    insta::assert_snapshot!(case! {
+        const Name = "Quinn";
+    });
+}

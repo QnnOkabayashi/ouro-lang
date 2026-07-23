@@ -75,6 +75,7 @@ pub enum NodeKind {
     ExprCall,
     ExprCallComma,
     ExprCallEnd(SubtreeSize),
+    ExprStr,
 }
 
 impl NodeKind {

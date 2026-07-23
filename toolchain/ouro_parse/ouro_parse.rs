@@ -312,6 +312,10 @@ impl<'a> Parser<'a> {
                     .push(self.cursor.advance_1(), NodeKind::ExprInt);
             }
             Some(TokenImpl::Struct) => self.parse_struct()?,
+            Some(TokenImpl::Str) => {
+                self.parse_tree
+                    .push(self.cursor.advance_1(), NodeKind::ExprStr);
+            }
             actual => {
                 return Err(Error {
                     expected: Expected::OneOf(&[
@@ -319,6 +323,7 @@ impl<'a> Parser<'a> {
                         TokenImpl::Ident,
                         TokenImpl::Int,
                         TokenImpl::Struct,
+                        TokenImpl::Str,
                     ]),
                     actual,
                 });
