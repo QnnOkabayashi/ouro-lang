@@ -12,7 +12,7 @@ expression: "case! { let Thing = struct { fn new(a: 1) { Thing } }; }"
 │ │ │ ├─7 ExprInt "1"
 │ │ ├─8 FnParamsEnd(SubtreeSize(3)) ")"
 │ │ ├─9 FnBodyBegin "{"
-│ │ ├─10 ExprIdent(SynRef(0)) "Thing" -> Some(Local { node: 14, scope_id: 0 })
+│ │ ├─10 ExprIdent(SynRef(0)) "Thing" -> Some(Local { def: 14, scope_id: 0 })
 │ ├─11 FnBodyEnd(SubtreeSize(5)) "}"
 ├─12 StructBodyEnd(SubtreeSize(3)) "}"
 ├─13 LetEq "="

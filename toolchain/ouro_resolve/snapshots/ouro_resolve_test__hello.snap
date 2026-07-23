@@ -12,7 +12,7 @@ expression: "case! { fn Vec(T: type) { struct { t: T, } } fn main() {} }"
 │ ├─7 Struct(0) "struct"
 │ ├─8 StructBodyBegin "{"
 │ │ ╭─9 StructFieldIdent "t"
-│ │ ├─10 ExprIdent(SynRef(1)) "T" -> Some(Local { node: 3, scope_id: 1 })
+│ │ ├─10 ExprIdent(SynRef(1)) "T" -> Some(Local { def: 3, scope_id: 1 })
 │ │ ├─11 StructFieldComma(SubtreeSize(2)) ","
 │ ├─12 StructBodyEnd(SubtreeSize(3)) "}"
 ├─13 FnBodyEnd(SubtreeSize(5)) "}"

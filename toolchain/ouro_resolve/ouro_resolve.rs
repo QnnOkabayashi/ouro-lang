@@ -63,7 +63,7 @@ impl Builtin {
 
 #[derive(Copy, Clone, Debug)]
 pub enum Referent {
-    Local { node: Node, scope_id: ScopeId },
+    Local { def: Node, scope_id: ScopeId },
     Builtin(Builtin),
 }
 
@@ -79,7 +79,7 @@ impl Referent {
 #[derive(Debug)]
 pub struct Resolve {
     pub ref_to_referent: Box<IndexSlice<SynRef, [Option<Referent>]>>,
-    pub errors: Box<[Error]>,
+    pub errors: Vec<Error>,
     /// Points to the FnIdent of a top level main function, if any.
     pub top_level_main: Option<Node>,
 }
@@ -106,20 +106,16 @@ impl<'a> Interner<'a> {
 }
 
 pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> Resolve {
-    let mut next_scope_id = Counter::<ScopeId>::new();
-    let root_scope = next_scope_id.next();
-    let mut open_scopes = vec![];
-    let mut curr_scope = root_scope;
-    let mut interner = Interner::default();
+    let mut int = Interner::default();
     let builtins = [
-        (interner.make_symbol("i32"), Referent::Builtin(Builtin::I32)),
-        (
-            interner.make_symbol("type"),
-            Referent::Builtin(Builtin::Type),
-        ),
+        (int.make_symbol("i32"), Referent::Builtin(Builtin::I32)),
+        (int.make_symbol("type"), Referent::Builtin(Builtin::Type)),
     ];
-    let sym_main = interner.make_symbol("main");
+    let sym_main = int.make_symbol("main");
 
+    let mut next_scope_id = Counter::<ScopeId>::new();
+    let mut open_scopes = vec![];
+    let mut curr_scope = next_scope_id.next();
     let mut top_level_main = None;
     let mut insts = Vec::new();
     for (node, node_impl) in parse.nodes.iter_enumerated() {
@@ -127,7 +123,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
         match node_impl.kind {
             FnIdent(_) | FnParamsIdent(_) | LetIdent(_) | ConstIdent(_) => {
                 let symbol =
-                    interner.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input));
+                    int.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input));
 
                 // If this is a function that is top level and is named main
                 if matches!(node_impl.kind, FnIdent(_))
@@ -140,7 +136,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
             }
             ExprIdent(syn_ref) => {
                 insts.push(Inst::Ref(
-                    interner.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input)),
+                    int.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input)),
                     syn_ref,
                 ));
             }
@@ -167,9 +163,9 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
 
     let mut open_scopes_table: Box<IndexSlice<ScopeId, [bool]>> =
         index_box![false; next_scope_id.next.index()];
-    open_scopes_table[root_scope] = true;
+    open_scopes_table[curr_scope] = true;
 
-    let num_symbols = interner.dedup.len();
+    let num_symbols = int.dedup.len();
     let mut symbols: Box<IndexSlice<Symbol, [Option<Referent>]>> = index_box![None; num_symbols];
 
     for (symbol, def_slot) in builtins {
@@ -196,7 +192,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                         return;
                     }
                     symbol_to_referent[symbol] = Some(Referent::Local {
-                        node: def,
+                        def,
                         scope_id: curr_scope,
                     });
                 }
@@ -219,7 +215,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                     curr_scope = xor.xor(prev);
                     let top_scope = prev.index().max(curr_scope.index());
 
-                    open_scopes_table[top_scope] ^= true;
+                    open_scopes_table[top_scope] = !open_scopes_table[top_scope];
                 }
             }
         };
@@ -241,7 +237,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
 
     Resolve {
         ref_to_referent,
-        errors: errors.into_boxed_slice(),
+        errors,
         top_level_main,
     }
 }
