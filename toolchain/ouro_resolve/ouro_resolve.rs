@@ -22,23 +22,18 @@ ouro_index_vec::define_index_type! {
 
 #[derive(Copy, Clone, Debug)]
 struct ScopeXor {
-    a: ScopeId,
-    b: ScopeId,
+    xor: u32,
 }
 
 impl ScopeXor {
     fn new(a: ScopeId, b: ScopeId) -> Self {
-        ScopeXor { a, b }
+        ScopeXor {
+            xor: a.raw() ^ b.raw(),
+        }
     }
 
     fn xor(self, a: ScopeId) -> ScopeId {
-        if a == self.a {
-            self.b
-        } else if a == self.b {
-            self.a
-        } else {
-            panic!("wasn't one of the original two")
-        }
+        ScopeId::from_raw(self.xor ^ a.raw())
     }
 }
 
