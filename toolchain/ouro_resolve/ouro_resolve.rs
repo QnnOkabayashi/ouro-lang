@@ -20,30 +20,11 @@ ouro_index_vec::define_index_type! {
     pub struct ScopeId = u32;
 }
 
-#[derive(Copy, Clone, Debug)]
-struct ScopeXor {
-    xor: u32,
-}
-
-impl ScopeXor {
-    fn new(a: ScopeId, b: ScopeId) -> Self {
-        ScopeXor {
-            xor: a.raw() ^ b.raw(),
-        }
-    }
-
-    fn xor(self, a: ScopeId) -> ScopeId {
-        ScopeId::from_raw(self.xor ^ a.raw())
-    }
-}
-
 #[derive(Copy, Clone)]
 enum Inst {
-    Def(Symbol, Node),
+    Def(Symbol, Node, ScopeId),
     Ref(Symbol, SynRef),
-    /// Each Inst::ScopeTransition has exactly one matching pair with the same ScopeId.
-    /// These two form the edges of a scope.
-    ScopeTransition(ScopeXor),
+    ScopeToggle(ScopeId),
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -121,6 +102,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
     for (node, node_impl) in parse.nodes.iter_enumerated() {
         use NodeKind::*;
         match node_impl.kind {
+            // Def
             FnIdent(_) | FnParamsIdent(_) | LetIdent(_) | ConstIdent(_) => {
                 let symbol =
                     int.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input));
@@ -132,8 +114,9 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                 {
                     top_level_main = Some(node);
                 }
-                insts.push(Inst::Def(symbol, node));
+                insts.push(Inst::Def(symbol, node, curr_scope));
             }
+            // Ref
             ExprIdent(syn_ref) => {
                 insts.push(Inst::Ref(
                     int.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input)),
@@ -142,16 +125,14 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
             }
             StructBodyBegin | FnParams | ExprBlock => {
                 open_scopes.push(curr_scope);
-                let prev_scope = curr_scope;
                 curr_scope = next_scope_id.next();
-                insts.push(Inst::ScopeTransition(ScopeXor::new(prev_scope, curr_scope)));
+                insts.push(Inst::ScopeToggle(curr_scope));
             }
             StructBodyEnd(_) | FnBodyEnd(_) | ExprBlockEnd(_) => {
-                let prev_scope = curr_scope;
+                insts.push(Inst::ScopeToggle(curr_scope));
                 curr_scope = open_scopes
                     .pop()
                     .expect("should be associated with a start of the scope");
-                insts.push(Inst::ScopeTransition(ScopeXor::new(prev_scope, curr_scope)));
             }
             _ => {
                 // The node isn't relevant for name resolution.
@@ -179,7 +160,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
     let mut resolve_inst =
         |inst, symbol_to_referent: &mut IndexSlice<Symbol, [Option<Referent>]>| {
             match inst {
-                Inst::Def(symbol, def) => {
+                Inst::Def(symbol, def, scope_id) => {
                     if let Some(existing) = symbol_to_referent[symbol]
                         .filter(|referent| referent.exists(&open_scopes_table))
                     {
@@ -191,10 +172,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                         });
                         return;
                     }
-                    symbol_to_referent[symbol] = Some(Referent::Local {
-                        def,
-                        scope_id: curr_scope,
-                    });
+                    symbol_to_referent[symbol] = Some(Referent::Local { def, scope_id });
                 }
                 Inst::Ref(symbol, syn_ref) => {
                     // We found a node that is a ref.
@@ -210,12 +188,8 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                         "ambiguous defs should have been caught when def was added"
                     );
                 }
-                Inst::ScopeTransition(xor) => {
-                    let prev = curr_scope;
-                    curr_scope = xor.xor(prev);
-                    let top_scope = prev.index().max(curr_scope.index());
-
-                    open_scopes_table[top_scope] = !open_scopes_table[top_scope];
+                Inst::ScopeToggle(scope_id) => {
+                    open_scopes_table[scope_id] = !open_scopes_table[scope_id];
                 }
             }
         };
