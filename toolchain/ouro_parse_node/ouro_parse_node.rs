@@ -60,27 +60,27 @@ pub enum NodeKind {
 }
 
 impl NodeKind {
-    pub fn is_terminator(self) -> bool {
-        matches!(
-            self,
-            NodeKind::StructFieldComma
-                | NodeKind::StructBodyEnd
-                | NodeKind::FnParamsEnd
-                | NodeKind::FnBodyEnd
-                | NodeKind::ExprBlockEnd
-                | NodeKind::ExprCallEnd
-        )
-    }
-
     pub fn is_introducer(self) -> bool {
         matches!(
             self,
             NodeKind::Struct
+                | NodeKind::StructFieldIdent
                 | NodeKind::Fn
                 | NodeKind::FnParams
                 | NodeKind::ExprBlock
                 | NodeKind::ExprCall
-                | NodeKind::StructFieldIdent
+        )
+    }
+
+    pub fn is_terminator(self) -> bool {
+        matches!(
+            self,
+            NodeKind::StructBodyEnd
+                | NodeKind::StructFieldComma
+                | NodeKind::FnBodyEnd
+                | NodeKind::FnParamsEnd
+                | NodeKind::ExprBlockEnd
+                | NodeKind::ExprCallEnd
         )
     }
 }
