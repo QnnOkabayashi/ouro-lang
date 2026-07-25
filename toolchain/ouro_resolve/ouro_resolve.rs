@@ -103,14 +103,12 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
         use NodeKind::*;
         match node_impl.kind {
             // Def
-            FnIdent(_) | FnParamsIdent(_) | LetIdent(_) | ConstIdent(_) => {
+            FnIdent | FnParamsIdent | LetIdent | ConstIdent => {
                 let symbol =
                     int.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input));
 
                 // If this is a function that is top level and is named main
-                if matches!(node_impl.kind, FnIdent(_))
-                    && open_scopes.is_empty()
-                    && symbol == sym_main
+                if matches!(node_impl.kind, FnIdent) && open_scopes.is_empty() && symbol == sym_main
                 {
                     top_level_main = Some(node);
                 }

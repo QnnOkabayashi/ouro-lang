@@ -1,5 +1,5 @@
 use ouro_index_vec::{Counter, IndexSlice, IndexVec};
-use ouro_parse_node::{Node, NodeImpl, NodeKind, SemRef, SubtreeSize, SynDef, SynRef, SynStruct};
+use ouro_parse_node::{Node, NodeImpl, NodeKind, SemRef, SubtreeSize, SynRef, SynStruct};
 use ouro_tokenize::{Token, TokenImpl};
 
 struct ParseTree {
@@ -99,7 +99,6 @@ impl<'a> Cursor<'a> {
 struct Parser<'a> {
     cursor: Cursor<'a>,
     parse_tree: ParseTree,
-    syn_defs: Counter<SynDef>,
     syn_refs: Counter<SynRef>,
     sem_refs: Counter<SemRef>,
     syn_structs: Counter<SynStruct>,
@@ -110,7 +109,6 @@ impl<'a> Parser<'a> {
         Parser {
             cursor: Cursor::new(tokens),
             parse_tree: ParseTree::with_capacity(tokens.len()),
-            syn_defs: Counter::new(),
             syn_refs: Counter::new(),
             sem_refs: Counter::new(),
             syn_structs: Counter::new(),
@@ -158,10 +156,8 @@ impl<'a> Parser<'a> {
     fn parse_fn(&mut self) -> Result<(), Error> {
         self.parse_tree
             .push_introducer(self.cursor.eat(TokenImpl::Fn)?, NodeKind::Fn);
-        self.parse_tree.push(
-            self.cursor.eat(TokenImpl::Ident)?,
-            NodeKind::FnIdent(self.syn_defs.next()),
-        );
+        self.parse_tree
+            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::FnIdent);
         self.parse_fn_params()?;
         self.parse_tree.push(
             self.cursor.eat(TokenImpl::OpenBrace)?,
@@ -197,10 +193,8 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_fn_param(&mut self) -> Result<(), Error> {
-        self.parse_tree.push(
-            self.cursor.eat(TokenImpl::Ident)?,
-            NodeKind::FnParamsIdent(self.syn_defs.next()),
-        );
+        self.parse_tree
+            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::FnParamsIdent);
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
         Ok(())
@@ -223,8 +217,7 @@ impl<'a> Parser<'a> {
         let eq = self.cursor.eat(TokenImpl::Eq)?;
         self.parse_expr()?;
         self.parse_tree.push(eq, NodeKind::LetEq);
-        self.parse_tree
-            .push(ident, NodeKind::LetIdent(self.syn_defs.next()));
+        self.parse_tree.push(ident, NodeKind::LetIdent);
         self.parse_tree
             .push(self.cursor.eat(TokenImpl::Semi)?, NodeKind::LetSemi);
         Ok(())
@@ -238,8 +231,7 @@ impl<'a> Parser<'a> {
         let eq = self.cursor.eat(TokenImpl::Eq)?;
         self.parse_expr()?;
         self.parse_tree.push(eq, NodeKind::ConstEq);
-        self.parse_tree
-            .push(ident, NodeKind::ConstIdent(self.syn_defs.next()));
+        self.parse_tree.push(ident, NodeKind::ConstIdent);
         self.parse_tree
             .push(self.cursor.eat(TokenImpl::Semi)?, NodeKind::ConstSemi);
         Ok(())
@@ -390,7 +382,6 @@ pub fn parse(tokens: &IndexSlice<Token, [TokenImpl]>) -> Parse {
     Parse {
         nodes: parser.parse_tree.nodes.into_boxed_slice(),
         syn_refs: parser.syn_refs,
-        syn_defs: parser.syn_defs,
         ok,
     }
 }
@@ -399,6 +390,5 @@ pub fn parse(tokens: &IndexSlice<Token, [TokenImpl]>) -> Parse {
 pub struct Parse {
     pub nodes: Box<IndexSlice<Node, [NodeImpl]>>,
     pub syn_refs: Counter<SynRef>,
-    pub syn_defs: Counter<SynDef>,
     pub ok: Result<(), Error>,
 }

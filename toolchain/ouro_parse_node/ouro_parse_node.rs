@@ -23,12 +23,6 @@ ouro_index_vec::define_index_type! {
 }
 
 ouro_index_vec::define_index_type! {
-    /// A syntactic definition.
-    pub struct SynDef = u32;
-    DEBUG_FORMAT = "SynDef({})";
-}
-
-ouro_index_vec::define_index_type! {
     /// A semantic reference.
     pub struct SemRef = u32;
     DEBUG_FORMAT = "SemRef({})";
@@ -46,18 +40,18 @@ pub enum NodeKind {
     StructFieldComma(SubtreeSize),
     StructBodyEnd(SubtreeSize),
     Fn,
-    FnIdent(SynDef),
+    FnIdent,
     FnParams,
-    FnParamsIdent(SynDef),
+    FnParamsIdent,
     FnParamsEnd(SubtreeSize),
     FnBodyBegin,
     FnBodyEnd(SubtreeSize),
     Let,
-    LetIdent(SynDef),
+    LetIdent,
     LetEq,
     LetSemi,
     Const,
-    ConstIdent(SynDef),
+    ConstIdent,
     ConstEq,
     ConstSemi,
     ExprAdd,
