@@ -9,5 +9,5 @@ expression: "case! { const CallCall = foo()(); }"
 │ ╭─ExprCall "(" 22..23
 ├─ExprCallEnd(SubtreeSize(1)) ")" 23..24
 ├─ConstEq "=" 15..16
-├─ConstIdent(SynDef(0)) "CallCall" 6..14
+├─ConstIdent "CallCall" 6..14
 ├─ConstSemi ";" 24..25
