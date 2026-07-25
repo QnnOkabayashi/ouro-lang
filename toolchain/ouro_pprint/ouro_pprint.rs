@@ -24,7 +24,7 @@ pub fn pprint(parse: &Parse, mut f: impl FnMut(Node, &mut String)) -> String {
             indent += 1;
             Char::Introducer
         } else {
-            if node_impl.kind.has_subtree_size() {
+            if node_impl.kind.is_terminator() {
                 indent -= 1;
             }
             Char::Leaf

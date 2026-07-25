@@ -60,7 +60,7 @@ pub enum NodeKind {
 }
 
 impl NodeKind {
-    pub fn has_subtree_size(self) -> bool {
+    pub fn is_terminator(self) -> bool {
         matches!(
             self,
             NodeKind::StructFieldComma
