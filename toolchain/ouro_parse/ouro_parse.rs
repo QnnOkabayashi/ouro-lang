@@ -4,7 +4,6 @@ use ouro_tokenize::{Token, TokenImpl};
 
 struct ParseTree {
     nodes: IndexVec<Node, NodeImpl>,
-    subtree_sizes_side_vec: Vec<SubtreeSize>,
     subtree_sizes: Vec<u32>,
 }
 
@@ -12,7 +11,6 @@ impl ParseTree {
     fn with_capacity(capacity: usize) -> Self {
         ParseTree {
             nodes: IndexVec::with_capacity(capacity),
-            subtree_sizes_side_vec: Vec::new(),
             // We start off with an entry, which tracks the number of nodes in the whole file.
             subtree_sizes: vec![0],
         }
@@ -34,7 +32,6 @@ impl ParseTree {
 
     fn push_terminator(&mut self, token: Token, kind: fn(SubtreeSize) -> NodeKind) {
         let subtree_size = self.subtree_sizes.pop().expect("Unmatched terminator");
-        self.subtree_sizes_side_vec.push(SubtreeSize(subtree_size));
         self.increment_current_subtree_size();
         self.nodes.push(NodeImpl {
             token,
@@ -374,7 +371,6 @@ pub fn parse(tokens: &IndexSlice<Token, [TokenImpl]>) -> Parse {
     let ok = parser.parse_struct_body();
     Parse {
         nodes: parser.parse_tree.nodes.into_boxed_slice(),
-        subtree_sizes_side_vec: parser.parse_tree.subtree_sizes_side_vec,
         syn_refs: parser.syn_refs,
         ok,
     }
@@ -383,7 +379,6 @@ pub fn parse(tokens: &IndexSlice<Token, [TokenImpl]>) -> Parse {
 #[derive(Debug)]
 pub struct Parse {
     pub nodes: Box<IndexSlice<Node, [NodeImpl]>>,
-    pub subtree_sizes_side_vec: Vec<SubtreeSize>,
     pub syn_refs: Counter<SynRef>,
     pub ok: Result<(), Error>,
 }
