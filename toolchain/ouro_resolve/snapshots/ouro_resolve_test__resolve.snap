@@ -12,18 +12,18 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 │ ├─7 FnParamsEnd(SubtreeSize(5)) ")"
 │ ├─8 FnBodyBegin "{"
 │ ├─9 Let "let"
-│ ├─10 ExprIdent(SynRef(2)) "add" -> Some(Local { def: 24, scope_id: 0 })
-│ │ ╭─11 ExprCall "("
-│ │ ├─12 ExprIdent(SynRef(3)) "a" -> Some(Local { def: 3, scope_id: 1 })
-│ │ ├─13 ExprIdent(SynRef(4)) "a" -> Some(Local { def: 3, scope_id: 1 })
-│ │ ├─14 ExprMul "*"
-│ │ ├─15 ExprCallComma ","
-│ │ ├─16 ExprIdent(SynRef(5)) "b" -> Some(Local { def: 5, scope_id: 1 })
-│ ├─17 ExprCallEnd(SubtreeSize(6)) ")"
-│ ├─18 LetEq "="
-│ ├─19 LetIdent "c"
+│ ├─10 LetIdent "c"
+│ ├─11 LetEq "="
+│ ├─12 ExprIdent(SynRef(2)) "add" -> Some(Local { def: 24, scope_id: 0 })
+│ │ ╭─13 ExprCall "("
+│ │ ├─14 ExprIdent(SynRef(3)) "a" -> Some(Local { def: 3, scope_id: 1 })
+│ │ ├─15 ExprIdent(SynRef(4)) "a" -> Some(Local { def: 3, scope_id: 1 })
+│ │ ├─16 ExprMul "*"
+│ │ ├─17 ExprCallComma ","
+│ │ ├─18 ExprIdent(SynRef(5)) "b" -> Some(Local { def: 5, scope_id: 1 })
+│ ├─19 ExprCallEnd(SubtreeSize(6)) ")"
 │ ├─20 LetSemi ";"
-│ ├─21 ExprIdent(SynRef(6)) "c" -> Some(Local { def: 19, scope_id: 1 })
+│ ├─21 ExprIdent(SynRef(6)) "c" -> Some(Local { def: 10, scope_id: 1 })
 ├─22 FnBodyEnd(SubtreeSize(11)) "}"
 │ ╭─23 Fn "fn"
 │ ├─24 FnIdent "add"

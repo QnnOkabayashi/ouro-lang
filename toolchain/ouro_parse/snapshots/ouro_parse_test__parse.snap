@@ -25,9 +25,9 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ │ │ ├─FnParamsEnd(SubtreeSize(1)) ")" 73..74
 │ │ │ ├─FnBodyBegin "{" 75..76
 │ │ │ ├─Let "let" 77..80
-│ │ │ ├─ExprInt "4" 85..86
-│ │ │ ├─LetEq "=" 83..84
 │ │ │ ├─LetIdent "a" 81..82
+│ │ │ ├─LetEq "=" 83..84
+│ │ │ ├─ExprInt "4" 85..86
 │ │ │ ├─LetSemi ";" 86..87
 │ │ │ ├─ExprInt "0b11_11" 88..95
 │ │ ├─FnBodyEnd(SubtreeSize(10)) "}" 96..97

@@ -209,12 +209,11 @@ impl<'a> Parser<'a> {
 
     fn parse_let(&mut self) -> Result<(), Error> {
         self.parse_tree.push(self.cursor.advance_1(), NodeKind::Let);
-        // Parsed as `let expr = ident;` to make analysis easier.
-        let ident = self.cursor.eat(TokenImpl::Ident)?;
-        let eq = self.cursor.eat(TokenImpl::Eq)?;
+        self.parse_tree
+            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::LetIdent);
+        self.parse_tree
+            .push(self.cursor.eat(TokenImpl::Eq)?, NodeKind::LetEq);
         self.parse_expr()?;
-        self.parse_tree.push(eq, NodeKind::LetEq);
-        self.parse_tree.push(ident, NodeKind::LetIdent);
         self.parse_tree
             .push(self.cursor.eat(TokenImpl::Semi)?, NodeKind::LetSemi);
         Ok(())
