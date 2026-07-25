@@ -53,7 +53,7 @@ fn test_resolve() {
 #[test]
 fn test_struct_visible_in_its_body() {
     insta::assert_snapshot!(case! {
-        let Thing = struct {
+        const Thing = struct {
             fn new(a: 1) {
                 Thing
             }

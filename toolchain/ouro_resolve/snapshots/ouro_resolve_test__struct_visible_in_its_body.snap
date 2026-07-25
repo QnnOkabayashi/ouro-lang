@@ -1,10 +1,10 @@
 ---
 source: toolchain/ouro_resolve/ouro_resolve_test.rs
-expression: "case! { let Thing = struct { fn new(a: 1) { Thing } }; }"
+expression: "case! { const Thing = struct { fn new(a: 1) { Thing } }; }"
 ---
-├─0 Let "let"
-├─1 LetIdent "Thing"
-├─2 LetEq "="
+├─0 Const "const"
+├─1 ConstIdent "Thing"
+├─2 ConstEq "="
 │ ╭─3 Struct "struct"
 │ ├─4 StructBodyBegin "{"
 │ │ ╭─5 Fn "fn"
@@ -17,4 +17,4 @@ expression: "case! { let Thing = struct { fn new(a: 1) { Thing } }; }"
 │ │ ├─12 ExprIdent(SynRef(0)) "Thing" -> Some(Local { def: 1, scope_id: 0 })
 │ ├─13 FnBodyEnd "}"
 ├─14 StructBodyEnd "}"
-├─15 LetSemi ";"
+├─15 ConstSemi ";"
