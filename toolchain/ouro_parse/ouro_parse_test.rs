@@ -7,7 +7,7 @@ fn pprint_parse_tree(input: &str) -> String {
     let parse = parse(&tokenize.tokens);
     assert!(parse.ok.is_ok());
 
-    pprint(&parse.nodes, |node, out| {
+    pprint(&parse, |node, out| {
         let node_impl = &parse.nodes[node];
         use std::fmt::Write as _;
 

@@ -12,7 +12,7 @@ fn pprint_name_resolve(input: &str) -> String {
     parse.ok.as_ref().unwrap();
     let resolve = resolve(&parse, &tokenize.ends, input);
 
-    let mut output = pprint(&parse.nodes, |node, out| {
+    let mut output = pprint(&parse, |node, out| {
         let node_impl = &parse.nodes[node];
         let text = ouro_tokenize::span(node_impl.token, &tokenize.ends).lookup(input);
 

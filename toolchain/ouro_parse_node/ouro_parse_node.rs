@@ -63,14 +63,15 @@ pub enum NodeKind {
 }
 
 impl NodeKind {
-    pub fn subtree_size(self) -> Option<SubtreeSize> {
+    pub fn has_subtree_size(self) -> bool {
         match self {
-            NodeKind::StructBodyEnd(subtree_size)
-            | NodeKind::FnParamsEnd(subtree_size)
-            | NodeKind::FnBodyEnd(subtree_size)
-            | NodeKind::ExprBlockEnd(subtree_size)
-            | NodeKind::ExprCallEnd(subtree_size) => Some(subtree_size),
-            _ => None,
+            NodeKind::StructFieldComma(_)
+            | NodeKind::StructBodyEnd(_)
+            | NodeKind::FnParamsEnd(_)
+            | NodeKind::FnBodyEnd(_)
+            | NodeKind::ExprBlockEnd(_)
+            | NodeKind::ExprCallEnd(_) => true,
+            _ => false,
         }
     }
 }

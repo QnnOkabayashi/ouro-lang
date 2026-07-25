@@ -541,6 +541,7 @@ name = "ouro_pprint"
 version = "0.1.0"
 dependencies = [
  "ouro_index_vec",
+ "ouro_parse",
  "ouro_parse_node",
  "ouro_span",
 ]

@@ -1,5 +1,5 @@
-use ouro_index_vec::IndexSlice;
-use ouro_parse_node::{Node, NodeImpl, SubtreeSize};
+use ouro_parse::Parse;
+use ouro_parse_node::{Node, SubtreeSize};
 
 #[derive(Copy, Clone)]
 enum Char {
@@ -16,10 +16,9 @@ impl Char {
     }
 }
 
-pub fn pprint(
-    nodes: &IndexSlice<Node, [NodeImpl]>,
-    mut print_node: impl FnMut(Node, &mut String),
-) -> String {
+pub fn pprint(parse: &Parse, mut f: impl FnMut(Node, &mut String)) -> String {
+    let nodes = &parse.nodes;
+    let mut subtree_sizes = parse.subtree_sizes_side_vec.iter().rev();
     // Go through nodes backwards and fill this up, then when we print the nodes with
     // a forward pass its indentation will be at the top of the stack :)
     let mut indentation = Vec::with_capacity(nodes.len());
@@ -44,8 +43,8 @@ pub fn pprint(
 
         indentation.push((remaining_stack.len(), ch));
 
-        if let Some(SubtreeSize(subtree_size)) = node_impl.kind.subtree_size() {
-            remaining_stack.push(subtree_size);
+        if node_impl.kind.has_subtree_size() {
+            remaining_stack.push(subtree_sizes.next().unwrap().0);
         }
     }
 
@@ -58,7 +57,7 @@ pub fn pprint(
         out.push(ch.character());
         out.push('─');
         // out.push('▶');
-        print_node(node, &mut out);
+        f(node, &mut out);
         out.push('\n');
     }
     out

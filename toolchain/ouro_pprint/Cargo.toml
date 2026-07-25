@@ -10,3 +10,4 @@ path = "ouro_pprint.rs"
 ouro_index_vec = { path = "../ouro_index_vec" }
 ouro_span = { path = "../ouro_span" }
 ouro_parse_node = { path = "../ouro_parse_node" }
+ouro_parse = { path = "../ouro_parse" }

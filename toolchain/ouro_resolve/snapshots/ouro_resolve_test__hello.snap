@@ -2,17 +2,17 @@
 source: toolchain/ouro_resolve/ouro_resolve_test.rs
 expression: "case! { fn Vec(T: type) { struct { t: T, } } fn main() {} }"
 ---
-├─0 Fn "fn"
-├─1 FnIdent "Vec"
+│ ╭─0 Fn "fn"
+│ ├─1 FnIdent "Vec"
 │ │ ╭─2 FnParams "("
 │ │ ├─3 FnParamsIdent "T"
 │ │ ├─4 ExprIdent(SynRef(0)) "type" -> Some(Builtin(Type))
-│ ╭─5 FnParamsEnd(SubtreeSize(3)) ")"
+│ ├─5 FnParamsEnd(SubtreeSize(3)) ")"
 │ ├─6 FnBodyBegin "{"
-│ ├─7 Struct "struct"
-│ ├─8 StructBodyBegin "{"
-│ │ ╭─9 StructFieldIdent "t"
-│ │ ├─10 ExprIdent(SynRef(1)) "T" -> Some(Local { def: 3, scope_id: 1 })
+│ │ ╭─7 Struct "struct"
+│ │ ├─8 StructBodyBegin "{"
+│ │ │ ╭─9 StructFieldIdent "t"
+│ │ │ ├─10 ExprIdent(SynRef(1)) "T" -> Some(Local { def: 3, scope_id: 1 })
 │ │ ├─11 StructFieldComma(SubtreeSize(2)) ","
 │ ├─12 StructBodyEnd(SubtreeSize(3)) "}"
 ├─13 FnBodyEnd(SubtreeSize(5)) "}"
