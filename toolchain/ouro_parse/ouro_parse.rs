@@ -374,7 +374,7 @@ pub fn parse(tokens: &IndexSlice<Token, [TokenImpl]>) -> Parse {
     let mut parser = Parser::new(tokens);
     let ok = parser.parse_struct_body();
     Parse {
-        nodes: parser.nodes.into_boxed_slice(),
+        nodes: parser.nodes,
         syn_refs: parser.syn_refs,
         ok,
     }
@@ -382,7 +382,7 @@ pub fn parse(tokens: &IndexSlice<Token, [TokenImpl]>) -> Parse {
 
 #[derive(Debug)]
 pub struct Parse {
-    pub nodes: Box<IndexSlice<Node, [NodeImpl]>>,
+    pub nodes: IndexVec<Node, NodeImpl>,
     pub syn_refs: Counter<SynRef>,
     pub ok: Result<(), Error>,
 }
