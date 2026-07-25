@@ -214,7 +214,7 @@ async fn main() {
                     },
                 });
 
-                return future::ready(Ok(Some(response)));
+                future::ready(Ok(Some(response)))
             })
             .notification::<lsp_notification!("initialized")>(
                 |_, _params| ControlFlow::Continue(()),

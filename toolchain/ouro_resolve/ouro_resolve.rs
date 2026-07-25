@@ -4,7 +4,6 @@ use ouro_parse_node::{Node, NodeKind, SynRef};
 use ouro_span::Byte;
 use ouro_tokenize::Token;
 use std::collections::HashMap;
-use std::mem;
 
 #[derive(Debug)]
 pub struct Error {
@@ -180,7 +179,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                         // Not referring to anything.
                         return;
                     };
-                    let previous_def = mem::replace(&mut ref_to_referent[syn_ref], Some(referent));
+                    let previous_def = ref_to_referent[syn_ref].replace(referent);
                     assert!(
                         previous_def.is_none(),
                         "ambiguous defs should have been caught when def was added"

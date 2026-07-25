@@ -1,5 +1,5 @@
 use ouro_parse::Parse;
-use ouro_parse_node::{Node, SubtreeSize};
+use ouro_parse_node::Node;
 
 #[derive(Copy, Clone)]
 enum Char {
