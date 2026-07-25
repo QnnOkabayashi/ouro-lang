@@ -9,7 +9,7 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 │ │ ├─4 ExprIdent(SynRef(0)) "i32" -> Some(Builtin(I32))
 │ │ ├─5 FnParamsIdent "b"
 │ │ ├─6 ExprIdent(SynRef(1)) "i32" -> Some(Builtin(I32))
-│ ├─7 FnParamsEnd(SubtreeSize(5)) ")"
+│ ├─7 FnParamsEnd ")"
 │ ├─8 FnBodyBegin "{"
 │ ├─9 Let "let"
 │ ├─10 LetIdent "c"
@@ -21,10 +21,10 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 │ │ ├─16 ExprMul "*"
 │ │ ├─17 ExprCallComma ","
 │ │ ├─18 ExprIdent(SynRef(5)) "b" -> Some(Local { def: 5, scope_id: 1 })
-│ ├─19 ExprCallEnd(SubtreeSize(6)) ")"
+│ ├─19 ExprCallEnd ")"
 │ ├─20 LetSemi ";"
 │ ├─21 ExprIdent(SynRef(6)) "c" -> Some(Local { def: 10, scope_id: 1 })
-├─22 FnBodyEnd(SubtreeSize(11)) "}"
+├─22 FnBodyEnd "}"
 │ ╭─23 Fn "fn"
 │ ├─24 FnIdent "add"
 │ │ ╭─25 FnParams "("
@@ -32,11 +32,11 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 │ │ ├─27 ExprIdent(SynRef(7)) "i32" -> Some(Builtin(I32))
 │ │ ├─28 FnParamsIdent "b"
 │ │ ├─29 ExprIdent(SynRef(8)) "i32" -> Some(Builtin(I32))
-│ ├─30 FnParamsEnd(SubtreeSize(5)) ")"
+│ ├─30 FnParamsEnd ")"
 │ ├─31 FnBodyBegin "{"
 │ ├─32 ExprIdent(SynRef(9)) "a" -> Some(Local { def: 26, scope_id: 2 })
 │ ├─33 ExprIdent(SynRef(10)) "b" -> Some(Local { def: 28, scope_id: 2 })
 │ ├─34 ExprAdd "+"
 │ ├─35 ExprIdent(SynRef(11)) "c" -> None
 │ ├─36 ExprAdd "+"
-├─37 FnBodyEnd(SubtreeSize(9)) "}"
+├─37 FnBodyEnd "}"

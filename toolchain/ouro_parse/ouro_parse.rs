@@ -1,5 +1,5 @@
 use ouro_index_vec::{Counter, IndexSlice, IndexVec};
-use ouro_parse_node::{Node, NodeImpl, NodeKind, SubtreeSize, SynRef};
+use ouro_parse_node::{Node, NodeImpl, NodeKind, SynRef};
 use ouro_tokenize::{Token, TokenImpl};
 
 struct ParseTree {
@@ -23,20 +23,6 @@ impl ParseTree {
     fn push(&mut self, token: Token, kind: NodeKind) {
         self.increment_current_subtree_size();
         self.nodes.push(NodeImpl { token, kind });
-    }
-
-    fn push_introducer(&mut self, token: Token, kind: NodeKind) {
-        self.subtree_sizes.push(1);
-        self.nodes.push(NodeImpl { token, kind });
-    }
-
-    fn push_terminator(&mut self, token: Token, kind: fn(SubtreeSize) -> NodeKind) {
-        let subtree_size = self.subtree_sizes.pop().expect("Unmatched terminator");
-        self.increment_current_subtree_size();
-        self.nodes.push(NodeImpl {
-            token,
-            kind: kind(SubtreeSize(subtree_size)),
-        });
     }
 }
 
@@ -134,13 +120,13 @@ impl<'a> Parser<'a> {
 
     fn parse_struct(&mut self) -> Result<(), Error> {
         self.parse_tree
-            .push_introducer(self.cursor.eat(TokenImpl::Struct)?, NodeKind::Struct);
+            .push(self.cursor.eat(TokenImpl::Struct)?, NodeKind::Struct);
         self.parse_tree.push(
             self.cursor.eat(TokenImpl::OpenBrace)?,
             NodeKind::StructBodyBegin,
         );
         self.parse_struct_body()?;
-        self.parse_tree.push_terminator(
+        self.parse_tree.push(
             self.cursor.eat(TokenImpl::CloseBrace)?,
             NodeKind::StructBodyEnd,
         );
@@ -149,7 +135,7 @@ impl<'a> Parser<'a> {
 
     fn parse_fn(&mut self) -> Result<(), Error> {
         self.parse_tree
-            .push_introducer(self.cursor.eat(TokenImpl::Fn)?, NodeKind::Fn);
+            .push(self.cursor.eat(TokenImpl::Fn)?, NodeKind::Fn);
         self.parse_tree
             .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::FnIdent);
         self.parse_fn_params()?;
@@ -159,19 +145,19 @@ impl<'a> Parser<'a> {
         );
         self.parse_block_body()?;
         self.parse_tree
-            .push_terminator(self.cursor.eat(TokenImpl::CloseBrace)?, NodeKind::FnBodyEnd);
+            .push(self.cursor.eat(TokenImpl::CloseBrace)?, NodeKind::FnBodyEnd);
         Ok(())
     }
 
     fn parse_fn_params(&mut self) -> Result<(), Error> {
         self.parse_tree
-            .push_introducer(self.cursor.eat(TokenImpl::OpenParen)?, NodeKind::FnParams);
+            .push(self.cursor.eat(TokenImpl::OpenParen)?, NodeKind::FnParams);
         let mut accept_comma = false;
         loop {
             match self.cursor.peek() {
                 Some(TokenImpl::CloseParen) => {
                     self.parse_tree
-                        .push_terminator(self.cursor.advance_1(), NodeKind::FnParamsEnd);
+                        .push(self.cursor.advance_1(), NodeKind::FnParamsEnd);
                     return Ok(());
                 }
                 Some(TokenImpl::Comma) if accept_comma => {
@@ -278,9 +264,9 @@ impl<'a> Parser<'a> {
         match self.cursor.peek() {
             Some(TokenImpl::OpenBrace) => {
                 self.parse_tree
-                    .push_introducer(self.cursor.advance_1(), NodeKind::ExprBlock);
+                    .push(self.cursor.advance_1(), NodeKind::ExprBlock);
                 self.parse_block_body()?;
-                self.parse_tree.push_terminator(
+                self.parse_tree.push(
                     self.cursor.eat(TokenImpl::CloseBrace)?,
                     NodeKind::ExprBlockEnd,
                 );
@@ -323,15 +309,13 @@ impl<'a> Parser<'a> {
                 }
                 Some(TokenImpl::OpenParen) => {
                     self.parse_tree
-                        .push_introducer(self.cursor.advance_1(), NodeKind::ExprCall);
+                        .push(self.cursor.advance_1(), NodeKind::ExprCall);
                     let mut accept_comma = false;
                     loop {
                         match self.cursor.peek() {
                             Some(TokenImpl::CloseParen) => {
-                                self.parse_tree.push_terminator(
-                                    self.cursor.advance_1(),
-                                    NodeKind::ExprCallEnd,
-                                );
+                                self.parse_tree
+                                    .push(self.cursor.advance_1(), NodeKind::ExprCallEnd);
                                 break;
                             }
                             Some(TokenImpl::Comma) if accept_comma => {
@@ -352,13 +336,13 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_field_decl(&mut self) -> Result<(), Error> {
-        self.parse_tree.push_introducer(
+        self.parse_tree.push(
             self.cursor.eat(TokenImpl::Ident)?,
             NodeKind::StructFieldIdent,
         );
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
-        self.parse_tree.push_terminator(
+        self.parse_tree.push(
             self.cursor.eat(TokenImpl::Comma)?,
             NodeKind::StructFieldComma,
         );

@@ -125,7 +125,7 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
                 curr_scope = next_scope_id.next();
                 insts.push(Inst::ScopeToggle(curr_scope));
             }
-            StructBodyEnd(_) | FnBodyEnd(_) | ExprBlockEnd(_) => {
+            StructBodyEnd | FnBodyEnd | ExprBlockEnd => {
                 insts.push(Inst::ScopeToggle(curr_scope));
                 curr_scope = open_scopes
                     .pop()

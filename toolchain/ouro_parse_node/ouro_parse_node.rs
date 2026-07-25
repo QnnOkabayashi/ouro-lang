@@ -19,23 +19,20 @@ ouro_index_vec::define_index_type! {
 }
 
 #[derive(Copy, Clone, Debug)]
-pub struct SubtreeSize(pub u32);
-
-#[derive(Copy, Clone, Debug)]
 pub enum NodeKind {
     Pub,
     Struct,
     StructBodyBegin,
     StructFieldIdent,
-    StructFieldComma(SubtreeSize),
-    StructBodyEnd(SubtreeSize),
+    StructFieldComma,
+    StructBodyEnd,
     Fn,
     FnIdent,
     FnParams,
     FnParamsIdent,
-    FnParamsEnd(SubtreeSize),
+    FnParamsEnd,
     FnBodyBegin,
-    FnBodyEnd(SubtreeSize),
+    FnBodyEnd,
     Let,
     LetIdent,
     LetEq,
@@ -51,14 +48,14 @@ pub enum NodeKind {
     ExprNot,
     ExprNeg,
     ExprBlock,
-    ExprBlockEnd(SubtreeSize),
+    ExprBlockEnd,
     ExprIdent(SynRef),
     ExprInt,
     ExprDot,
     ExprField,
     ExprCall,
     ExprCallComma,
-    ExprCallEnd(SubtreeSize),
+    ExprCallEnd,
     ExprStr,
 }
 
@@ -66,12 +63,12 @@ impl NodeKind {
     pub fn has_subtree_size(self) -> bool {
         matches!(
             self,
-            NodeKind::StructFieldComma(_)
-                | NodeKind::StructBodyEnd(_)
-                | NodeKind::FnParamsEnd(_)
-                | NodeKind::FnBodyEnd(_)
-                | NodeKind::ExprBlockEnd(_)
-                | NodeKind::ExprCallEnd(_)
+            NodeKind::StructFieldComma
+                | NodeKind::StructBodyEnd
+                | NodeKind::FnParamsEnd
+                | NodeKind::FnBodyEnd
+                | NodeKind::ExprBlockEnd
+                | NodeKind::ExprCallEnd
         )
     }
 

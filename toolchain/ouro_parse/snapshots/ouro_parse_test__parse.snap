@@ -5,14 +5,14 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ ╭─Fn "fn" 0..2
 │ ├─FnIdent "a" 3..4
 │ │ ╭─FnParams "(" 4..5
-│ ├─FnParamsEnd(SubtreeSize(1)) ")" 5..6
+│ ├─FnParamsEnd ")" 5..6
 │ ├─FnBodyBegin "{" 7..8
 │ ├─ExprInt "1" 9..10
 │ ├─ExprInt "2" 13..14
 │ ├─ExprInt "3" 17..18
 │ ├─ExprMul "*" 15..16
 │ ├─ExprAdd "+" 11..12
-├─FnBodyEnd(SubtreeSize(9)) "}" 19..20
+├─FnBodyEnd "}" 19..20
 ├─Const "const" 21..26
 ├─ConstIdent "Foo" 27..30
 ├─ConstEq "=" 31..32
@@ -26,7 +26,7 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ │ │ ╭─Fn "fn" 63..65
 │ │ │ ├─FnIdent "foobar" 66..72
 │ │ │ │ ╭─FnParams "(" 72..73
-│ │ │ ├─FnParamsEnd(SubtreeSize(1)) ")" 73..74
+│ │ │ ├─FnParamsEnd ")" 73..74
 │ │ │ ├─FnBodyBegin "{" 75..76
 │ │ │ ├─Let "let" 77..80
 │ │ │ ├─LetIdent "a" 81..82
@@ -34,15 +34,15 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ │ │ ├─ExprInt "4" 85..86
 │ │ │ ├─LetSemi ";" 86..87
 │ │ │ ├─ExprInt "0b11_11" 88..95
-│ │ ├─FnBodyEnd(SubtreeSize(10)) "}" 96..97
-│ ├─StructBodyEnd(SubtreeSize(3)) "}" 98..99
+│ │ ├─FnBodyEnd "}" 96..97
+│ ├─StructBodyEnd "}" 98..99
 │ ├─ConstSemi ";" 99..100
-├─StructBodyEnd(SubtreeSize(7)) "}" 101..102
+├─StructBodyEnd "}" 101..102
 ├─ConstSemi ";" 102..103
 ├─Const "const" 104..109
 ├─ConstIdent "Baz" 110..113
 ├─ConstEq "=" 114..115
 │ ╭─Struct "struct" 116..122
 │ ├─StructBodyBegin "{" 123..124
-├─StructBodyEnd(SubtreeSize(2)) "}" 124..125
+├─StructBodyEnd "}" 124..125
 ├─ConstSemi ";" 125..126
