@@ -80,7 +80,7 @@ impl<'a> Parser<'a> {
             match self.cursor.peek() {
                 Some(TokenImpl::Fn) => self.parse_fn()?,
                 Some(TokenImpl::Ident) => self.parse_field_decl()?,
-                Some(TokenImpl::Let) => self.parse_let()?,
+                // Some(TokenImpl::Let) => self.parse_let()?,
                 Some(TokenImpl::Const) => self.parse_const()?,
                 _ => return Ok(()),
             }
