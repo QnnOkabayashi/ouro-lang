@@ -230,9 +230,7 @@ impl<'a> Parser<'a> {
             let kind = match self.cursor.peek() {
                 Some(TokenImpl::Plus) => NodeKind::ExprAdd,
                 Some(TokenImpl::Dash) => NodeKind::ExprSub,
-                _ => {
-                    return Ok(());
-                }
+                _ => return Ok(()),
             };
             let token = self.cursor.advance_1();
             self.parse_term()?;
@@ -242,14 +240,11 @@ impl<'a> Parser<'a> {
 
     fn parse_term(&mut self) -> Result<(), Error> {
         self.parse_factor()?;
-
         loop {
             let kind = match self.cursor.peek() {
                 Some(TokenImpl::Star) => NodeKind::ExprMul,
                 Some(TokenImpl::Slash) => NodeKind::ExprDiv,
-                _ => {
-                    return Ok(());
-                }
+                _ => return Ok(()),
             };
             let token = self.cursor.advance_1();
             self.parse_factor()?;
@@ -283,26 +278,23 @@ impl<'a> Parser<'a> {
                 });
             }
             Some(TokenImpl::Ident) => {
-                {
-                    let token = self.cursor.advance_1();
-                    let kind = NodeKind::ExprIdent(self.syn_refs.next());
-                    self.nodes.push(NodeImpl { token, kind });
-                };
+                self.nodes.push(NodeImpl {
+                    token: self.cursor.advance_1(),
+                    kind: NodeKind::ExprIdent(self.syn_refs.next()),
+                });
             }
             Some(TokenImpl::Int) => {
-                {
-                    let token = self.cursor.advance_1();
-                    let kind = NodeKind::ExprInt;
-                    self.nodes.push(NodeImpl { token, kind });
-                };
+                self.nodes.push(NodeImpl {
+                    token: self.cursor.advance_1(),
+                    kind: NodeKind::ExprInt,
+                });
             }
             Some(TokenImpl::Struct) => self.parse_struct()?,
             Some(TokenImpl::Str) => {
-                {
-                    let token = self.cursor.advance_1();
-                    let kind = NodeKind::ExprStr;
-                    self.nodes.push(NodeImpl { token, kind });
-                };
+                self.nodes.push(NodeImpl {
+                    token: self.cursor.advance_1(),
+                    kind: NodeKind::ExprStr,
+                });
             }
             actual => {
                 return Err(Error {
