@@ -74,4 +74,16 @@ impl NodeKind {
                 | NodeKind::ExprCallEnd(_)
         )
     }
+
+    pub fn is_introducer(self) -> bool {
+        matches!(
+            self,
+            NodeKind::Struct
+                | NodeKind::Fn
+                | NodeKind::FnParams
+                | NodeKind::ExprBlock
+                | NodeKind::ExprCall
+                | NodeKind::StructFieldIdent
+        )
+    }
 }
