@@ -7,11 +7,11 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ │ ╭─FnParams "(" 4..5
 │ ├─FnParamsEnd ")" 5..6
 │ ├─FnBodyBegin "{" 7..8
-│ ├─ExprInt "1" 9..10
-│ ├─ExprInt "2" 13..14
-│ ├─ExprInt "3" 17..18
-│ ├─ExprMul "*" 15..16
-│ ├─ExprAdd "+" 11..12
+│ ├─Expr(Int) "1" 9..10
+│ ├─Expr(Int) "2" 13..14
+│ ├─Expr(Int) "3" 17..18
+│ ├─Expr(Mul) "*" 15..16
+│ ├─Expr(Add) "+" 11..12
 ├─FnBodyEnd "}" 19..20
 ├─Const "const" 21..26
 ├─ConstIdent "Foo" 27..30
@@ -31,9 +31,9 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ │ │ ├─Let "let" 77..80
 │ │ │ ├─LetIdent "a" 81..82
 │ │ │ ├─LetEq "=" 83..84
-│ │ │ ├─ExprInt "4" 85..86
+│ │ │ ├─Expr(Int) "4" 85..86
 │ │ │ ├─LetSemi ";" 86..87
-│ │ │ ├─ExprInt "0b11_11" 88..95
+│ │ │ ├─Expr(Int) "0b11_11" 88..95
 │ │ ├─FnBodyEnd "}" 96..97
 │ ├─StructBodyEnd "}" 98..99
 │ ├─ConstSemi ";" 99..100

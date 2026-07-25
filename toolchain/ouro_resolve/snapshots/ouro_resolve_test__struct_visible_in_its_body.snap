@@ -11,10 +11,10 @@ expression: "case! { const Thing = struct { fn new(a: 1) { Thing } }; }"
 │ │ ├─6 FnIdent "new"
 │ │ │ ╭─7 FnParams "("
 │ │ │ ├─8 FnParamsIdent "a"
-│ │ │ ├─9 ExprInt "1"
+│ │ │ ├─9 Expr(Int) "1"
 │ │ ├─10 FnParamsEnd ")"
 │ │ ├─11 FnBodyBegin "{"
-│ │ ├─12 ExprIdent(SynRef(0)) "Thing" -> Some(Local { def: 1, scope_id: 0 })
+│ │ ├─12 Expr(Ident(SynRef(0))) "Thing" -> Some(Local { def: 1, scope_id: 0 })
 │ ├─13 FnBodyEnd "}"
 ├─14 StructBodyEnd "}"
 ├─15 ConstSemi ";"

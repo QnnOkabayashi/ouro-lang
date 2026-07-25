@@ -1,5 +1,5 @@
 use ouro_parse::parse;
-use ouro_parse_node::NodeKind;
+use ouro_parse_node::{ExprKind, NodeKind};
 use ouro_pprint::pprint;
 use ouro_resolve::*;
 use ouro_tokenize::tokenize;
@@ -17,7 +17,7 @@ fn pprint_name_resolve(input: &str) -> String {
         let text = ouro_tokenize::span(node_impl.token, &tokenize.ends).lookup(input);
 
         write!(out, "{node:?} {:?} {text:?}", node_impl.kind).unwrap();
-        if let NodeKind::ExprIdent(syn_ref) = parse.nodes[node].kind {
+        if let NodeKind::Expr(ExprKind::Ident(syn_ref)) = parse.nodes[node].kind {
             let def_node = resolve.ref_to_referent[syn_ref];
             write!(out, " -> {def_node:?}").unwrap();
         }

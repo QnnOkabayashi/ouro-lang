@@ -5,5 +5,5 @@ expression: "case! { const Name = \"Quinn\"; }"
 ├─Const "const" 0..5
 ├─ConstIdent "Name" 6..10
 ├─ConstEq "=" 11..12
-├─ExprStr "\"Quinn\"" 13..20
+├─Expr(Str) "\"Quinn\"" 13..20
 ├─ConstSemi ";" 20..21

@@ -6,37 +6,37 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 │ ├─1 FnIdent "foo"
 │ │ ╭─2 FnParams "("
 │ │ ├─3 FnParamsIdent "a"
-│ │ ├─4 ExprIdent(SynRef(0)) "i32" -> Some(Builtin(I32))
+│ │ ├─4 Expr(Ident(SynRef(0))) "i32" -> Some(Builtin(I32))
 │ │ ├─5 FnParamsIdent "b"
-│ │ ├─6 ExprIdent(SynRef(1)) "i32" -> Some(Builtin(I32))
+│ │ ├─6 Expr(Ident(SynRef(1))) "i32" -> Some(Builtin(I32))
 │ ├─7 FnParamsEnd ")"
 │ ├─8 FnBodyBegin "{"
 │ ├─9 Let "let"
 │ ├─10 LetIdent "c"
 │ ├─11 LetEq "="
-│ ├─12 ExprIdent(SynRef(2)) "add" -> Some(Local { def: 24, scope_id: 0 })
-│ │ ╭─13 ExprCall "("
-│ │ ├─14 ExprIdent(SynRef(3)) "a" -> Some(Local { def: 3, scope_id: 1 })
-│ │ ├─15 ExprIdent(SynRef(4)) "a" -> Some(Local { def: 3, scope_id: 1 })
-│ │ ├─16 ExprMul "*"
-│ │ ├─17 ExprCallComma ","
-│ │ ├─18 ExprIdent(SynRef(5)) "b" -> Some(Local { def: 5, scope_id: 1 })
-│ ├─19 ExprCallEnd ")"
+│ ├─12 Expr(Ident(SynRef(2))) "add" -> Some(Local { def: 24, scope_id: 0 })
+│ │ ╭─13 Expr(Call) "("
+│ │ ├─14 Expr(Ident(SynRef(3))) "a" -> Some(Local { def: 3, scope_id: 1 })
+│ │ ├─15 Expr(Ident(SynRef(4))) "a" -> Some(Local { def: 3, scope_id: 1 })
+│ │ ├─16 Expr(Mul) "*"
+│ │ ├─17 Expr(CallComma) ","
+│ │ ├─18 Expr(Ident(SynRef(5))) "b" -> Some(Local { def: 5, scope_id: 1 })
+│ ├─19 Expr(CallEnd) ")"
 │ ├─20 LetSemi ";"
-│ ├─21 ExprIdent(SynRef(6)) "c" -> Some(Local { def: 10, scope_id: 1 })
+│ ├─21 Expr(Ident(SynRef(6))) "c" -> Some(Local { def: 10, scope_id: 1 })
 ├─22 FnBodyEnd "}"
 │ ╭─23 Fn "fn"
 │ ├─24 FnIdent "add"
 │ │ ╭─25 FnParams "("
 │ │ ├─26 FnParamsIdent "a"
-│ │ ├─27 ExprIdent(SynRef(7)) "i32" -> Some(Builtin(I32))
+│ │ ├─27 Expr(Ident(SynRef(7))) "i32" -> Some(Builtin(I32))
 │ │ ├─28 FnParamsIdent "b"
-│ │ ├─29 ExprIdent(SynRef(8)) "i32" -> Some(Builtin(I32))
+│ │ ├─29 Expr(Ident(SynRef(8))) "i32" -> Some(Builtin(I32))
 │ ├─30 FnParamsEnd ")"
 │ ├─31 FnBodyBegin "{"
-│ ├─32 ExprIdent(SynRef(9)) "a" -> Some(Local { def: 26, scope_id: 2 })
-│ ├─33 ExprIdent(SynRef(10)) "b" -> Some(Local { def: 28, scope_id: 2 })
-│ ├─34 ExprAdd "+"
-│ ├─35 ExprIdent(SynRef(11)) "c" -> None
-│ ├─36 ExprAdd "+"
+│ ├─32 Expr(Ident(SynRef(9))) "a" -> Some(Local { def: 26, scope_id: 2 })
+│ ├─33 Expr(Ident(SynRef(10))) "b" -> Some(Local { def: 28, scope_id: 2 })
+│ ├─34 Expr(Add) "+"
+│ ├─35 Expr(Ident(SynRef(11))) "c" -> None
+│ ├─36 Expr(Add) "+"
 ├─37 FnBodyEnd "}"

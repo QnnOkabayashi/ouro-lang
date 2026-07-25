@@ -19,6 +19,26 @@ ouro_index_vec::define_index_type! {
 }
 
 #[derive(Copy, Clone, Debug)]
+pub enum ExprKind {
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Not,
+    Neg,
+    Block,
+    BlockEnd,
+    Ident(SynRef),
+    Int,
+    Dot,
+    Field,
+    Call,
+    CallComma,
+    CallEnd,
+    Str,
+}
+
+#[derive(Copy, Clone, Debug)]
 pub enum NodeKind {
     Pub,
     Struct,
@@ -41,22 +61,7 @@ pub enum NodeKind {
     ConstIdent,
     ConstEq,
     ConstSemi,
-    ExprAdd,
-    ExprSub,
-    ExprMul,
-    ExprDiv,
-    ExprNot,
-    ExprNeg,
-    ExprBlock,
-    ExprBlockEnd,
-    ExprIdent(SynRef),
-    ExprInt,
-    ExprDot,
-    ExprField,
-    ExprCall,
-    ExprCallComma,
-    ExprCallEnd,
-    ExprStr,
+    Expr(ExprKind),
 }
 
 impl NodeKind {
@@ -67,8 +72,8 @@ impl NodeKind {
                 | NodeKind::StructFieldIdent
                 | NodeKind::Fn
                 | NodeKind::FnParams
-                | NodeKind::ExprBlock
-                | NodeKind::ExprCall
+                | NodeKind::Expr(ExprKind::Block)
+                | NodeKind::Expr(ExprKind::Call)
         )
     }
 
@@ -79,8 +84,8 @@ impl NodeKind {
                 | NodeKind::StructFieldComma
                 | NodeKind::FnBodyEnd
                 | NodeKind::FnParamsEnd
-                | NodeKind::ExprBlockEnd
-                | NodeKind::ExprCallEnd
+                | NodeKind::Expr(ExprKind::BlockEnd)
+                | NodeKind::Expr(ExprKind::CallEnd)
         )
     }
 }

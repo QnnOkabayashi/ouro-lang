@@ -1,6 +1,6 @@
 use ouro_index_vec::{Counter, IndexSlice, index_box};
 use ouro_parse::Parse;
-use ouro_parse_node::{Node, NodeKind, SynRef};
+use ouro_parse_node::{ExprKind, Node, NodeKind, SynRef};
 use ouro_span::Byte;
 use ouro_tokenize::Token;
 use std::collections::HashMap;
@@ -99,33 +99,37 @@ pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> 
     let mut top_level_main = None;
     let mut insts = Vec::new();
     for (node, node_impl) in parse.nodes.iter_enumerated() {
-        use NodeKind::*;
         match node_impl.kind {
             // Def
-            FnIdent | FnParamsIdent | LetIdent | ConstIdent => {
+            NodeKind::FnIdent
+            | NodeKind::FnParamsIdent
+            | NodeKind::LetIdent
+            | NodeKind::ConstIdent => {
                 let symbol =
                     int.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input));
 
                 // If this is a function that is top level and is named main
-                if matches!(node_impl.kind, FnIdent) && open_scopes.is_empty() && symbol == sym_main
+                if matches!(node_impl.kind, NodeKind::FnIdent)
+                    && open_scopes.is_empty()
+                    && symbol == sym_main
                 {
                     top_level_main = Some(node);
                 }
                 insts.push(Inst::Def(symbol, node, curr_scope));
             }
             // Ref
-            ExprIdent(syn_ref) => {
+            NodeKind::Expr(ExprKind::Ident(syn_ref)) => {
                 insts.push(Inst::Ref(
                     int.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input)),
                     syn_ref,
                 ));
             }
-            StructBodyBegin | FnParams | ExprBlock => {
+            NodeKind::StructBodyBegin | NodeKind::FnParams | NodeKind::Expr(ExprKind::Block) => {
                 open_scopes.push(curr_scope);
                 curr_scope = next_scope_id.next();
                 insts.push(Inst::ScopeToggle(curr_scope));
             }
-            StructBodyEnd | FnBodyEnd | ExprBlockEnd => {
+            NodeKind::StructBodyEnd | NodeKind::FnBodyEnd | NodeKind::Expr(ExprKind::BlockEnd) => {
                 insts.push(Inst::ScopeToggle(curr_scope));
                 curr_scope = open_scopes
                     .pop()

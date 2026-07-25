@@ -13,7 +13,7 @@ use lsp_types::{
     Location, MarkupContent, MarkupKind, OneOf, Position, Range, ServerCapabilities, ServerInfo,
     TextDocumentSyncCapability, TextDocumentSyncKind, Url, lsp_notification, lsp_request,
 };
-use ouro_parse_node::{NodeKind, SynRef};
+use ouro_parse_node::{ExprKind, NodeKind, SynRef};
 use ouro_span::Utf16Char;
 use tower::ServiceBuilder;
 use tracing::{Level, info};
@@ -48,7 +48,7 @@ impl Analysis {
             .nodes
             .iter()
             .filter_map(|node_impl| {
-                if let NodeKind::ExprIdent(syn_ref) = node_impl.kind {
+                if let NodeKind::Expr(ExprKind::Ident(syn_ref)) = node_impl.kind {
                     Some((node_impl.token, syn_ref))
                 } else {
                     None
