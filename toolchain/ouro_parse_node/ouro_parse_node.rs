@@ -18,12 +18,6 @@ ouro_index_vec::define_index_type! {
     DEBUG_FORMAT = "SynRef({})";
 }
 
-ouro_index_vec::define_index_type! {
-    /// A semantic reference.
-    pub struct SemRef = u32;
-    DEBUG_FORMAT = "SemRef({})";
-}
-
 #[derive(Copy, Clone, Debug)]
 pub struct SubtreeSize(pub u32);
 
@@ -61,7 +55,7 @@ pub enum NodeKind {
     ExprIdent(SynRef),
     ExprInt,
     ExprDot,
-    ExprField(SemRef),
+    ExprField,
     ExprCall,
     ExprCallComma,
     ExprCallEnd(SubtreeSize),

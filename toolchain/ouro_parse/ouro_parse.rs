@@ -1,5 +1,5 @@
 use ouro_index_vec::{Counter, IndexSlice, IndexVec};
-use ouro_parse_node::{Node, NodeImpl, NodeKind, SemRef, SubtreeSize, SynRef};
+use ouro_parse_node::{Node, NodeImpl, NodeKind, SubtreeSize, SynRef};
 use ouro_tokenize::{Token, TokenImpl};
 
 struct ParseTree {
@@ -100,7 +100,6 @@ struct Parser<'a> {
     cursor: Cursor<'a>,
     parse_tree: ParseTree,
     syn_refs: Counter<SynRef>,
-    sem_refs: Counter<SemRef>,
 }
 
 impl<'a> Parser<'a> {
@@ -109,7 +108,6 @@ impl<'a> Parser<'a> {
             cursor: Cursor::new(tokens),
             parse_tree: ParseTree::with_capacity(tokens.len()),
             syn_refs: Counter::new(),
-            sem_refs: Counter::new(),
         }
     }
 
@@ -322,10 +320,8 @@ impl<'a> Parser<'a> {
                 Some(TokenImpl::Dot) => {
                     self.parse_tree
                         .push(self.cursor.advance_1(), NodeKind::ExprDot);
-                    self.parse_tree.push(
-                        self.cursor.eat(TokenImpl::Ident)?,
-                        NodeKind::ExprField(self.sem_refs.next()),
-                    );
+                    self.parse_tree
+                        .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::ExprField);
                 }
                 Some(TokenImpl::OpenParen) => {
                     self.parse_tree
