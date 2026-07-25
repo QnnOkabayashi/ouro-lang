@@ -14,9 +14,13 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ ├─ExprAdd "+" 11..12
 ├─FnBodyEnd(SubtreeSize(9)) "}" 19..20
 ├─Const "const" 21..26
+├─ConstIdent "Foo" 27..30
+├─ConstEq "=" 31..32
 │ ╭─Struct "struct" 33..39
 │ ├─StructBodyBegin "{" 40..41
 │ ├─Const "const" 42..47
+│ ├─ConstIdent "Bar" 48..51
+│ ├─ConstEq "=" 52..53
 │ │ ╭─Struct "struct" 54..60
 │ │ ├─StructBodyBegin "{" 61..62
 │ │ │ ╭─Fn "fn" 63..65
@@ -32,17 +36,13 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ │ │ ├─ExprInt "0b11_11" 88..95
 │ │ ├─FnBodyEnd(SubtreeSize(10)) "}" 96..97
 │ ├─StructBodyEnd(SubtreeSize(3)) "}" 98..99
-│ ├─ConstEq "=" 52..53
-│ ├─ConstIdent "Bar" 48..51
 │ ├─ConstSemi ";" 99..100
 ├─StructBodyEnd(SubtreeSize(7)) "}" 101..102
-├─ConstEq "=" 31..32
-├─ConstIdent "Foo" 27..30
 ├─ConstSemi ";" 102..103
 ├─Const "const" 104..109
+├─ConstIdent "Baz" 110..113
+├─ConstEq "=" 114..115
 │ ╭─Struct "struct" 116..122
 │ ├─StructBodyBegin "{" 123..124
 ├─StructBodyEnd(SubtreeSize(2)) "}" 124..125
-├─ConstEq "=" 114..115
-├─ConstIdent "Baz" 110..113
 ├─ConstSemi ";" 125..126
