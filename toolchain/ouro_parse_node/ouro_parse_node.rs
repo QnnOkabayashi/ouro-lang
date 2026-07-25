@@ -6,10 +6,6 @@ ouro_index_vec::define_index_type! {
     pub struct Node = u32;
 }
 
-ouro_index_vec::define_index_type! {
-    pub struct SynStruct = u32;
-}
-
 #[derive(Copy, Clone, Debug)]
 pub struct NodeImpl {
     pub token: Token,
@@ -34,7 +30,7 @@ pub struct SubtreeSize(pub u32);
 #[derive(Copy, Clone, Debug)]
 pub enum NodeKind {
     Pub,
-    Struct(SynStruct),
+    Struct,
     StructBodyBegin,
     StructFieldIdent,
     StructFieldComma(SubtreeSize),
