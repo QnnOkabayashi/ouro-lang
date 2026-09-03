@@ -68,3 +68,9 @@ fn keywords() {
     insta::assert_snapshot!(pprint_tokenize("let fn comptime"));
     insta::assert_snapshot!(pprint_tokenize("letter fn_ comptime_"));
 }
+
+#[test]
+fn builtins() {
+    insta::assert_snapshot!(pprint_tokenize("i32 type"));
+    insta::assert_snapshot!(pprint_tokenize("api32 typename"));
+}

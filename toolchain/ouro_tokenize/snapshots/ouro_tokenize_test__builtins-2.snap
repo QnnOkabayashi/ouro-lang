@@ -1,0 +1,7 @@
+---
+source: toolchain/ouro_tokenize/ouro_tokenize_test.rs
+expression: "pprint_tokenize(\"api32 typename\")"
+---
+Ident 0..5 
+Whitespace 5..6 
+Ident 6..14

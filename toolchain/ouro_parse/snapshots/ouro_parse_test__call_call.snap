@@ -5,7 +5,7 @@ expression: "case! { const CallCall = foo()(); }"
 ├─Const "const" 0..5
 ├─ConstIdent "CallCall" 6..14
 ├─ConstEq "=" 15..16
-├─Expr(Ident(SynRef(0))) "foo" 17..20
+├─Expr(Ident) "foo" 17..20
 │ ╭─Expr(Call) "(" 20..21
 ├─Expr(CallEnd) ")" 21..22
 │ ╭─Expr(Call) "(" 22..23

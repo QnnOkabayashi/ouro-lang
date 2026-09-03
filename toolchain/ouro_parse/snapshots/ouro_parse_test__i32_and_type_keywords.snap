@@ -1,0 +1,15 @@
+---
+source: toolchain/ouro_parse/ouro_parse_test.rs
+expression: "case! { fn Vec(T: type, len: i32) {} }"
+---
+│ ╭─Fn "fn" 0..2
+│ ├─FnIdent "Vec" 3..6
+│ │ ╭─FnParams "(" 6..7
+│ │ ├─FnParamsIdent "T" 7..8
+│ │ ├─Expr(TypeKeyword) "type" 10..14
+│ │ ├─FnParamsComma "," 14..15
+│ │ ├─FnParamsIdent "len" 16..19
+│ │ ├─Expr(I32Keyword) "i32" 21..24
+│ ├─FnParamsEnd ")" 24..25
+│ ├─FnBodyBegin "{" 26..27
+├─FnBodyEnd "}" 27..28

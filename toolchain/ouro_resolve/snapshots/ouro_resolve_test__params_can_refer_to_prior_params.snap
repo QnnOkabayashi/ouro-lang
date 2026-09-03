@@ -6,9 +6,10 @@ expression: "case! { fn foo(T: type, n: T) {} }"
 │ ├─1 FnIdent "foo"
 │ │ ╭─2 FnParams "("
 │ │ ├─3 FnParamsIdent "T"
-│ │ ├─4 Expr(Ident(SynRef(0))) "type" -> Some(Builtin(Type))
-│ │ ├─5 FnParamsIdent "n"
-│ │ ├─6 Expr(Ident(SynRef(1))) "T" -> Some(Local { def: 3, scope_id: 1 })
-│ ├─7 FnParamsEnd ")"
-│ ├─8 FnBodyBegin "{"
-├─9 FnBodyEnd "}"
+│ │ ├─4 Expr(TypeKeyword) "type"
+│ │ ├─5 FnParamsComma ","
+│ │ ├─6 FnParamsIdent "n"
+│ │ ├─7 Expr(Ident) "T" -> Def(3)
+│ ├─8 FnParamsEnd ")"
+│ ├─9 FnBodyBegin "{"
+├─10 FnBodyEnd "}"

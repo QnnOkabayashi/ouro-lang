@@ -2,4 +2,4 @@
 source: toolchain/ouro_tokenize/ouro_tokenize_test.rs
 expression: "pprint_tokenize(\"0b\")"
 ---
-Int 0..2
+IntLit 0..2

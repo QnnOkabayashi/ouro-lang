@@ -9,26 +9,20 @@ use async_lsp::router::Router;
 use async_lsp::server::LifecycleLayer;
 use async_lsp::tracing::TracingLayer;
 use lsp_types::{
-    GotoDefinitionResponse, Hover, HoverContents, HoverProviderCapability, InitializeResult,
-    Location, MarkupContent, MarkupKind, OneOf, Position, Range, ServerCapabilities, ServerInfo,
-    TextDocumentSyncCapability, TextDocumentSyncKind, Url, lsp_notification, lsp_request,
+    GotoDefinitionResponse, InitializeResult, Location, OneOf, Position, Range, ServerCapabilities,
+    ServerInfo, TextDocumentSyncCapability, TextDocumentSyncKind, Url, lsp_notification,
+    lsp_request,
 };
+use ouro_index_vec::Counter;
 use ouro_parse_node::{ExprKind, NodeKind, SynRef};
 use ouro_span::Utf16Char;
 use tower::ServiceBuilder;
 use tracing::{Level, info};
 
 use ouro_parse::Parse;
-use ouro_resolve::{Builtin, Referent, Resolve};
+use ouro_resolve::{Entry, Resolve};
 use ouro_token_sum_tree::{RowColDelta, TokenSourceMap};
 use ouro_tokenize::Token;
-
-fn builtin_to_hover_description(builtin: Builtin) -> &'static str {
-    match builtin {
-        Builtin::I32 => "The 32-bit signed integer type.",
-        Builtin::Type => "The type of types.",
-    }
-}
 
 #[derive(Debug)]
 struct Analysis {
@@ -44,12 +38,13 @@ impl Analysis {
         let tokenize = ouro_tokenize::tokenize(&source);
         let source_map = TokenSourceMap::new(&tokenize, &source);
         let parse = ouro_parse::parse(&tokenize.tokens);
+        let mut synrefs = Counter::new();
         let token_to_syn_ref = parse
             .nodes
             .iter()
             .filter_map(|node_impl| {
-                if let NodeKind::Expr(ExprKind::Ident(syn_ref)) = node_impl.kind {
-                    Some((node_impl.token, syn_ref))
+                if let NodeKind::Expr(ExprKind::Ident) = node_impl.kind {
+                    Some((node_impl.token, synrefs.next()))
                 } else {
                     None
                 }
@@ -58,7 +53,7 @@ impl Analysis {
         let resolve = parse
             .ok
             .is_ok()
-            .then(|| ouro_resolve::resolve(&parse, &tokenize.ends, &source));
+            .then(|| ouro_resolve::resolve(&parse.nodes, &tokenize.ends, &source));
 
         Analysis {
             source_map,
@@ -89,7 +84,7 @@ async fn main() {
                             TextDocumentSyncKind::FULL,
                         )),
                         selection_range_provider: None,
-                        hover_provider: Some(HoverProviderCapability::Simple(true)),
+                        hover_provider: None,
                         completion_provider: None,
                         signature_help_provider: None,
                         definition_provider: Some(OneOf::Left(true)),
@@ -126,44 +121,6 @@ async fn main() {
                     }),
                 })
             })
-            .request::<lsp_request!("textDocument/hover"), _>(|state, params| {
-                let Some(analysis) = state
-                    .uri_to_analysis
-                    .get(&params.text_document_position_params.text_document.uri)
-                else {
-                    info!("uri not registered yet");
-                    return future::ready(Ok(None));
-                };
-                let pos = params.text_document_position_params.position;
-                let Some(token) = analysis.source_map.position_to_token(RowColDelta {
-                    row: pos.line,
-                    column: Utf16Char::from_raw(pos.character),
-                }) else {
-                    info!("position not found");
-                    return future::ready(Ok(None));
-                };
-                let Some(&syn_ref) = analysis.token_to_syn_ref.get(&token) else {
-                    info!("token not a SynRef");
-                    return future::ready(Ok(None));
-                };
-                let Some(resolve) = &analysis.resolve else {
-                    info!("parse failures, cannot do further resolution");
-                    return future::ready(Ok(None));
-                };
-                let opt_referent = resolve.ref_to_referent[syn_ref];
-                let builtin = match opt_referent {
-                    Some(Referent::Builtin(builtin)) => builtin,
-                    Some(Referent::Local { .. }) | None => return future::ready(Ok(None)),
-                };
-
-                future::ready(Ok(Some(Hover {
-                    contents: HoverContents::Markup(MarkupContent {
-                        kind: MarkupKind::Markdown,
-                        value: builtin_to_hover_description(builtin).to_string(),
-                    }),
-                    range: None,
-                })))
-            })
             .request::<lsp_request!("textDocument/definition"), _>(|state, params| {
                 let start = Instant::now();
                 let Some(analysis) = state
@@ -189,13 +146,9 @@ async fn main() {
                     info!("parse failures, cannot do further resolution");
                     return future::ready(Ok(None));
                 };
-                let opt_referent = resolve.ref_to_referent[syn_ref];
-                let def = match opt_referent {
-                    Some(Referent::Local { def, .. }) => def,
-                    Some(Referent::Builtin(_)) | None => {
-                        info!("SynRef doesn't refer to anything");
-                        return future::ready(Ok(None));
-                    }
+                let Entry::Def(def) = resolve.ref_to_referent[syn_ref] else {
+                    info!("SynRef doesn't refer to anything");
+                    return future::ready(Ok(None));
                 };
                 let node_impl = analysis.parse.nodes[def];
                 let row_col_delta = analysis.source_map.token_to_position(node_impl.token);

@@ -10,22 +10,21 @@ fn pprint_name_resolve(input: &str) -> String {
     let tokenize = tokenize(input);
     let parse = parse(&tokenize.tokens);
     parse.ok.as_ref().unwrap();
-    let resolve = resolve(&parse, &tokenize.ends, input);
+    let resolve = resolve(&parse.nodes, &tokenize.ends, input);
+    let mut iter = resolve.ref_to_referent.into_iter();
 
-    let mut output = pprint(&parse, |node, out| {
+    let out = pprint(&parse, |node, out| {
         let node_impl = &parse.nodes[node];
-        let text = ouro_tokenize::span(node_impl.token, &tokenize.ends).lookup(input);
+        let string = ouro_tokenize::span(node_impl.token, &tokenize.ends).lookup(input);
+        write!(out, "{:?} {:?} {:?}", node, node_impl.kind, string).unwrap();
 
-        write!(out, "{node:?} {:?} {text:?}", node_impl.kind).unwrap();
-        if let NodeKind::Expr(ExprKind::Ident(syn_ref)) = parse.nodes[node].kind {
-            let def_node = resolve.ref_to_referent[syn_ref];
-            write!(out, " -> {def_node:?}").unwrap();
+        if let NodeKind::Expr(ExprKind::Ident) = node_impl.kind {
+            let opt_def = iter.next().expect("should align");
+            write!(out, " -> {opt_def:?}").unwrap();
         }
     });
-    if !resolve.errors.is_empty() {
-        write!(&mut output, "Errors: {:?}", resolve.errors).unwrap();
-    }
-    output
+    assert!(iter.next().is_none(), "didn't consume all synrefs?");
+    out
 }
 
 macro_rules! case {
@@ -38,8 +37,6 @@ macro_rules! case {
 fn test_resolve() {
     insta::assert_snapshot!(case! {
         fn foo(a: i32, b: i32) {
-            // each function is its own node in a dep graph.
-            //
             let c = add(a * a, b);
             c
         }
@@ -71,14 +68,6 @@ fn test_params_can_refer_to_prior_params() {
 #[test]
 fn test_hello() {
     insta::assert_snapshot!(case! {
-        // const Thing = struct {
-        //     const Self = @This();
-
-        //     fn new(self: *Self) Self {
-        //         Self {}
-        //     }
-        // };
-
         fn Vec(T: type) {
             struct {
                 t: T,

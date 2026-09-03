@@ -7,9 +7,9 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ │ ╭─FnParams "(" 4..5
 │ ├─FnParamsEnd ")" 5..6
 │ ├─FnBodyBegin "{" 7..8
-│ ├─Expr(Int) "1" 9..10
-│ ├─Expr(Int) "2" 13..14
-│ ├─Expr(Int) "3" 17..18
+│ ├─Expr(IntLit) "1" 9..10
+│ ├─Expr(IntLit) "2" 13..14
+│ ├─Expr(IntLit) "3" 17..18
 │ ├─Expr(Mul) "*" 15..16
 │ ├─Expr(Add) "+" 11..12
 ├─FnBodyEnd "}" 19..20
@@ -31,9 +31,9 @@ expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const 
 │ │ │ ├─Let "let" 77..80
 │ │ │ ├─LetIdent "a" 81..82
 │ │ │ ├─LetEq "=" 83..84
-│ │ │ ├─Expr(Int) "4" 85..86
+│ │ │ ├─Expr(IntLit) "4" 85..86
 │ │ │ ├─LetSemi ";" 86..87
-│ │ │ ├─Expr(Int) "0b11_11" 88..95
+│ │ │ ├─Expr(IntLit) "0b11_11" 88..95
 │ │ ├─FnBodyEnd "}" 96..97
 │ ├─StructBodyEnd "}" 98..99
 │ ├─ConstSemi ";" 99..100

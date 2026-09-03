@@ -1,0 +1,7 @@
+---
+source: toolchain/ouro_tokenize/ouro_tokenize_test.rs
+expression: "pprint_tokenize(\"i32 type\")"
+---
+I32Keyword 0..3 
+Whitespace 3..4 
+TypeKeyword 4..8

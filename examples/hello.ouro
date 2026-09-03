@@ -1,16 +1,32 @@
 const Thing = struct {
-    const Self = This();
+    const Self = @This();
 
     fn new(self: Self) {
         self + i32
     }
 };
 
-fn Vec(T: type) {
+fn VecImpl(T: type) {
+    // When we enter a struct body, everything in here is runtime dependent.
+    // Even types in type signatures.
     struct {
-        t: T + main(),//
+        // Runtime dep on this
+        t: T,
         y: foo(),
     }
+}
+
+fn Vec(T: type) {
+    VecImpl(T)
+}
+
+fn foo() {}
+
+
+// Since Vec depends on VecImpl, we need to ensure that we're below that.
+// Just ensure that the decl we're in is below the last decl that Vec uses
+fn print_ints(ints: Vec(i32)) {
+    // stuff
 }
 
 fn print(s: string) {
@@ -21,13 +37,9 @@ fn print(s: string) {
     }.fmt
 }
 
-fn main() {
-    // stuff
-    print(
-        // "hello"
-    )(io)
+pub fn main(io: Io) {
+    print("hello")(io)
 }
 
-fn foo() {
-
-}
+// WE SHOULD NOT BE JUMPING TO THIS FUUUUU
+const T = 4;

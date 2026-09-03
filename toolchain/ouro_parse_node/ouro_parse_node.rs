@@ -18,7 +18,7 @@ ouro_index_vec::define_index_type! {
     DEBUG_FORMAT = "SynRef({})";
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ExprKind {
     Add,
     Sub,
@@ -28,17 +28,19 @@ pub enum ExprKind {
     Neg,
     Block,
     BlockEnd,
-    Ident(SynRef),
-    Int,
+    Ident,
+    IntLit,
     Dot,
     Field,
     Call,
     CallComma,
     CallEnd,
     Str,
+    I32Keyword,
+    TypeKeyword,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum NodeKind {
     Pub,
     Struct,
@@ -50,6 +52,7 @@ pub enum NodeKind {
     FnIdent,
     FnParams,
     FnParamsIdent,
+    FnParamsComma,
     FnParamsEnd,
     FnBodyBegin,
     FnBodyEnd,
@@ -62,9 +65,24 @@ pub enum NodeKind {
     ConstEq,
     ConstSemi,
     Expr(ExprKind),
+    BuiltinAmpersand,
+    BuiltinIdent,
 }
 
 impl NodeKind {
+    pub fn is_ident(self) -> bool {
+        matches!(
+            self,
+            NodeKind::StructFieldIdent
+                | NodeKind::FnIdent
+                | NodeKind::FnParamsIdent
+                | NodeKind::LetIdent
+                | NodeKind::ConstIdent
+                | NodeKind::Expr(ExprKind::Ident)
+                | NodeKind::BuiltinIdent
+        )
+    }
+
     pub fn is_introducer(self) -> bool {
         matches!(
             self,

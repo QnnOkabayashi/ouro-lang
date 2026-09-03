@@ -11,11 +11,11 @@ CloseParen 6..7
 Whitespace 7..8 
 OpenBrace 8..9 
 Whitespace 9..10 
-Int 10..11 
+IntLit 10..11 
 Whitespace 11..12 
 Plus 12..13 
 Whitespace 13..14 
-Int 14..15 
+IntLit 14..15 
 Whitespace 15..16 
 Star 16..17 
 Whitespace 17..18 

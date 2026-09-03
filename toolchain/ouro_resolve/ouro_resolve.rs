@@ -1,218 +1,179 @@
-use ouro_index_vec::{Counter, IndexSlice, index_box};
-use ouro_parse::Parse;
-use ouro_parse_node::{ExprKind, Node, NodeKind, SynRef};
+use ouro_index_vec::{IndexSlice, IndexVec, MaxOr};
+use ouro_parse_node::{ExprKind, Node, NodeImpl, NodeKind, SynRef};
 use ouro_span::Byte;
 use ouro_tokenize::Token;
 use std::collections::HashMap;
+use std::num::NonZero;
 
-#[derive(Debug)]
-pub struct Error {
-    pub existing: Referent,
-    pub conflicting_def: Node,
+struct Text<'a> {
+    ends: &'a IndexSlice<Token, [Byte]>,
+    source: &'a str,
 }
 
-ouro_index_vec::define_index_type! {
-    struct Symbol = u32;
-}
-
-ouro_index_vec::define_index_type! {
-    pub struct ScopeId = u32;
-}
-
-#[derive(Copy, Clone)]
-enum Inst {
-    Def(Symbol, Node, ScopeId),
-    Ref(Symbol, SynRef),
-    ScopeToggle(ScopeId),
-}
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Builtin {
-    I32,
-    Type,
-}
-
-impl Builtin {
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Builtin::I32 => "i32",
-            Builtin::Type => "type",
-        }
+impl<'a> Text<'a> {
+    fn as_str(&self, token: Token) -> &'a str {
+        ouro_tokenize::span(token, self.ends).lookup(self.source)
     }
 }
 
-#[derive(Copy, Clone, Debug)]
-pub enum Referent {
-    Local { def: Node, scope_id: ScopeId },
-    Builtin(Builtin),
+type ScopeId = NonZero<u32>;
+
+struct ScopeFrame {
+    scope_id: ScopeId,
+    truncate_defs_to: usize,
 }
 
-impl Referent {
-    fn exists(self, open_scopes: &IndexSlice<ScopeId, [bool]>) -> bool {
-        match self {
-            Referent::Local { scope_id, .. } => open_scopes[scope_id],
-            Referent::Builtin(_) => true,
+pub struct Resolver<'source> {
+    dedup: HashMap<&'source str, MaxOr<SynRef>>,
+    text: Text<'source>,
+
+    // TODO: next objective is to combine scope_stack and def_stack
+    // Importantly: need a way to have nodes that do not correspond to tokens.
+    // This goes up and down.
+    scope_stack: Vec<ScopeFrame>,
+    top_scope_id: ScopeId,
+
+    // The defs that are queued up to trigger at the end of their scope.
+    def_stack: Vec<Node>,
+
+    // where to get a fresh scope_id for scope_stack
+    next_scope_id: ScopeId,
+
+    // The final buffer that we return: iterate through this and you'll get where everything points
+    result: IndexVec<SynRef, Entry>,
+}
+
+// Instead of only storing ref to def, it would also be nice to store def to refs as well
+// in the buffer
+
+#[derive(Debug)]
+pub enum Entry {
+    Def(Node),
+    Undef {
+        scope_id: ScopeId,
+        next: MaxOr<SynRef>,
+    },
+}
+const _: () = assert!(size_of::<Entry>() == 8);
+
+// TODO(okabayashi): this isn't used yet, but we should make the result buffer store
+// refs AND defs and have them form cycles.
+pub struct Entry2 {
+    // for refs, these would point to either defs or their opening scope thingy
+    // for defs, this points to its opening scope thingy
+    node: Node,
+
+    // these all join point in a circularly linked list
+    next: SynRef,
+}
+const _: () = assert!(size_of::<Entry2>() == 8);
+
+impl<'source> Resolver<'source> {
+    fn scope_open(&mut self) {
+        self.top_scope_id = self.next_scope_id;
+        self.scope_stack.push(ScopeFrame {
+            scope_id: self.next_scope_id,
+            truncate_defs_to: self.def_stack.len(),
+        });
+        self.next_scope_id = self.next_scope_id.saturating_add(1);
+    }
+
+    fn scope_close(&mut self, nodes: &IndexSlice<Node, [NodeImpl]>) {
+        let scope_frame = self
+            .scope_stack
+            .pop()
+            .expect("matched by a preceeding push");
+        self.top_scope_id = scope_frame.scope_id;
+
+        for def in self.def_stack.drain(scope_frame.truncate_defs_to..).rev() {
+            let string = self.text.as_str(nodes[def].token);
+            let Some(slot) = self.dedup.get_mut(string) else {
+                continue;
+            };
+
+            let mut max_or_entry = *slot;
+
+            while let Some(synref) = max_or_entry.into_non_max() {
+                let Entry::Undef {
+                    scope_id: result_scope_id,
+                    next,
+                } = self.result[synref]
+                else {
+                    unreachable!();
+                };
+                if result_scope_id < self.top_scope_id {
+                    break;
+                }
+                // We're on an entry that points to a slot that needs to be rewritten!
+                self.result[synref] = Entry::Def(def);
+
+                max_or_entry = next;
+            }
+            // Put what we finished on back
+            *slot = max_or_entry;
         }
     }
 }
 
 #[derive(Debug)]
 pub struct Resolve {
-    pub ref_to_referent: Box<IndexSlice<SynRef, [Option<Referent>]>>,
-    pub errors: Vec<Error>,
-    /// Points to the FnIdent of a top level main function, if any.
-    pub top_level_main: Option<Node>,
+    pub ref_to_referent: IndexVec<SynRef, Entry>,
 }
 
-#[derive(Default)]
-struct Interner<'a> {
-    dedup: HashMap<&'a str, Symbol>,
-}
+// 1{ def ref } 2{ ref def }
+// go forward until you find a def, ensure def is visible from first ref, then keep going until that def goes out of scope
+// { def { def } } -> "I won't look at anything before my ScopeId"
+//
+// { ref } { def } -> "I wont look at anything before my ScopeId"
 
-impl<'a> Interner<'a> {
-    fn make_symbol(&mut self, s: &'a str) -> Symbol {
-        use std::collections::hash_map::Entry::*;
+pub fn resolve(
+    nodes: &IndexSlice<Node, [NodeImpl]>,
+    ends: &IndexSlice<Token, [Byte]>,
+    source: &str,
+) -> Resolve {
+    let mut resolver = Resolver {
+        dedup: HashMap::new(),
+        text: Text { ends, source },
+        scope_stack: Vec::new(),
+        top_scope_id: const { NonZero::new(1).unwrap() },
+        def_stack: Vec::new(),
+        next_scope_id: const { NonZero::new(1).unwrap() },
+        result: IndexVec::new(),
+    };
 
-        let len = self.dedup.len();
-        match self.dedup.entry(s) {
-            Occupied(occupied) => *occupied.get(),
-            Vacant(vacant) => {
-                let symbol = Symbol::new(len);
-                vacant.insert(symbol);
-                symbol
-            }
-        }
-    }
-}
-
-pub fn resolve(parse: &Parse, ends: &IndexSlice<Token, [Byte]>, input: &str) -> Resolve {
-    let mut int = Interner::default();
-    let builtins = [
-        (int.make_symbol("i32"), Referent::Builtin(Builtin::I32)),
-        (int.make_symbol("type"), Referent::Builtin(Builtin::Type)),
-    ];
-    let sym_main = int.make_symbol("main");
-
-    let mut next_scope_id = Counter::<ScopeId>::new();
-    let mut open_scopes = vec![];
-    let mut curr_scope = next_scope_id.next();
-    let mut top_level_main = None;
-    let mut insts = Vec::new();
-    for (node, node_impl) in parse.nodes.iter_enumerated() {
+    resolver.scope_open();
+    for (node, node_impl) in nodes.iter_enumerated() {
         match node_impl.kind {
-            // Def
             NodeKind::FnIdent
             | NodeKind::FnParamsIdent
             | NodeKind::LetIdent
             | NodeKind::ConstIdent => {
-                let symbol =
-                    int.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input));
-
-                // If this is a function that is top level and is named main
-                if matches!(node_impl.kind, NodeKind::FnIdent)
-                    && open_scopes.is_empty()
-                    && symbol == sym_main
-                {
-                    top_level_main = Some(node);
-                }
-                insts.push(Inst::Def(symbol, node, curr_scope));
+                resolver.def_stack.push(node);
             }
-            // Ref
-            NodeKind::Expr(ExprKind::Ident(syn_ref)) => {
-                insts.push(Inst::Ref(
-                    int.make_symbol(ouro_tokenize::span(node_impl.token, ends).lookup(input)),
-                    syn_ref,
-                ));
+            NodeKind::Expr(ExprKind::Ident) => {
+                let slot = resolver
+                    .dedup
+                    .entry(resolver.text.as_str(node_impl.token))
+                    .or_insert(MaxOr::max());
+                let next = *slot;
+                *slot = MaxOr::new(resolver.result.push(Entry::Undef {
+                    scope_id: resolver.top_scope_id,
+                    next,
+                }));
             }
             NodeKind::StructBodyBegin | NodeKind::FnParams | NodeKind::Expr(ExprKind::Block) => {
-                open_scopes.push(curr_scope);
-                curr_scope = next_scope_id.next();
-                insts.push(Inst::ScopeToggle(curr_scope));
+                resolver.scope_open();
+                // resolver.def_stack.push(node);
             }
             NodeKind::StructBodyEnd | NodeKind::FnBodyEnd | NodeKind::Expr(ExprKind::BlockEnd) => {
-                insts.push(Inst::ScopeToggle(curr_scope));
-                curr_scope = open_scopes
-                    .pop()
-                    .expect("should be associated with a start of the scope");
+                resolver.scope_close(nodes);
             }
-            _ => {
-                // The node isn't relevant for name resolution.
-            }
+            _ => {}
         }
     }
-
-    assert!(open_scopes.is_empty(), "should have exactly one left");
-
-    let mut open_scopes_table: Box<IndexSlice<ScopeId, [bool]>> =
-        index_box![false; next_scope_id.next.index()];
-    open_scopes_table[curr_scope] = true;
-
-    let num_symbols = int.dedup.len();
-    let mut symbols: Box<IndexSlice<Symbol, [Option<Referent>]>> = index_box![None; num_symbols];
-
-    for (symbol, def_slot) in builtins {
-        symbols[symbol] = Some(def_slot);
-    }
-
-    let mut ref_to_referent: Box<IndexSlice<SynRef, [Option<Referent>]>> =
-        index_box![None; parse.syn_refs.next.index()];
-
-    let mut errors = Vec::new();
-    let mut resolve_inst =
-        |inst, symbol_to_referent: &mut IndexSlice<Symbol, [Option<Referent>]>| {
-            match inst {
-                Inst::Def(symbol, def, scope_id) => {
-                    if let Some(existing) = symbol_to_referent[symbol]
-                        .filter(|referent| referent.exists(&open_scopes_table))
-                    {
-                        // This def shadows something else, report and error and do not write it to the
-                        // table.
-                        errors.push(Error {
-                            existing,
-                            conflicting_def: def,
-                        });
-                        return;
-                    }
-                    symbol_to_referent[symbol] = Some(Referent::Local { def, scope_id });
-                }
-                Inst::Ref(symbol, syn_ref) => {
-                    // We found a node that is a ref.
-                    let Some(referent) = symbol_to_referent[symbol]
-                        .filter(|referent| referent.exists(&open_scopes_table))
-                    else {
-                        // Not referring to anything.
-                        return;
-                    };
-                    let previous_def = ref_to_referent[syn_ref].replace(referent);
-                    assert!(
-                        previous_def.is_none(),
-                        "ambiguous defs should have been caught when def was added"
-                    );
-                }
-                Inst::ScopeToggle(scope_id) => {
-                    open_scopes_table[scope_id] = !open_scopes_table[scope_id];
-                }
-            }
-        };
-
-    // Forward pass
-    for &inst in insts.iter() {
-        resolve_inst(inst, &mut symbols);
-    }
-
-    // Reset (zeroing the buffer)
-    for def in &mut symbols[..] {
-        *def = None;
-    }
-
-    // Backward pass
-    for &inst in insts.iter().rev() {
-        resolve_inst(inst, &mut symbols);
-    }
+    resolver.scope_close(nodes);
 
     Resolve {
-        ref_to_referent,
-        errors,
-        top_level_main,
+        ref_to_referent: resolver.result,
     }
 }

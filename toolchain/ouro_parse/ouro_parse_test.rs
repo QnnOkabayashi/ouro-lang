@@ -52,3 +52,19 @@ fn test_str() {
         const Name = "Quinn";
     });
 }
+
+#[test]
+fn test_builtin() {
+    insta::assert_snapshot!(case! {
+        const Name = @This();
+    });
+}
+
+#[test]
+fn test_i32_and_type_keywords() {
+    insta::assert_snapshot!(case! {
+        fn Vec(T: type, len: i32) {
+            //
+        }
+    });
+}

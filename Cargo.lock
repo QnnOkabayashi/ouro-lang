@@ -491,7 +491,7 @@ checksum = "42f5e15c9953c5e4ccceeb2e7382a716482c34515315f7b03532b8b4e8393d2d"
 
 [[package]]
 name = "ouro_index_vec"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "index_vec",
 ]
@@ -517,7 +517,7 @@ dependencies = [
 
 [[package]]
 name = "ouro_parse"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "insta",
  "ouro_index_vec",
@@ -538,7 +538,7 @@ dependencies = [
 
 [[package]]
 name = "ouro_pprint"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "ouro_index_vec",
  "ouro_parse",
@@ -548,7 +548,7 @@ dependencies = [
 
 [[package]]
 name = "ouro_resolve"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "insta",
  "ouro_index_vec",
@@ -568,7 +568,7 @@ dependencies = [
 
 [[package]]
 name = "ouro_token_sum_tree"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "arrayvec",
  "ouro_span",
@@ -584,6 +584,13 @@ dependencies = [
  "logos",
  "ouro_index_vec",
  "ouro_span",
+]
+
+[[package]]
+name = "ouro_unify"
+version = "0.0.0"
+dependencies = [
+ "ouro_index_vec",
 ]
 
 [[package]]

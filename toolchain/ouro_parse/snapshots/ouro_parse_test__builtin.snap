@@ -1,0 +1,12 @@
+---
+source: toolchain/ouro_parse/ouro_parse_test.rs
+expression: "case! { const Name = @This(); }"
+---
+├─Const "const" 0..5
+├─ConstIdent "Name" 6..10
+├─ConstEq "=" 11..12
+├─BuiltinAmpersand "@" 13..14
+├─BuiltinIdent "This" 14..18
+│ ╭─Expr(Call) "(" 18..19
+├─Expr(CallEnd) ")" 19..20
+├─ConstSemi ";" 20..21
