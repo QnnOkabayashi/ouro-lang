@@ -1,6 +1,7 @@
 use ouro_span::Utf16Char;
 use ouro_token_sum_tree::*;
-use ouro_tokenize::{Token, TokenImpl, Tokenize, tokenize};
+use ouro_tokenize::tokenize;
+use ouro_tokenize_types::{Token, TokenImpl, Tokenize};
 
 const CAP: usize = 64;
 

@@ -2,8 +2,10 @@
 source: toolchain/ouro_parse/ouro_parse_test.rs
 expression: "case! { const Name = \"Quinn\"; }"
 ---
-├─Const "const" 0..5
-├─ConstIdent "Name" 6..10
-├─ConstEq "=" 11..12
-├─Expr(Str) "\"Quinn\"" 13..20
-├─ConstSemi ";" 20..21
+FileBegin
+Const "const" 0..5
+ConstIdent "Name" 6..10
+ConstEq "=" 11..12
+Expr(Str) "\"Quinn\"" 13..20
+EndOfExpr ";" 20..21
+FileEnd

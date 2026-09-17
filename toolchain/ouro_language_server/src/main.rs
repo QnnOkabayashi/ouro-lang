@@ -1,6 +1,7 @@
+use std::collections::HashMap;
 use std::future;
+use std::ops::ControlFlow;
 use std::time::Instant;
-use std::{collections::HashMap, ops::ControlFlow};
 
 use async_lsp::client_monitor::ClientProcessMonitorLayer;
 use async_lsp::concurrency::ConcurrencyLayer;
@@ -14,22 +15,21 @@ use lsp_types::{
     lsp_request,
 };
 use ouro_index_vec::Counter;
-use ouro_parse_node::{ExprKind, NodeKind, SynRef};
+use ouro_parse_types::{ExprKind, NodeKind, Nodes};
 use ouro_span::Utf16Char;
 use tower::ServiceBuilder;
 use tracing::{Level, info};
 
-use ouro_parse::Parse;
-use ouro_resolve::{Entry, Resolve};
+use ouro_resolve::{Ref, Resolve};
 use ouro_token_sum_tree::{RowColDelta, TokenSourceMap};
-use ouro_tokenize::Token;
+use ouro_tokenize_types::Token;
 
 #[derive(Debug)]
 struct Analysis {
     source_map: TokenSourceMap,
-    parse: Parse,
-    /// Given a Token, is it a SynRef?
-    token_to_syn_ref: HashMap<Token, SynRef>,
+    /// Given a Token, is it a Ref?
+    token_to_ref: HashMap<Token, Ref>,
+    nodes: Nodes,
     resolve: Option<Resolve>,
 }
 
@@ -38,27 +38,24 @@ impl Analysis {
         let tokenize = ouro_tokenize::tokenize(&source);
         let source_map = TokenSourceMap::new(&tokenize, &source);
         let parse = ouro_parse::parse(&tokenize.tokens);
-        let mut synrefs = Counter::new();
-        let token_to_syn_ref = parse
-            .nodes
-            .iter()
-            .filter_map(|node_impl| {
-                if let NodeKind::Expr(ExprKind::Ident) = node_impl.kind {
-                    Some((node_impl.token, synrefs.next()))
-                } else {
-                    None
-                }
-            })
-            .collect();
+        let mut refs = Counter::new();
+
+        let mut token_to_ref = HashMap::new();
+        for (node, &node_kind) in parse.nodes.nodes.iter_enumerated() {
+            if node_kind == NodeKind::Expr(ExprKind::Ident) {
+                token_to_ref.insert(parse.nodes.tokens[node], refs.next());
+            }
+        }
+
         let resolve = parse
             .ok
             .is_ok()
-            .then(|| ouro_resolve::resolve(&parse.nodes, &tokenize.ends, &source));
+            .then(|| ouro_resolve::resolve(&parse.nodes, &tokenize.spans, &source));
 
         Analysis {
             source_map,
-            parse,
-            token_to_syn_ref,
+            token_to_ref,
+            nodes: parse.nodes,
             resolve,
         }
     }
@@ -138,7 +135,7 @@ async fn main() {
                     info!("position not found");
                     return future::ready(Ok(None));
                 };
-                let Some(&syn_ref) = analysis.token_to_syn_ref.get(&token) else {
+                let Some(&syn_ref) = analysis.token_to_ref.get(&token) else {
                     info!("token not a SynRef");
                     return future::ready(Ok(None));
                 };
@@ -146,12 +143,9 @@ async fn main() {
                     info!("parse failures, cannot do further resolution");
                     return future::ready(Ok(None));
                 };
-                let Entry::Def(def) = resolve.ref_to_referent[syn_ref] else {
-                    info!("SynRef doesn't refer to anything");
-                    return future::ready(Ok(None));
-                };
-                let node_impl = analysis.parse.nodes[def];
-                let row_col_delta = analysis.source_map.token_to_position(node_impl.token);
+                let node = resolve.refs[syn_ref].node;
+                let def_token = analysis.nodes.tokens[node];
+                let row_col_delta = analysis.source_map.token_to_position(def_token);
                 let pos = Position {
                     line: row_col_delta.row,
                     character: row_col_delta.column.raw(),

@@ -1,0 +1,7 @@
+fn DoubleArray(
+    T,
+    _: N: usize,
+    values: [T; N],
+) -> [T; N] {
+    // stuff
+}

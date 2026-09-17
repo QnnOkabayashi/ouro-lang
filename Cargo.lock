@@ -504,11 +504,12 @@ dependencies = [
  "lsp-types",
  "ouro_index_vec",
  "ouro_parse",
- "ouro_parse_node",
+ "ouro_parse_types",
  "ouro_resolve",
  "ouro_span",
  "ouro_token_sum_tree",
  "ouro_tokenize",
+ "ouro_tokenize_types",
  "tokio",
  "tower",
  "tracing",
@@ -521,29 +522,19 @@ version = "0.0.0"
 dependencies = [
  "insta",
  "ouro_index_vec",
- "ouro_parse_node",
- "ouro_pprint",
+ "ouro_parse_types",
  "ouro_tokenize",
+ "ouro_tokenize_types",
 ]
 
 [[package]]
-name = "ouro_parse_node"
+name = "ouro_parse_types"
 version = "0.0.0"
 dependencies = [
  "insta",
  "ouro_index_vec",
  "ouro_span",
- "ouro_tokenize",
-]
-
-[[package]]
-name = "ouro_pprint"
-version = "0.0.0"
-dependencies = [
- "ouro_index_vec",
- "ouro_parse",
- "ouro_parse_node",
- "ouro_span",
+ "ouro_tokenize_types",
 ]
 
 [[package]]
@@ -553,10 +544,9 @@ dependencies = [
  "insta",
  "ouro_index_vec",
  "ouro_parse",
- "ouro_parse_node",
- "ouro_pprint",
- "ouro_span",
+ "ouro_parse_types",
  "ouro_tokenize",
+ "ouro_tokenize_types",
 ]
 
 [[package]]
@@ -573,6 +563,7 @@ dependencies = [
  "arrayvec",
  "ouro_span",
  "ouro_tokenize",
+ "ouro_tokenize_types",
  "zed-sum-tree",
 ]
 
@@ -584,13 +575,15 @@ dependencies = [
  "logos",
  "ouro_index_vec",
  "ouro_span",
+ "ouro_tokenize_types",
 ]
 
 [[package]]
-name = "ouro_unify"
+name = "ouro_tokenize_types"
 version = "0.0.0"
 dependencies = [
  "ouro_index_vec",
+ "ouro_span",
 ]
 
 [[package]]

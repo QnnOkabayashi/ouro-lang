@@ -2,7 +2,7 @@ use std::ops::{Add, AddAssign};
 
 use arrayvec::ArrayVec;
 use ouro_span::{Unit, Utf16Char};
-use ouro_tokenize::{Token, TokenImpl, Tokenize};
+use ouro_tokenize_types::{Token, TokenImpl, Tokenize};
 use zed_sum_tree::{Bias, Dimension, Dimensions, Item, SumTree, Summary};
 
 #[derive(Copy, Clone, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
@@ -136,9 +136,7 @@ impl TokenSourceMap {
                 } else {
                     RowColDelta {
                         row: 0,
-                        column: Utf16Char::len(
-                            ouro_tokenize::span(token, &tokenize.ends).lookup(source),
-                        ),
+                        column: Utf16Char::len(tokenize.spans.to_span(token).lookup(source)),
                     }
                 }
             },

@@ -1,5 +1,4 @@
 use ouro_parse::*;
-use ouro_pprint::pprint;
 use ouro_tokenize::tokenize;
 
 fn pprint_parse_tree(input: &str) -> String {
@@ -7,14 +6,19 @@ fn pprint_parse_tree(input: &str) -> String {
     let parse = parse(&tokenize.tokens);
     assert!(parse.ok.is_ok());
 
-    pprint(&parse, |node, out| {
-        let node_impl = &parse.nodes[node];
+    let mut out = String::new();
+    for (node, &node_kind) in parse.nodes.nodes.iter_enumerated() {
         use std::fmt::Write as _;
+        write!(out, "{node_kind:?}").unwrap();
 
-        let span = ouro_tokenize::span(node_impl.token, &tokenize.ends);
-        let text = span.lookup(input);
-        write!(out, "{:?} {text:?} {span:?}", node_impl.kind).unwrap();
-    })
+        if node_kind.has_token() {
+            let span = tokenize.spans.to_span(parse.nodes.tokens[node]);
+            let text = span.lookup(input);
+            write!(out, " {text:?} {span:?}").unwrap();
+        }
+        writeln!(out).unwrap();
+    }
+    out
 }
 
 macro_rules! case {

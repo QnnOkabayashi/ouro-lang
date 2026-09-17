@@ -1,6 +1,6 @@
 use ouro_index_vec::{IndexSlice, IndexVec};
-use ouro_parse_node::{ExprKind, Node, NodeImpl, NodeKind};
-use ouro_tokenize::{Token, TokenImpl};
+use ouro_parse_types::{ExprKind, NodeKind, Nodes};
+use ouro_tokenize_types::{Token, TokenImpl};
 
 #[derive(Clone, Debug)]
 pub struct Error {
@@ -16,14 +16,14 @@ pub enum Expected {
 
 struct Cursor<'a> {
     tokens: &'a IndexSlice<Token, [TokenImpl]>,
-    index: Token,
+    token: Token,
 }
 
 impl<'a> Cursor<'a> {
     fn new(tokens: &'a IndexSlice<Token, [TokenImpl]>) -> Self {
         Cursor {
             tokens,
-            index: Token::new(0),
+            token: Token::new(0),
         }
     }
 
@@ -33,7 +33,7 @@ impl<'a> Cursor<'a> {
     }
 
     fn peek(&self) -> Option<TokenImpl> {
-        self.tokens.get(self.index).copied()
+        self.tokens.get(self.token).copied()
     }
 
     fn check(&self, token: TokenImpl) -> Result<(), Error> {
@@ -48,8 +48,8 @@ impl<'a> Cursor<'a> {
     }
 
     fn advance_1(&mut self) -> Token {
-        let index = self.index;
-        self.index += 1;
+        let index = self.token;
+        self.token += 1;
         self.skip_whitespace();
         index
     }
@@ -58,32 +58,39 @@ impl<'a> Cursor<'a> {
         while let Some(TokenImpl::Comment | TokenImpl::Whitespace | TokenImpl::Newline) =
             self.peek()
         {
-            self.index += 1;
+            self.token += 1;
         }
     }
 }
 
 struct Parser<'a> {
     cursor: Cursor<'a>,
-    nodes: IndexVec<Node, NodeImpl>,
+    nodes: Nodes,
 }
 
 impl<'a> Parser<'a> {
     fn new(tokens: &'a IndexSlice<Token, [TokenImpl]>) -> Self {
         Parser {
             cursor: Cursor::new(tokens),
-            nodes: IndexVec::with_capacity(tokens.len()),
+            nodes: Nodes {
+                nodes: IndexVec::with_capacity(tokens.len()),
+                tokens: IndexVec::with_capacity(tokens.len()),
+            },
         }
+    }
+
+    fn parse_file(&mut self) -> Result<(), Error> {
+        self.nodes.push(self.cursor.token, NodeKind::FileBegin);
+        self.parse_struct_body()?;
+        self.nodes.push(self.cursor.token, NodeKind::FileEnd);
+        Ok(())
     }
 
     fn parse_struct_body(&mut self) -> Result<(), Error> {
         loop {
             self.cursor.skip_whitespace();
             if let Some(TokenImpl::Pub) = self.cursor.peek() {
-                self.nodes.push(NodeImpl {
-                    token: self.cursor.advance_1(),
-                    kind: NodeKind::Pub,
-                });
+                self.nodes.push(self.cursor.advance_1(), NodeKind::Pub);
                 self.cursor.skip_whitespace();
             }
             match self.cursor.peek() {
@@ -96,64 +103,49 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_struct(&mut self) -> Result<(), Error> {
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Struct)?,
-            kind: NodeKind::Struct,
-        });
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::OpenBrace)?,
-            kind: NodeKind::StructBodyBegin,
-        });
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Struct)?, NodeKind::Struct);
+        self.nodes.push(
+            self.cursor.eat(TokenImpl::OpenBrace)?,
+            NodeKind::StructBodyBegin,
+        );
         self.parse_struct_body()?;
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::CloseBrace)?,
-            kind: NodeKind::StructBodyEnd,
-        });
+        self.nodes.push(
+            self.cursor.eat(TokenImpl::CloseBrace)?,
+            NodeKind::StructBodyEnd,
+        );
         Ok(())
     }
 
     fn parse_fn(&mut self) -> Result<(), Error> {
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Fn)?,
-            kind: NodeKind::Fn,
-        });
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Ident)?,
-            kind: NodeKind::FnIdent,
-        });
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Fn)?, NodeKind::Fn);
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::FnIdent);
         self.parse_fn_params()?;
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::OpenBrace)?,
-            kind: NodeKind::FnBodyBegin,
-        });
+        self.nodes.push(
+            self.cursor.eat(TokenImpl::OpenBrace)?,
+            NodeKind::FnBodyBegin,
+        );
         self.parse_block_body()?;
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::CloseBrace)?,
-            kind: NodeKind::FnBodyEnd,
-        });
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::CloseBrace)?, NodeKind::FnBodyEnd);
         Ok(())
     }
 
     fn parse_fn_params(&mut self) -> Result<(), Error> {
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::OpenParen)?,
-            kind: NodeKind::FnParams,
-        });
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::OpenParen)?, NodeKind::FnParams);
         let mut accept_comma = false;
         loop {
             match self.cursor.peek() {
                 Some(TokenImpl::CloseParen) => {
-                    self.nodes.push(NodeImpl {
-                        token: self.cursor.advance_1(),
-                        kind: NodeKind::FnParamsEnd,
-                    });
+                    self.nodes
+                        .push(self.cursor.advance_1(), NodeKind::FnParamsEnd);
                     return Ok(());
                 }
                 Some(TokenImpl::Comma) if accept_comma => {
-                    self.nodes.push(NodeImpl {
-                        token: self.cursor.advance_1(),
-                        kind: NodeKind::FnParamsComma,
-                    });
+                    let _ = self.cursor.advance_1();
                     accept_comma = false;
                 }
                 _ => {
@@ -165,10 +157,8 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_fn_param(&mut self) -> Result<(), Error> {
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Ident)?,
-            kind: NodeKind::FnParamsIdent,
-        });
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::FnParamsIdent);
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
         Ok(())
@@ -185,44 +175,24 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_let(&mut self) -> Result<(), Error> {
-        self.nodes.push(NodeImpl {
-            token: self.cursor.advance_1(),
-            kind: NodeKind::Let,
-        });
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Ident)?,
-            kind: NodeKind::LetIdent,
-        });
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Eq)?,
-            kind: NodeKind::LetEq,
-        });
+        self.nodes.push(self.cursor.advance_1(), NodeKind::Let);
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::LetIdent);
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Eq)?, NodeKind::LetEq);
         self.parse_expr()?;
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Semi)?,
-            kind: NodeKind::LetSemi,
-        });
+        let _ = self.cursor.eat(TokenImpl::Semi)?;
         Ok(())
     }
 
     fn parse_const(&mut self) -> Result<(), Error> {
-        self.nodes.push(NodeImpl {
-            token: self.cursor.advance_1(),
-            kind: NodeKind::Const,
-        });
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Ident)?,
-            kind: NodeKind::ConstIdent,
-        });
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Eq)?,
-            kind: NodeKind::ConstEq,
-        });
+        self.nodes.push(self.cursor.advance_1(), NodeKind::Const);
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::ConstIdent);
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Eq)?, NodeKind::ConstEq);
         self.parse_expr()?;
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Semi)?,
-            kind: NodeKind::ConstSemi,
-        });
+        let _ = self.cursor.eat(TokenImpl::Semi)?;
         Ok(())
     }
 
@@ -232,11 +202,16 @@ impl<'a> Parser<'a> {
             let kind = match self.cursor.peek() {
                 Some(TokenImpl::Plus) => NodeKind::Expr(ExprKind::Add),
                 Some(TokenImpl::Dash) => NodeKind::Expr(ExprKind::Sub),
-                _ => return Ok(()),
+                t => {
+                    if t.is_some() {
+                        self.nodes.push(self.cursor.token, NodeKind::EndOfExpr);
+                    }
+                    return Ok(());
+                }
             };
             let token = self.cursor.advance_1();
             self.parse_term()?;
-            self.nodes.push(NodeImpl { token, kind });
+            self.nodes.push(token, kind);
         }
     }
 
@@ -250,7 +225,7 @@ impl<'a> Parser<'a> {
             };
             let token = self.cursor.advance_1();
             self.parse_factor()?;
-            self.nodes.push(NodeImpl { token, kind });
+            self.nodes.push(token, kind);
         }
     }
 
@@ -262,53 +237,45 @@ impl<'a> Parser<'a> {
         };
         let token = self.cursor.advance_1();
         self.parse_factor()?;
-        self.nodes.push(NodeImpl { token, kind });
+        self.nodes.push(token, kind);
         self.parse_atom()
     }
 
     fn parse_atom(&mut self) -> Result<(), Error> {
         match self.cursor.peek() {
             Some(TokenImpl::OpenBrace) => {
-                self.nodes.push(NodeImpl {
-                    token: self.cursor.advance_1(),
-                    kind: NodeKind::Expr(ExprKind::Block),
-                });
+                self.nodes
+                    .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Block));
                 self.parse_block_body()?;
-                self.nodes.push(NodeImpl {
-                    token: self.cursor.eat(TokenImpl::CloseBrace)?,
-                    kind: NodeKind::Expr(ExprKind::BlockEnd),
-                });
+                self.nodes.push(
+                    self.cursor.eat(TokenImpl::CloseBrace)?,
+                    NodeKind::Expr(ExprKind::BlockEnd),
+                );
             }
             Some(TokenImpl::Ident) => {
-                self.nodes.push(NodeImpl {
-                    token: self.cursor.advance_1(),
-                    kind: NodeKind::Expr(ExprKind::Ident),
-                });
+                self.nodes
+                    .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Ident));
             }
             Some(TokenImpl::IntLit) => {
-                self.nodes.push(NodeImpl {
-                    token: self.cursor.advance_1(),
-                    kind: NodeKind::Expr(ExprKind::IntLit),
-                });
+                self.nodes
+                    .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::IntLit));
             }
             Some(TokenImpl::Struct) => self.parse_struct()?,
             Some(TokenImpl::StrLit) => {
-                self.nodes.push(NodeImpl {
-                    token: self.cursor.advance_1(),
-                    kind: NodeKind::Expr(ExprKind::Str),
-                });
+                self.nodes
+                    .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Str));
             }
             Some(TokenImpl::I32Keyword) => {
-                self.nodes.push(NodeImpl {
-                    token: self.cursor.advance_1(),
-                    kind: NodeKind::Expr(ExprKind::I32Keyword),
-                });
+                self.nodes.push(
+                    self.cursor.advance_1(),
+                    NodeKind::Expr(ExprKind::I32Keyword),
+                );
             }
             Some(TokenImpl::TypeKeyword) => {
-                self.nodes.push(NodeImpl {
-                    token: self.cursor.advance_1(),
-                    kind: NodeKind::Expr(ExprKind::TypeKeyword),
-                });
+                self.nodes.push(
+                    self.cursor.advance_1(),
+                    NodeKind::Expr(ExprKind::TypeKeyword),
+                );
             }
             Some(TokenImpl::Ampersand) => self.parse_builtin()?,
             actual => {
@@ -330,14 +297,12 @@ impl<'a> Parser<'a> {
         loop {
             match self.cursor.peek() {
                 Some(TokenImpl::Dot) => {
-                    self.nodes.push(NodeImpl {
-                        token: self.cursor.advance_1(),
-                        kind: NodeKind::Expr(ExprKind::Dot),
-                    });
-                    self.nodes.push(NodeImpl {
-                        token: self.cursor.eat(TokenImpl::Ident)?,
-                        kind: NodeKind::Expr(ExprKind::Field),
-                    });
+                    self.nodes
+                        .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Dot));
+                    self.nodes.push(
+                        self.cursor.eat(TokenImpl::Ident)?,
+                        NodeKind::Expr(ExprKind::Field),
+                    );
                 }
                 Some(TokenImpl::OpenParen) => self.parse_call_args()?,
                 _ => return Ok(()),
@@ -346,25 +311,18 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_call_args(&mut self) -> Result<(), Error> {
-        self.nodes.push(NodeImpl {
-            token: self.cursor.advance_1(),
-            kind: NodeKind::Expr(ExprKind::Call),
-        });
+        self.nodes
+            .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Call));
         let mut accept_comma = false;
         loop {
             match self.cursor.peek() {
                 Some(TokenImpl::CloseParen) => {
-                    self.nodes.push(NodeImpl {
-                        token: self.cursor.advance_1(),
-                        kind: NodeKind::Expr(ExprKind::CallEnd),
-                    });
+                    self.nodes
+                        .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::CallEnd));
                     return Ok(());
                 }
                 Some(TokenImpl::Comma) if accept_comma => {
-                    self.nodes.push(NodeImpl {
-                        token: self.cursor.advance_1(),
-                        kind: NodeKind::Expr(ExprKind::CallComma),
-                    });
+                    let _ = self.cursor.advance_1();
                     accept_comma = false;
                 }
                 _ => {
@@ -376,28 +334,24 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_field_decl(&mut self) -> Result<(), Error> {
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Ident)?,
-            kind: NodeKind::StructFieldIdent,
-        });
+        self.nodes.push(
+            self.cursor.eat(TokenImpl::Ident)?,
+            NodeKind::StructFieldIdent,
+        );
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Comma)?,
-            kind: NodeKind::StructFieldComma,
-        });
+        self.nodes.push(
+            self.cursor.eat(TokenImpl::Comma)?,
+            NodeKind::StructFieldComma,
+        );
         Ok(())
     }
 
     fn parse_builtin(&mut self) -> Result<(), Error> {
-        self.nodes.push(NodeImpl {
-            token: self.cursor.advance_1(),
-            kind: NodeKind::BuiltinAmpersand,
-        });
-        self.nodes.push(NodeImpl {
-            token: self.cursor.eat(TokenImpl::Ident)?,
-            kind: NodeKind::BuiltinIdent,
-        });
+        self.nodes
+            .push(self.cursor.advance_1(), NodeKind::BuiltinAmpersand);
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::BuiltinIdent);
         self.cursor.skip_whitespace();
         self.cursor.check(TokenImpl::OpenParen)?;
         self.parse_call_args()
@@ -406,7 +360,7 @@ impl<'a> Parser<'a> {
 
 pub fn parse(tokens: &IndexSlice<Token, [TokenImpl]>) -> Parse {
     let mut parser = Parser::new(tokens);
-    let ok = parser.parse_struct_body();
+    let ok = parser.parse_file();
     Parse {
         nodes: parser.nodes,
         ok,
@@ -415,6 +369,6 @@ pub fn parse(tokens: &IndexSlice<Token, [TokenImpl]>) -> Parse {
 
 #[derive(Debug)]
 pub struct Parse {
-    pub nodes: IndexVec<Node, NodeImpl>,
+    pub nodes: Nodes,
     pub ok: Result<(), Error>,
 }

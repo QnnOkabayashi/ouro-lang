@@ -1,21 +1,10 @@
 //! Nodes produced by the parser.
 
-use ouro_tokenize::Token;
+use ouro_index_vec::IndexVec;
+use ouro_tokenize_types::Token;
 
 ouro_index_vec::define_index_type! {
     pub struct Node = u32;
-}
-
-#[derive(Copy, Clone, Debug)]
-pub struct NodeImpl {
-    pub token: Token,
-    pub kind: NodeKind,
-}
-
-ouro_index_vec::define_index_type! {
-    /// A syntactic reference.
-    pub struct SynRef = u32;
-    DEBUG_FORMAT = "SynRef({})";
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -33,7 +22,6 @@ pub enum ExprKind {
     Dot,
     Field,
     Call,
-    CallComma,
     CallEnd,
     Str,
     I32Keyword,
@@ -42,6 +30,8 @@ pub enum ExprKind {
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum NodeKind {
+    FileBegin,
+    FileEnd,
     Pub,
     Struct,
     StructBodyBegin,
@@ -52,21 +42,19 @@ pub enum NodeKind {
     FnIdent,
     FnParams,
     FnParamsIdent,
-    FnParamsComma,
     FnParamsEnd,
     FnBodyBegin,
     FnBodyEnd,
     Let,
     LetIdent,
     LetEq,
-    LetSemi,
     Const,
     ConstIdent,
     ConstEq,
-    ConstSemi,
     Expr(ExprKind),
     BuiltinAmpersand,
     BuiltinIdent,
+    EndOfExpr,
 }
 
 impl NodeKind {
@@ -83,27 +71,23 @@ impl NodeKind {
         )
     }
 
-    pub fn is_introducer(self) -> bool {
-        matches!(
-            self,
-            NodeKind::Struct
-                | NodeKind::StructFieldIdent
-                | NodeKind::Fn
-                | NodeKind::FnParams
-                | NodeKind::Expr(ExprKind::Block)
-                | NodeKind::Expr(ExprKind::Call)
-        )
+    pub fn has_token(self) -> bool {
+        match self {
+            NodeKind::FileBegin | NodeKind::FileEnd => false,
+            _ => true,
+        }
     }
+}
 
-    pub fn is_terminator(self) -> bool {
-        matches!(
-            self,
-            NodeKind::StructBodyEnd
-                | NodeKind::StructFieldComma
-                | NodeKind::FnBodyEnd
-                | NodeKind::FnParamsEnd
-                | NodeKind::Expr(ExprKind::BlockEnd)
-                | NodeKind::Expr(ExprKind::CallEnd)
-        )
+#[derive(Debug)]
+pub struct Nodes {
+    pub nodes: IndexVec<Node, NodeKind>,
+    pub tokens: IndexVec<Node, Token>,
+}
+
+impl Nodes {
+    pub fn push(&mut self, token: Token, node_kind: NodeKind) {
+        self.nodes.push(node_kind);
+        self.tokens.push(token);
     }
 }

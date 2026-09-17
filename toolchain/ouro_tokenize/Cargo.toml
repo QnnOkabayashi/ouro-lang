@@ -11,9 +11,10 @@ name = "ouro_tokenize_test"
 path = "ouro_tokenize_test.rs"
 
 [dependencies]
-ouro_index_vec = { path = "../ouro_index_vec" }
 ouro_span = { path = "../ouro_span" }
+ouro_tokenize_types = { path = "../ouro_tokenize_types" }
 logos = "0.16.1"
 
 [dev-dependencies]
 insta = { workspace = true }
+ouro_index_vec = { path = "../ouro_index_vec" }

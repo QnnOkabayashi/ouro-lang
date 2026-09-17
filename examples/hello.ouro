@@ -22,7 +22,6 @@ fn Vec(T: type) {
 
 fn foo() {}
 
-
 // Since Vec depends on VecImpl, we need to ensure that we're below that.
 // Just ensure that the decl we're in is below the last decl that Vec uses
 fn print_ints(ints: Vec(i32)) {
@@ -40,6 +39,3 @@ fn print(s: string) {
 pub fn main(io: Io) {
     print("hello")(io)
 }
-
-// WE SHOULD NOT BE JUMPING TO THIS FUUUUU
-const T = 4;

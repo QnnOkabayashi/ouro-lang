@@ -12,9 +12,9 @@ path = "ouro_parse_test.rs"
 
 [dependencies]
 ouro_index_vec = { path = "../ouro_index_vec" }
-ouro_tokenize = { path = "../ouro_tokenize" }
-ouro_parse_node = { path = "../ouro_parse_node" }
+ouro_tokenize_types = { path = "../ouro_tokenize_types" }
+ouro_parse_types = { path = "../ouro_parse_types" }
 
 [dev-dependencies]
-ouro_pprint = { path = "../ouro_pprint" }
 insta = { workspace = true }
+ouro_tokenize = { path = "../ouro_tokenize" }

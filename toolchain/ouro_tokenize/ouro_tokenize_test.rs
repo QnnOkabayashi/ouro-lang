@@ -1,24 +1,18 @@
-use ouro_span::{Byte, Span};
 use ouro_tokenize::tokenize;
+use std::fmt::Write;
 
 fn pprint_tokenize(input: &str) -> String {
     let tokenize = tokenize(input);
-    let mut prev = Byte::new(0);
     let mut output = String::new();
 
-    for (token, end) in tokenize.tokens.iter().zip(tokenize.ends.iter()) {
-        use std::fmt::Write;
+    for (token, token_impl) in tokenize.tokens.iter_enumerated() {
         writeln!(
             &mut output,
             "{:?} {:?} ",
-            token,
-            Span {
-                start: prev,
-                end: *end
-            }
+            token_impl,
+            tokenize.spans.to_span(token),
         )
-        .expect("writing to a String cannot fail");
-        prev = *end;
+        .unwrap();
     }
 
     output

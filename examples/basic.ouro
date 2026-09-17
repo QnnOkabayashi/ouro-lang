@@ -1,3 +1,38 @@
 fn add(a: i32, b: i32, c: type) {
     a + b
 }
+
+fn Module(Trait: fn(type) -> type) -> type {
+    struct {
+        T: type,
+        impl: Trait(T),
+    }
+}
+
+fn Hash(T: type) -> type {
+    struct {
+        hash: fn(&own T),
+    }
+}
+
+fn Vec(T: type) -> type {
+    struct {
+        const Self = @This();
+
+        const HashImpl = Hash {
+            t: Self,
+            hash: struct {
+                fn f(self: &own Self) {
+                    // something
+                }
+            }.f,
+        };
+    }
+}
+
+// const a: |T| = make_vec();
+// hash(T.Hash, a)
+
+fn hash(H: Module(Hash), value: H.t) {
+    H.hash(value)
+}

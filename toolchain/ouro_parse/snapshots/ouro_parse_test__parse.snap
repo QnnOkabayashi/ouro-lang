@@ -2,47 +2,51 @@
 source: toolchain/ouro_parse/ouro_parse_test.rs
 expression: "case!\n{\n    fn a() { 1 + 2 * 3 } const Foo = struct\n    { const Bar = struct { fn foobar() { let a = 4; 0b11_11 } }; }; const Baz\n    = struct {};\n}"
 ---
-│ ╭─Fn "fn" 0..2
-│ ├─FnIdent "a" 3..4
-│ │ ╭─FnParams "(" 4..5
-│ ├─FnParamsEnd ")" 5..6
-│ ├─FnBodyBegin "{" 7..8
-│ ├─Expr(IntLit) "1" 9..10
-│ ├─Expr(IntLit) "2" 13..14
-│ ├─Expr(IntLit) "3" 17..18
-│ ├─Expr(Mul) "*" 15..16
-│ ├─Expr(Add) "+" 11..12
-├─FnBodyEnd "}" 19..20
-├─Const "const" 21..26
-├─ConstIdent "Foo" 27..30
-├─ConstEq "=" 31..32
-│ ╭─Struct "struct" 33..39
-│ ├─StructBodyBegin "{" 40..41
-│ ├─Const "const" 42..47
-│ ├─ConstIdent "Bar" 48..51
-│ ├─ConstEq "=" 52..53
-│ │ ╭─Struct "struct" 54..60
-│ │ ├─StructBodyBegin "{" 61..62
-│ │ │ ╭─Fn "fn" 63..65
-│ │ │ ├─FnIdent "foobar" 66..72
-│ │ │ │ ╭─FnParams "(" 72..73
-│ │ │ ├─FnParamsEnd ")" 73..74
-│ │ │ ├─FnBodyBegin "{" 75..76
-│ │ │ ├─Let "let" 77..80
-│ │ │ ├─LetIdent "a" 81..82
-│ │ │ ├─LetEq "=" 83..84
-│ │ │ ├─Expr(IntLit) "4" 85..86
-│ │ │ ├─LetSemi ";" 86..87
-│ │ │ ├─Expr(IntLit) "0b11_11" 88..95
-│ │ ├─FnBodyEnd "}" 96..97
-│ ├─StructBodyEnd "}" 98..99
-│ ├─ConstSemi ";" 99..100
-├─StructBodyEnd "}" 101..102
-├─ConstSemi ";" 102..103
-├─Const "const" 104..109
-├─ConstIdent "Baz" 110..113
-├─ConstEq "=" 114..115
-│ ╭─Struct "struct" 116..122
-│ ├─StructBodyBegin "{" 123..124
-├─StructBodyEnd "}" 124..125
-├─ConstSemi ";" 125..126
+FileBegin
+Fn "fn" 0..2
+FnIdent "a" 3..4
+FnParams "(" 4..5
+FnParamsEnd ")" 5..6
+FnBodyBegin "{" 7..8
+Expr(IntLit) "1" 9..10
+Expr(IntLit) "2" 13..14
+Expr(IntLit) "3" 17..18
+Expr(Mul) "*" 15..16
+Expr(Add) "+" 11..12
+EndOfExpr "}" 19..20
+FnBodyEnd "}" 19..20
+Const "const" 21..26
+ConstIdent "Foo" 27..30
+ConstEq "=" 31..32
+Struct "struct" 33..39
+StructBodyBegin "{" 40..41
+Const "const" 42..47
+ConstIdent "Bar" 48..51
+ConstEq "=" 52..53
+Struct "struct" 54..60
+StructBodyBegin "{" 61..62
+Fn "fn" 63..65
+FnIdent "foobar" 66..72
+FnParams "(" 72..73
+FnParamsEnd ")" 73..74
+FnBodyBegin "{" 75..76
+Let "let" 77..80
+LetIdent "a" 81..82
+LetEq "=" 83..84
+Expr(IntLit) "4" 85..86
+EndOfExpr ";" 86..87
+Expr(IntLit) "0b11_11" 88..95
+EndOfExpr "}" 96..97
+FnBodyEnd "}" 96..97
+StructBodyEnd "}" 98..99
+EndOfExpr ";" 99..100
+StructBodyEnd "}" 101..102
+EndOfExpr ";" 102..103
+Const "const" 104..109
+ConstIdent "Baz" 110..113
+ConstEq "=" 114..115
+Struct "struct" 116..122
+StructBodyBegin "{" 123..124
+StructBodyEnd "}" 124..125
+EndOfExpr ";" 125..126
+FileEnd

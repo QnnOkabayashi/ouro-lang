@@ -1,15 +1,15 @@
 [package]
-name = "ouro_parse_node"
+name = "ouro_parse_types"
 version = "0.0.0"
 edition = "2024"
 
 [lib]
-path = "ouro_parse_node.rs"
+path = "ouro_parse_types.rs"
 
 [dependencies]
 ouro_index_vec = { path = "../ouro_index_vec" }
 ouro_span = { path = "../ouro_span" }
-ouro_tokenize = { path = "../ouro_tokenize" }
+ouro_tokenize_types = { path = "../ouro_tokenize_types" }
 
 [dev-dependencies]
 insta = { workspace = true }
