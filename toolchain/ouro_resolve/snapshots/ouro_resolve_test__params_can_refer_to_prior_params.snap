@@ -2,14 +2,17 @@
 source: toolchain/ouro_resolve/ouro_resolve_test.rs
 expression: "case! { fn foo(T: type, n: T) {} }"
 ---
-│ ╭─0 Fn "fn"
-│ ├─1 FnIdent "foo"
-│ │ ╭─2 FnParams "("
-│ │ ├─3 FnParamsIdent "T"
-│ │ ├─4 Expr(TypeKeyword) "type"
-│ │ ├─5 FnParamsComma ","
-│ │ ├─6 FnParamsIdent "n"
-│ │ ├─7 Expr(Ident) "T" -> Def(3)
-│ ├─8 FnParamsEnd ")"
-│ ├─9 FnBodyBegin "{"
-├─10 FnBodyEnd "}"
+0 FileBegin
+1 Fn "fn"
+2 FnIdent "foo"
+3 FnParams "("
+4 FnParamsIdent "T"
+5 Expr(TypeKeyword) "type"
+6 EndOfExpr ","
+7 FnParamsIdent "n"
+8 Expr(Ident) "T" -> RefImpl { node: 4, next: MaxOr(Ref(4294967295)) }
+9 EndOfExpr ")"
+10 FnParamsEnd ")"
+11 FnBodyBegin "{"
+12 FnBodyEnd "}"
+13 FileEnd

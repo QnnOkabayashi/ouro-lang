@@ -2,43 +2,50 @@
 source: toolchain/ouro_resolve/ouro_resolve_test.rs
 expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } fn add(a: i32, b: i32)\n    { a + b + c }\n}"
 ---
-│ ╭─0 Fn "fn"
-│ ├─1 FnIdent "foo"
-│ │ ╭─2 FnParams "("
-│ │ ├─3 FnParamsIdent "a"
-│ │ ├─4 Expr(I32Keyword) "i32"
-│ │ ├─5 FnParamsComma ","
-│ │ ├─6 FnParamsIdent "b"
-│ │ ├─7 Expr(I32Keyword) "i32"
-│ ├─8 FnParamsEnd ")"
-│ ├─9 FnBodyBegin "{"
-│ ├─10 Let "let"
-│ ├─11 LetIdent "c"
-│ ├─12 LetEq "="
-│ ├─13 Expr(Ident) "add" -> Def(25)
-│ │ ╭─14 Expr(Call) "("
-│ │ ├─15 Expr(Ident) "a" -> Def(3)
-│ │ ├─16 Expr(Ident) "a" -> Def(3)
-│ │ ├─17 Expr(Mul) "*"
-│ │ ├─18 Expr(CallComma) ","
-│ │ ├─19 Expr(Ident) "b" -> Def(6)
-│ ├─20 Expr(CallEnd) ")"
-│ ├─21 LetSemi ";"
-│ ├─22 Expr(Ident) "c" -> Def(11)
-├─23 FnBodyEnd "}"
-│ ╭─24 Fn "fn"
-│ ├─25 FnIdent "add"
-│ │ ╭─26 FnParams "("
-│ │ ├─27 FnParamsIdent "a"
-│ │ ├─28 Expr(I32Keyword) "i32"
-│ │ ├─29 FnParamsComma ","
-│ │ ├─30 FnParamsIdent "b"
-│ │ ├─31 Expr(I32Keyword) "i32"
-│ ├─32 FnParamsEnd ")"
-│ ├─33 FnBodyBegin "{"
-│ ├─34 Expr(Ident) "a" -> Def(27)
-│ ├─35 Expr(Ident) "b" -> Def(30)
-│ ├─36 Expr(Add) "+"
-│ ├─37 Expr(Ident) "c" -> Undef { scope_id: 3, next: MaxOr(SynRef(4294967295)) }
-│ ├─38 Expr(Add) "+"
-├─39 FnBodyEnd "}"
+0 FileBegin
+1 Fn "fn"
+2 FnIdent "foo"
+3 FnParams "("
+4 FnParamsIdent "a"
+5 Expr(I32Keyword) "i32"
+6 EndOfExpr ","
+7 FnParamsIdent "b"
+8 Expr(I32Keyword) "i32"
+9 EndOfExpr ")"
+10 FnParamsEnd ")"
+11 FnBodyBegin "{"
+12 Let "let"
+13 LetIdent "c"
+14 LetEq "="
+15 Expr(Ident) "add" -> RefImpl { node: 29, next: MaxOr(Ref(4294967295)) }
+16 Expr(Call) "("
+17 Expr(Ident) "a" -> RefImpl { node: 4, next: MaxOr(Ref(4294967295)) }
+18 Expr(Ident) "a" -> RefImpl { node: 4, next: MaxOr(Ref(1)) }
+19 Expr(Mul) "*"
+20 EndOfExpr ","
+21 Expr(Ident) "b" -> RefImpl { node: 7, next: MaxOr(Ref(4294967295)) }
+22 EndOfExpr ")"
+23 Expr(CallEnd) ")"
+24 EndOfExpr ";"
+25 Expr(Ident) "c" -> RefImpl { node: 13, next: MaxOr(Ref(4294967295)) }
+26 EndOfExpr "}"
+27 FnBodyEnd "}"
+28 Fn "fn"
+29 FnIdent "add"
+30 FnParams "("
+31 FnParamsIdent "a"
+32 Expr(I32Keyword) "i32"
+33 EndOfExpr ","
+34 FnParamsIdent "b"
+35 Expr(I32Keyword) "i32"
+36 EndOfExpr ")"
+37 FnParamsEnd ")"
+38 FnBodyBegin "{"
+39 Expr(Ident) "a" -> RefImpl { node: 31, next: MaxOr(Ref(4294967295)) }
+40 Expr(Ident) "b" -> RefImpl { node: 34, next: MaxOr(Ref(4294967295)) }
+41 Expr(Add) "+"
+42 Expr(Ident) "c" -> RefImpl { node: 30, next: MaxOr(Ref(4294967295)) }
+43 Expr(Add) "+"
+44 EndOfExpr "}"
+45 FnBodyEnd "}"
+46 FileEnd
