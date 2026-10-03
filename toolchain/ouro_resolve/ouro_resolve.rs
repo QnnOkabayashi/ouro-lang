@@ -26,33 +26,30 @@ enum Inst {
     Close,
 }
 
-impl Inst {
-    fn classify(node_kind: NodeKind) -> Option<Self> {
-        match node_kind {
-            // Def
-            NodeKind::FnIdent
-            | NodeKind::FnParamsIdent
-            | NodeKind::LetIdent
-            | NodeKind::ConstIdent => Some(Inst::Def),
-
-            // Ref
-            NodeKind::Expr(ExprKind::Ident) => Some(Inst::Ref),
-
-            // Open
-            NodeKind::FileBegin
-            | NodeKind::StructBodyBegin
-            | NodeKind::FnParams
-            | NodeKind::Expr(ExprKind::Block) => Some(Inst::Open),
-
-            // Close
-            NodeKind::FileEnd
-            | NodeKind::StructBodyEnd
-            | NodeKind::FnBodyEnd
-            | NodeKind::Expr(ExprKind::BlockEnd) => Some(Inst::Close),
-
-            // Everything else
-            _ => None,
+fn inst(node_kind: NodeKind) -> Option<Inst> {
+    match node_kind {
+        // Def
+        NodeKind::FnIdent | NodeKind::FnParamsIdent | NodeKind::LetIdent | NodeKind::ConstIdent => {
+            Some(Inst::Def)
         }
+
+        // Ref
+        NodeKind::Expr(ExprKind::Ident) => Some(Inst::Ref),
+
+        // Open
+        NodeKind::FileBegin
+        | NodeKind::StructBodyBegin
+        | NodeKind::FnParams
+        | NodeKind::Expr(ExprKind::Block) => Some(Inst::Open),
+
+        // Close
+        NodeKind::FileEnd
+        | NodeKind::StructBodyEnd
+        | NodeKind::FnBodyEnd
+        | NodeKind::Expr(ExprKind::BlockEnd) => Some(Inst::Close),
+
+        // Everything else
+        _ => None,
     }
 }
 
@@ -63,7 +60,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
     let mut refs = IndexVec::new();
 
     for (node, node_kind) in nodes.nodes.iter_enumerated() {
-        match Inst::classify(*node_kind) {
+        match inst(*node_kind) {
             None => {}
             Some(Inst::Def) => stack.push(node),
             Some(Inst::Ref) => {
@@ -82,7 +79,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
             Some(Inst::Close) => {
                 loop {
                     let popped_node = stack.pop().expect("shouldn't run out of elements because we stop as soon as we hit matching open");
-                    match Inst::classify(nodes.nodes[popped_node]) {
+                    match inst(nodes.nodes[popped_node]) {
                         Some(Inst::Open) => {
                             top_start = popped_node;
                             break;
