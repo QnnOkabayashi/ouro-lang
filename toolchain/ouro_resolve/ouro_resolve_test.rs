@@ -56,11 +56,11 @@ fn test_resolve() {
 #[test]
 fn test_struct_visible_in_its_body() {
     insta::assert_snapshot!(case! {
-        const Thing = struct {
+        struct Thing {
             fn new(a: 1) {
                 Thing
             }
-        };
+        }
     });
 }
 
@@ -68,20 +68,5 @@ fn test_struct_visible_in_its_body() {
 fn test_params_can_refer_to_prior_params() {
     insta::assert_snapshot!(case! {
         fn foo(T: type, n: T) {}
-    });
-}
-
-#[test]
-fn test_hello() {
-    insta::assert_snapshot!(case! {
-        fn Vec(T: type) {
-            struct {
-                t: T,
-            }
-        }
-
-        fn main() {
-            // stuff
-        }
     });
 }

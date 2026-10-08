@@ -34,6 +34,7 @@ pub enum NodeKind {
     FileEnd,
     Pub,
     Struct,
+    StructIdent,
     StructBodyBegin,
     StructFieldIdent,
     StructFieldComma,

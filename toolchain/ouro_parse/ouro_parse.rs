@@ -97,14 +97,17 @@ impl<'a> Parser<'a> {
                 Some(TokenImpl::Fn) => self.parse_fn()?,
                 Some(TokenImpl::Ident) => self.parse_field_decl()?,
                 Some(TokenImpl::Const) => self.parse_const()?,
+                Some(TokenImpl::Struct) => self.parse_struct_decl()?,
                 _ => return Ok(()),
             }
         }
     }
 
-    fn parse_struct(&mut self) -> Result<(), Error> {
+    fn parse_struct_decl(&mut self) -> Result<(), Error> {
         self.nodes
             .push(self.cursor.eat(TokenImpl::Struct)?, NodeKind::Struct);
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::StructIdent);
         self.nodes.push(
             self.cursor.eat(TokenImpl::OpenBrace)?,
             NodeKind::StructBodyBegin,
@@ -260,7 +263,6 @@ impl<'a> Parser<'a> {
                 self.nodes
                     .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::IntLit));
             }
-            Some(TokenImpl::Struct) => self.parse_struct()?,
             Some(TokenImpl::StrLit) => {
                 self.nodes
                     .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Str));
@@ -284,7 +286,6 @@ impl<'a> Parser<'a> {
                         TokenImpl::OpenBrace,
                         TokenImpl::Ident,
                         TokenImpl::IntLit,
-                        TokenImpl::Struct,
                         TokenImpl::StrLit,
                         TokenImpl::I32Keyword,
                         TokenImpl::TypeKeyword,

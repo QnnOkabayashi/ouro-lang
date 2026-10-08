@@ -29,9 +29,11 @@ enum Inst {
 fn inst(node_kind: NodeKind) -> Option<Inst> {
     match node_kind {
         // Def
-        NodeKind::FnIdent | NodeKind::FnParamsIdent | NodeKind::LetIdent | NodeKind::ConstIdent => {
-            Some(Inst::Def)
-        }
+        NodeKind::StructIdent
+        | NodeKind::FnIdent
+        | NodeKind::FnParamsIdent
+        | NodeKind::LetIdent
+        | NodeKind::ConstIdent => Some(Inst::Def),
 
         // Ref
         NodeKind::Expr(ExprKind::Ident) => Some(Inst::Ref),

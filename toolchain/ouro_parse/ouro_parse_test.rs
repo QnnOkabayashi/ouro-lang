@@ -31,15 +31,15 @@ macro_rules! case {
 fn test_parse() {
     insta::assert_snapshot!(case! {
         fn a() { 1 + 2 * 3 }
-        const Foo = struct {
-            const Bar = struct {
+        struct Foo {
+            struct Bar {
                 fn foobar() {
                     let a = 4;
                     0b11_11
                 }
-            };
-        };
-        const Baz = struct {};
+            }
+        }
+        struct Baz {}
     });
 }
 
