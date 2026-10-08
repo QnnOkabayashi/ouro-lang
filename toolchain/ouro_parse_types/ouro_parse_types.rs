@@ -58,19 +58,6 @@ pub enum NodeKind {
 }
 
 impl NodeKind {
-    pub fn is_ident(self) -> bool {
-        matches!(
-            self,
-            NodeKind::StructFieldIdent
-                | NodeKind::FnIdent
-                | NodeKind::FnParamsIdent
-                | NodeKind::LetIdent
-                | NodeKind::ConstIdent
-                | NodeKind::Expr(ExprKind::Ident)
-                | NodeKind::BuiltinIdent
-        )
-    }
-
     pub fn has_token(self) -> bool {
         match self {
             NodeKind::FileBegin | NodeKind::FileEnd => false,
