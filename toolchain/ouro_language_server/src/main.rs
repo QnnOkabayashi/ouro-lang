@@ -14,7 +14,6 @@ use lsp_types::{
     ServerInfo, TextDocumentSyncCapability, TextDocumentSyncKind, Url, lsp_notification,
     lsp_request,
 };
-use ouro_index_vec::Counter;
 use ouro_parse_types::{ExprKind, NodeKind, Nodes};
 use ouro_span::Utf16Char;
 use tower::ServiceBuilder;
@@ -38,14 +37,17 @@ impl Analysis {
         let tokenize = ouro_tokenize::tokenize(&source);
         let source_map = TokenSourceMap::new(&tokenize, &source);
         let parse = ouro_parse::parse(&tokenize.tokens);
-        let mut refs = Counter::new();
 
-        let mut token_to_ref = HashMap::new();
-        for (node, &node_kind) in parse.nodes.nodes.iter_enumerated() {
-            if node_kind == NodeKind::Expr(ExprKind::Ident) {
-                token_to_ref.insert(parse.nodes.tokens[node], refs.next());
-            }
-        }
+        // Number the idents in order: 0, 1, 2, ...
+        // This assumes `ouro_resolve` hands out `Ref`s in the same order.
+        let token_to_ref = parse
+            .nodes
+            .nodes
+            .iter_enumerated()
+            .filter(|&(_, &kind)| kind == NodeKind::Expr(ExprKind::Ident))
+            .enumerate()
+            .map(|(i, (node, _))| (parse.nodes.tokens[node], Ref::from_usize(i)))
+            .collect();
 
         let resolve = parse
             .ok

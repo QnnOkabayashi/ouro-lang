@@ -101,7 +101,7 @@ fn round_trip_across_chunk_boundary() {
     let source = "word ".repeat(100);
     let (tokenize_result, map) = build(&source);
     assert!(
-        tokenize_result.tokens.len() as usize > CAP,
+        tokenize_result.tokens.len() > CAP,
         "test input needs to produce more than {CAP} tokens to be meaningful"
     );
 

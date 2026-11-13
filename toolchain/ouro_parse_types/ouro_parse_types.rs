@@ -60,10 +60,7 @@ pub enum NodeKind {
 
 impl NodeKind {
     pub fn has_token(self) -> bool {
-        match self {
-            NodeKind::FileBegin | NodeKind::FileEnd => false,
-            _ => true,
-        }
+        !matches!(self, NodeKind::FileBegin | NodeKind::FileEnd)
     }
 }
 
