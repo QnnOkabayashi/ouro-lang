@@ -1,4 +1,4 @@
-use ouro_index_vec::IndexVec;
+use ouro_index_vec::{IndexVec, index_vec};
 use ouro_span::{Byte, Span, Unit};
 use std::fmt::Debug;
 
@@ -12,26 +12,49 @@ pub struct Tokenize {
     pub spans: ByteSpans,
 }
 
+/// Where each token starts and ends.
+///
+/// `starts` holds where each token starts, plus one extra entry at the end:
+/// where the next token *would* start. Each token ends where the next one
+/// starts, so the ends are the same list shifted by one:
+///
+/// ```text
+/// starts:  0     5  6        12
+/// tokens:  [ t0 ][t1][  t2   ]
+/// ```
+///
+/// The extra entry sits at the one-past-the-end token: with `n` tokens,
+/// `starts[Token(n)]` is valid even though there is no token `n`.
 #[derive(Debug)]
 pub struct Spans<U: Unit> {
-    pub ends: IndexVec<Token, U>,
+    starts: IndexVec<Token, U>,
 }
 
 pub type ByteSpans = Spans<Byte>;
 
-impl<U: Unit> Spans<U> {
-    pub fn start(&self, token: Token) -> U {
-        if token.index() == 0 {
-            U::from(0)
-        } else {
-            self.ends[token - 1]
+/// No tokens yet: the first token will start at 0.
+impl<U: Unit> Default for Spans<U> {
+    fn default() -> Self {
+        Spans {
+            starts: index_vec![U::from(0)],
         }
     }
+}
 
+/// Extends with each new token's end, which is where the next one starts.
+impl<U: Unit> Extend<U> for Spans<U> {
+    fn extend<I: IntoIterator<Item = U>>(&mut self, ends: I) {
+        self.starts.extend(ends);
+    }
+}
+
+impl<U: Unit> Spans<U> {
     pub fn to_span(&self, token: Token) -> Span<U> {
+        // Each token ends where the next one starts.
+        let i = token.index();
         Span {
-            start: self.start(token),
-            end: self.ends[token],
+            start: self.starts.raw[i],
+            end: self.starts.raw[i + 1],
         }
     }
 }

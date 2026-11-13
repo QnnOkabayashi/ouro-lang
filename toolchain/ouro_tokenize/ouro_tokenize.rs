@@ -1,6 +1,6 @@
 use logos::{Lexer, Logos};
 use ouro_span::Byte;
-use ouro_tokenize_types::{Spans, TokenImpl, Tokenize};
+use ouro_tokenize_types::{TokenImpl, Tokenize};
 
 // Moves the lexer to the end of the string or the end of the line, whichever comes first.
 fn tokenize_string(lexer: &mut Lexer<'_, LogosToken>) -> Result<(), Error> {
@@ -185,13 +185,10 @@ fn to_token_impl(token: Result<LogosToken, Error>) -> TokenImpl {
 }
 
 pub fn tokenize(input: &str) -> Tokenize {
-    let (tokens, ends) = LogosToken::lexer(input)
+    let (tokens, spans) = LogosToken::lexer(input)
         .spanned()
         .map(|(token, span)| (to_token_impl(token), Byte::from_usize(span.end)))
         .unzip();
 
-    Tokenize {
-        tokens,
-        spans: Spans { ends },
-    }
+    Tokenize { tokens, spans }
 }
