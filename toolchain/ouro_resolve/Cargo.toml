@@ -11,11 +11,11 @@ name = "ouro_resolve_test"
 path = "ouro_resolve_test.rs"
 
 [dependencies]
-ouro_index_vec = { path = "../ouro_index_vec" }
-ouro_tokenize_types = { path = "../ouro_tokenize_types" }
-ouro_parse_types = { path = "../ouro_parse_types" }
+ouro_index_vec.workspace = true
+ouro_tokenize_types.workspace = true
+ouro_parse_types.workspace = true
 
 [dev-dependencies]
-insta = { workspace = true }
-ouro_tokenize = { path = "../ouro_tokenize" }
-ouro_parse = { path = "../ouro_parse" }
+insta.workspace = true
+ouro_tokenize.workspace = true
+ouro_parse.workspace = true

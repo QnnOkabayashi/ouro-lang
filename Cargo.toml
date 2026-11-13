@@ -1,19 +1,20 @@
 [workspace]
-members = [
-    "toolchain/ouro_index_vec",
-    "toolchain/ouro_language_server",
-    "toolchain/ouro_parse",
-    "toolchain/ouro_parse_types",
-    "toolchain/ouro_resolve",
-    "toolchain/ouro_span",
-    "toolchain/ouro_token_sum_tree",
-    "toolchain/ouro_tokenize",
-    "toolchain/ouro_tokenize_types",
-]
+# Every folder in toolchain/ is a crate.
+members = ["toolchain/*"]
 resolver = "3"
 
 [workspace.dependencies]
 insta = "1.46.1"
+
+# Internal crates. Depend on one with `ouro_foo.workspace = true`.
+ouro_index_vec = { path = "toolchain/ouro_index_vec" }
+ouro_parse = { path = "toolchain/ouro_parse" }
+ouro_parse_types = { path = "toolchain/ouro_parse_types" }
+ouro_resolve = { path = "toolchain/ouro_resolve" }
+ouro_span = { path = "toolchain/ouro_span" }
+ouro_token_sum_tree = { path = "toolchain/ouro_token_sum_tree" }
+ouro_tokenize = { path = "toolchain/ouro_tokenize" }
+ouro_tokenize_types = { path = "toolchain/ouro_tokenize_types" }
 
 [profile.dev.package.insta]
 opt-level = 3

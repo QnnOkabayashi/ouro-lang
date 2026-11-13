@@ -7,5 +7,5 @@ edition = "2024"
 path = "ouro_tokenize_types.rs"
 
 [dependencies]
-ouro_index_vec = { path = "../ouro_index_vec" }
-ouro_span = { path = "../ouro_span" }
+ouro_index_vec.workspace = true
+ouro_span.workspace = true

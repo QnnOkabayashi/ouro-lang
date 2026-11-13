@@ -4,14 +4,14 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-ouro_index_vec = { path = "../ouro_index_vec" }
-ouro_span = { path = "../ouro_span" }
-ouro_tokenize = { path = "../ouro_tokenize" }
-ouro_tokenize_types = { path = "../ouro_tokenize_types" }
-ouro_parse_types = { path = "../ouro_parse_types" }
-ouro_parse = { path = "../ouro_parse" }
-ouro_resolve = { path = "../ouro_resolve" }
-ouro_token_sum_tree = { path = "../ouro_token_sum_tree" }
+ouro_index_vec.workspace = true
+ouro_span.workspace = true
+ouro_tokenize.workspace = true
+ouro_tokenize_types.workspace = true
+ouro_parse_types.workspace = true
+ouro_parse.workspace = true
+ouro_resolve.workspace = true
+ouro_token_sum_tree.workspace = true
 
 async-lsp = { version = "0.2.4", features = ["tokio"] }
 lsp-types = "0.95.0"

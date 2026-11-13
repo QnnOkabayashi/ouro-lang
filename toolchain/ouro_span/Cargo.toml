@@ -7,4 +7,4 @@ edition = "2024"
 path = "ouro_span.rs"
 
 [dependencies]
-ouro_index_vec = { path = "../ouro_index_vec" }
+ouro_index_vec.workspace = true

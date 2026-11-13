@@ -7,9 +7,9 @@ edition = "2024"
 path = "ouro_parse_types.rs"
 
 [dependencies]
-ouro_index_vec = { path = "../ouro_index_vec" }
-ouro_span = { path = "../ouro_span" }
-ouro_tokenize_types = { path = "../ouro_tokenize_types" }
+ouro_index_vec.workspace = true
+ouro_span.workspace = true
+ouro_tokenize_types.workspace = true
 
 [dev-dependencies]
-insta = { workspace = true }
+insta.workspace = true
