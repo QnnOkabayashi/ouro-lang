@@ -3,6 +3,11 @@
 members = ["toolchain/*"]
 resolver = "3"
 
+# Shared by every crate: `version.workspace = true`, `edition.workspace = true`.
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+
 [workspace.dependencies]
 insta = "1.46.1"
 

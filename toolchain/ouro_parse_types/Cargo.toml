@@ -1,7 +1,7 @@
 [package]
 name = "ouro_parse_types"
-version = "0.0.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
 
 [lib]
 path = "ouro_parse_types.rs"
