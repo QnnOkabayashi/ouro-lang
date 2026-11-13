@@ -1,3 +1,4 @@
+use ouro_index_vec::Idx;
 use ouro_span::Utf16Char;
 use ouro_token_sum_tree::*;
 use ouro_tokenize::tokenize;
@@ -21,9 +22,9 @@ fn pos(row: u32, column: u32) -> RowColDelta<Utf16Char> {
 #[test]
 fn first_token_starts_at_origin() {
     let (_tokenize_result, map) = build("hello world");
-    assert_eq!(map.token_to_position(Token::from(0)), pos(0, 0));
-    assert_eq!(map.token_to_position(Token::from(1)), pos(0, 5));
-    assert_eq!(map.token_to_position(Token::from(2)), pos(0, 6));
+    assert_eq!(map.token_to_position(Token::from_raw(0)), pos(0, 0));
+    assert_eq!(map.token_to_position(Token::from_raw(1)), pos(0, 5));
+    assert_eq!(map.token_to_position(Token::from_raw(2)), pos(0, 6));
 }
 
 /// The single most important test here: for every token in the source,
@@ -57,11 +58,11 @@ fn newline_advances_row_and_resets_column() {
         .find_map(|(token, token_impl)| matches!(token_impl, TokenImpl::Newline).then_some(token))
         .expect("expected a newline token in this source");
 
-    let after_newline = Token::from(newline_idx.index() + 1);
+    let after_newline = Token::from_usize(newline_idx.index() + 1);
     let position = map.token_to_position(after_newline);
 
     assert_eq!(position.row, 1);
-    assert_eq!(position.column, Utf16Char::from(0));
+    assert_eq!(position.column, Utf16Char::from_raw(0));
 }
 
 /// A position sitting exactly on the boundary between two tokens should
@@ -73,10 +74,10 @@ fn position_at_boundary_resolves_to_later_token() {
     let source = "ab cd";
     let (_tokenize_result, map) = build(source);
 
-    let second_token_start = map.token_to_position(Token::from(1));
+    let second_token_start = map.token_to_position(Token::from_raw(1));
     assert_eq!(
         map.position_to_token(second_token_start),
-        Some(Token::from(1))
+        Some(Token::from_raw(1))
     );
 }
 
@@ -90,7 +91,7 @@ fn position_past_end_of_source_returns_none() {
 #[should_panic]
 fn token_out_of_range_panics() {
     let (tokenize_result, map) = build("a b c");
-    let out_of_range = Token::from(tokenize_result.tokens.len() + 10);
+    let out_of_range = Token::from_usize(tokenize_result.tokens.len() + 10);
     map.token_to_position(out_of_range);
 }
 

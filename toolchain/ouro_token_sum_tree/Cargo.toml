@@ -12,6 +12,7 @@ path = "ouro_token_sum_tree_test.rs"
 
 [dependencies]
 arrayvec = "0.7.8"
+ouro_index_vec = { path = "../ouro_index_vec" }
 ouro_tokenize_types = { path = "../ouro_tokenize_types" }
 ouro_span = { path = "../ouro_span" }
 zed-sum-tree = "0.2.0"

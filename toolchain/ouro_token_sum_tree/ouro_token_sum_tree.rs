@@ -1,6 +1,7 @@
 use std::ops::{Add, AddAssign};
 
 use arrayvec::ArrayVec;
+use ouro_index_vec::Idx;
 use ouro_span::{Unit, Utf16Char};
 use ouro_tokenize_types::{Token, TokenImpl, Tokenize};
 use zed_sum_tree::{Bias, Dimension, Dimensions, Item, SumTree, Summary};
@@ -38,11 +39,11 @@ impl<U: Unit> AddAssign for RowColDelta<U> {
 
 impl<'a> Dimension<'a, TokenSummary> for Token {
     fn zero(_cx: ()) -> Self {
-        Token::from(0)
+        Token::default()
     }
 
     fn add_summary(&mut self, summary: &'a TokenSummary, _cx: ()) {
-        *self += Token::from_raw(summary.token_count);
+        *self += summary.token_count;
     }
 }
 
@@ -57,7 +58,7 @@ impl<'a> Dimension<'a, TokenSummary> for RowColDelta<Utf16Char> {
 
 #[derive(Clone, Debug, Default)]
 struct TokenSummary {
-    token_count: u32,
+    token_count: Token,
     lines: RowColDelta<Utf16Char>,
 }
 
@@ -90,7 +91,7 @@ impl Item for Chunk {
         for &rcd in &self.row_col_deltas {
             summary.lines += rcd
         }
-        summary.token_count += self.row_col_deltas.len() as u32;
+        summary.token_count += self.row_col_deltas.len();
         summary
     }
 }
@@ -131,7 +132,7 @@ impl TokenSourceMap {
                 if token_impl == TokenImpl::Newline {
                     RowColDelta {
                         row: 1,
-                        column: Utf16Char::from(0),
+                        column: Utf16Char::from_raw(0),
                     }
                 } else {
                     RowColDelta {

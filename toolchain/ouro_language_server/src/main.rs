@@ -14,6 +14,7 @@ use lsp_types::{
     ServerInfo, TextDocumentSyncCapability, TextDocumentSyncKind, Url, lsp_notification,
     lsp_request,
 };
+use ouro_index_vec::Idx;
 use ouro_parse_types::{ExprKind, NodeKind, Nodes};
 use ouro_span::Utf16Char;
 use tower::ServiceBuilder;

@@ -1,10 +1,14 @@
-use ouro_index_vec::{IndexVec, index_vec};
+use ouro_index_vec::{Idx, IndexVec, index_vec};
 use ouro_span::{Byte, Span, Unit};
 use std::fmt::Debug;
 
 ouro_index_vec::define_index_type! {
+    #[derive(Default)]
     pub struct Token = u32;
 }
+
+// A token's id is also how many tokens come before it, so it's a quantity too.
+ouro_index_vec::impl_arithmetic!(Token);
 
 #[derive(Debug)]
 pub struct Tokenize {
@@ -36,7 +40,7 @@ pub type ByteSpans = Spans<Byte>;
 impl<U: Unit> Default for Spans<U> {
     fn default() -> Self {
         Spans {
-            starts: index_vec![U::from(0)],
+            starts: index_vec![U::from_usize(0)],
         }
     }
 }

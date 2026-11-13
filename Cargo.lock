@@ -561,6 +561,7 @@ name = "ouro_token_sum_tree"
 version = "0.0.0"
 dependencies = [
  "arrayvec",
+ "ouro_index_vec",
  "ouro_span",
  "ouro_tokenize",
  "ouro_tokenize_types",

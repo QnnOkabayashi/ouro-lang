@@ -5,7 +5,6 @@ use std::collections::HashMap;
 
 ouro_index_vec::define_index_type! {
     pub struct Ref = u32;
-    DEBUG_FORMAT = "Ref({})";
 }
 
 #[derive(Debug)]
@@ -56,7 +55,7 @@ fn inst(node_kind: NodeKind) -> Option<Inst> {
 }
 
 pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
-    let mut top_start = Node::from_usize(0);
+    let mut top_start = Node::from_raw(0);
     let mut stack = Vec::new();
     let mut dedup = HashMap::new();
     let mut refs = IndexVec::new();

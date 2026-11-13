@@ -23,7 +23,7 @@ impl<'a> Cursor<'a> {
     fn new(tokens: &'a IndexSlice<Token, [TokenImpl]>) -> Self {
         Cursor {
             tokens,
-            token: Token::new(0),
+            token: Token::from_raw(0),
         }
     }
 

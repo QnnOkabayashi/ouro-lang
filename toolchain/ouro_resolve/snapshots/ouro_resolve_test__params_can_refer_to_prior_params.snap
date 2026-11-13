@@ -10,7 +10,7 @@ expression: "case! { fn foo(T: type, n: T) {} }"
 5 Expr(TypeKeyword) "type"
 6 EndOfExpr ","
 7 FnParamsIdent "n"
-8 Expr(Ident) "T" -> RefImpl { node: 4, next: MaxOr(Ref(4294967295)) }
+8 Expr(Ident) "T" -> RefImpl { node: Node(4), next: MaxOr(Ref(4294967295)) }
 9 EndOfExpr ")"
 10 FnParamsEnd ")"
 11 FnBodyBegin "{"

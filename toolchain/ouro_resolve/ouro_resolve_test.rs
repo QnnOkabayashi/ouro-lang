@@ -14,7 +14,7 @@ fn pprint_name_resolve(input: &str) -> String {
 
     let mut out = String::new();
     for (node, &node_kind) in parse.nodes.nodes.iter_enumerated() {
-        write!(out, "{node:?} {node_kind:?}").unwrap();
+        write!(out, "{} {node_kind:?}", node.raw()).unwrap();
         if node_kind.has_token() {
             let string = tokenize
                 .spans

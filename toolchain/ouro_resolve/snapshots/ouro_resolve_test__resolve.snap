@@ -17,17 +17,17 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 12 Let "let"
 13 LetIdent "c"
 14 LetEq "="
-15 Expr(Ident) "add" -> RefImpl { node: 29, next: MaxOr(Ref(4294967295)) }
+15 Expr(Ident) "add" -> RefImpl { node: Node(29), next: MaxOr(Ref(4294967295)) }
 16 Expr(Call) "("
-17 Expr(Ident) "a" -> RefImpl { node: 4, next: MaxOr(Ref(4294967295)) }
-18 Expr(Ident) "a" -> RefImpl { node: 4, next: MaxOr(Ref(1)) }
+17 Expr(Ident) "a" -> RefImpl { node: Node(4), next: MaxOr(Ref(4294967295)) }
+18 Expr(Ident) "a" -> RefImpl { node: Node(4), next: MaxOr(Ref(1)) }
 19 Expr(Mul) "*"
 20 EndOfExpr ","
-21 Expr(Ident) "b" -> RefImpl { node: 7, next: MaxOr(Ref(4294967295)) }
+21 Expr(Ident) "b" -> RefImpl { node: Node(7), next: MaxOr(Ref(4294967295)) }
 22 EndOfExpr ")"
 23 Expr(CallEnd) ")"
 24 EndOfExpr ";"
-25 Expr(Ident) "c" -> RefImpl { node: 13, next: MaxOr(Ref(4294967295)) }
+25 Expr(Ident) "c" -> RefImpl { node: Node(13), next: MaxOr(Ref(4294967295)) }
 26 EndOfExpr "}"
 27 FnBodyEnd "}"
 28 Fn "fn"
@@ -41,10 +41,10 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 36 EndOfExpr ")"
 37 FnParamsEnd ")"
 38 FnBodyBegin "{"
-39 Expr(Ident) "a" -> RefImpl { node: 31, next: MaxOr(Ref(4294967295)) }
-40 Expr(Ident) "b" -> RefImpl { node: 34, next: MaxOr(Ref(4294967295)) }
+39 Expr(Ident) "a" -> RefImpl { node: Node(31), next: MaxOr(Ref(4294967295)) }
+40 Expr(Ident) "b" -> RefImpl { node: Node(34), next: MaxOr(Ref(4294967295)) }
 41 Expr(Add) "+"
-42 Expr(Ident) "c" -> RefImpl { node: 30, next: MaxOr(Ref(4294967295)) }
+42 Expr(Ident) "c" -> RefImpl { node: Node(30), next: MaxOr(Ref(4294967295)) }
 43 Expr(Add) "+"
 44 EndOfExpr "}"
 45 FnBodyEnd "}"

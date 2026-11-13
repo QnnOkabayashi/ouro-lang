@@ -1,4 +1,5 @@
 use logos::{Lexer, Logos};
+use ouro_index_vec::Idx;
 use ouro_span::Byte;
 use ouro_tokenize_types::{TokenImpl, Tokenize};
 
