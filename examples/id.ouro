@@ -1,0 +1,8 @@
+// Rung 1: Pi types.
+// `T` is a type, and the types of `x` and the result depend on it.
+fn id(T: type, x: T) T {
+    x
+}
+
+const good = id(i32, 5);
+const bad = id(i32, true); // should be rejected: expected i32, got bool

@@ -79,3 +79,12 @@ fn test_unary() {
         fn a() { -5 + !x * --y }
     });
 }
+
+#[test]
+fn test_fn_return_type() {
+    insta::assert_snapshot!(case! {
+        fn id(T: type, x: T) T {
+            x
+        }
+    });
+}

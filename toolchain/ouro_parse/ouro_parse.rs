@@ -126,6 +126,10 @@ impl<'a> Parser<'a> {
         self.nodes
             .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::FnIdent);
         self.parse_fn_params()?;
+        // Optional return type: `fn id(T: type, x: T) T { ... }`.
+        if self.cursor.peek() != Some(TokenImpl::OpenBrace) {
+            self.parse_expr()?;
+        }
         self.nodes.push(
             self.cursor.eat(TokenImpl::OpenBrace)?,
             NodeKind::FnBodyBegin,

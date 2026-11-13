@@ -1,0 +1,22 @@
+---
+source: toolchain/ouro_parse/ouro_parse_test.rs
+expression: "case! { fn id(T: type, x: T) T { x } }"
+---
+FileBegin
+Fn "fn" 0..2
+FnIdent "id" 3..5
+FnParams "(" 5..6
+FnParamsIdent "T" 6..7
+Expr(TypeKeyword) "type" 9..13
+EndOfExpr "," 13..14
+FnParamsIdent "x" 15..16
+Expr(Ident) "T" 18..19
+EndOfExpr ")" 19..20
+FnParamsEnd ")" 19..20
+Expr(Ident) "T" 21..22
+EndOfExpr "{" 23..24
+FnBodyBegin "{" 23..24
+Expr(Ident) "x" 25..26
+EndOfExpr "}" 27..28
+FnBodyEnd "}" 27..28
+FileEnd
