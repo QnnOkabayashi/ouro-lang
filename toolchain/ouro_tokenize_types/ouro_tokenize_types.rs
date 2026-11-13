@@ -98,8 +98,6 @@ pub enum TokenImpl {
 
     // Keywords
     Pub,
-    True,
-    False,
     Let,
     Const,
     Fn,

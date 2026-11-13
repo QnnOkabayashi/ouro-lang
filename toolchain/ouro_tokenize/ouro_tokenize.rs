@@ -108,10 +108,6 @@ enum LogosToken {
     // Keywords
     #[token("pub")]
     Pub,
-    #[token("true")]
-    True,
-    #[token("false")]
-    False,
     #[token("let")]
     Let,
     #[token("const")]
@@ -166,8 +162,6 @@ fn to_token_impl(token: Result<LogosToken, Error>) -> TokenImpl {
         Ok(LogosToken::Bang) => TokenImpl::Bang,
         Ok(LogosToken::Ampersand) => TokenImpl::Ampersand,
         Ok(LogosToken::Pub) => TokenImpl::Pub,
-        Ok(LogosToken::True) => TokenImpl::True,
-        Ok(LogosToken::False) => TokenImpl::False,
         Ok(LogosToken::Let) => TokenImpl::Let,
         Ok(LogosToken::Const) => TokenImpl::Const,
         Ok(LogosToken::Fn) => TokenImpl::Fn,
