@@ -1,4 +1,4 @@
-use ouro_index_vec::Idx;
+use ouro_index_vec::{Delta, Idx};
 use ouro_span::Utf16Char;
 use ouro_token_sum_tree::*;
 use ouro_tokenize::tokenize;
@@ -15,7 +15,7 @@ fn build(source: &str) -> (Tokenize, TokenSourceMap) {
 fn pos(row: u32, column: u32) -> RowColDelta<Utf16Char> {
     RowColDelta {
         row,
-        column: Utf16Char::from_raw(column),
+        column: Delta::from_raw(column),
     }
 }
 
@@ -62,7 +62,7 @@ fn newline_advances_row_and_resets_column() {
     let position = map.token_to_position(after_newline);
 
     assert_eq!(position.row, 1);
-    assert_eq!(position.column, Utf16Char::from_raw(0));
+    assert_eq!(position.column, Delta::ZERO);
 }
 
 /// A position sitting exactly on the boundary between two tokens should

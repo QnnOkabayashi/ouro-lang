@@ -14,9 +14,8 @@ use lsp_types::{
     ServerInfo, TextDocumentSyncCapability, TextDocumentSyncKind, Url, lsp_notification,
     lsp_request,
 };
-use ouro_index_vec::Idx;
+use ouro_index_vec::{Delta, Idx};
 use ouro_parse_types::{ExprKind, NodeKind, Nodes};
-use ouro_span::Utf16Char;
 use tower::ServiceBuilder;
 use tracing::{Level, info};
 
@@ -133,7 +132,7 @@ async fn main() {
                 let pos = params.text_document_position_params.position;
                 let Some(token) = analysis.source_map.position_to_token(RowColDelta {
                     row: pos.line,
-                    column: Utf16Char::from_raw(pos.character),
+                    column: Delta::from_raw(pos.character),
                 }) else {
                     info!("position not found");
                     return future::ready(Ok(None));

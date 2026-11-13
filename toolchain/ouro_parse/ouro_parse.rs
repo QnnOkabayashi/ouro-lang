@@ -1,4 +1,4 @@
-use ouro_index_vec::{IndexSlice, IndexVec};
+use ouro_index_vec::{Delta, IndexSlice, IndexVec};
 use ouro_parse_types::{ExprKind, NodeKind, Nodes};
 use ouro_tokenize_types::{Token, TokenImpl};
 
@@ -49,7 +49,7 @@ impl<'a> Cursor<'a> {
 
     fn advance_1(&mut self) -> Token {
         let index = self.token;
-        self.token += 1;
+        self.token += Delta::ONE;
         self.skip_whitespace();
         index
     }
@@ -58,7 +58,7 @@ impl<'a> Cursor<'a> {
         while let Some(TokenImpl::Comment | TokenImpl::Whitespace | TokenImpl::Newline) =
             self.peek()
         {
-            self.token += 1;
+            self.token += Delta::ONE;
         }
     }
 }

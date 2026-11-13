@@ -1,7 +1,7 @@
 use std::ops::{Add, AddAssign};
 
 use arrayvec::ArrayVec;
-use ouro_index_vec::Idx;
+use ouro_index_vec::Delta;
 use ouro_span::{Unit, Utf16Char};
 use ouro_tokenize_types::{Token, TokenImpl, Tokenize};
 use zed_sum_tree::{Bias, Dimension, Dimensions, Item, SumTree, Summary};
@@ -10,7 +10,7 @@ use zed_sum_tree::{Bias, Dimension, Dimensions, Item, SumTree, Summary};
 pub struct RowColDelta<U: Unit> {
     // Note: row must come first to make it have higher precedence in derived Ord impl.
     pub row: u32,
-    pub column: U,
+    pub column: Delta<U>,
 }
 
 impl<U: Unit> Add for RowColDelta<U> {
@@ -58,7 +58,7 @@ impl<'a> Dimension<'a, TokenSummary> for RowColDelta<Utf16Char> {
 
 #[derive(Clone, Debug, Default)]
 struct TokenSummary {
-    token_count: Token,
+    token_count: Delta<Token>,
     lines: RowColDelta<Utf16Char>,
 }
 
@@ -91,7 +91,7 @@ impl Item for Chunk {
         for &rcd in &self.row_col_deltas {
             summary.lines += rcd
         }
-        summary.token_count += self.row_col_deltas.len();
+        summary.token_count += Delta::from_usize(self.row_col_deltas.len());
         summary
     }
 }
@@ -132,7 +132,7 @@ impl TokenSourceMap {
                 if token_impl == TokenImpl::Newline {
                     RowColDelta {
                         row: 1,
-                        column: Utf16Char::from_raw(0),
+                        column: Delta::ZERO,
                     }
                 } else {
                     RowColDelta {
@@ -155,7 +155,7 @@ impl TokenSourceMap {
         cursor.seek(&token, Bias::Left);
 
         let &Dimensions(start_token, mut delta, ()) = cursor.start();
-        let len = token.index() - start_token.index();
+        let len = (token - start_token).to_usize();
         // we're in a chunk now.
         // go from start_token to token (accumulating delta as we go) until we're at token
         // then return delta.
@@ -182,7 +182,7 @@ impl TokenSourceMap {
             if position < cur {
                 return Some(token);
             }
-            token += 1;
+            token += Delta::ONE;
         }
         None
     }

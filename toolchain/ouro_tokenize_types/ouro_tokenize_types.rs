@@ -7,9 +7,6 @@ ouro_index_vec::define_index_type! {
     pub struct Token = u32;
 }
 
-// A token's id is also how many tokens come before it, so it's a quantity too.
-ouro_index_vec::impl_arithmetic!(Token);
-
 #[derive(Debug)]
 pub struct Tokenize {
     pub tokens: IndexVec<Token, TokenImpl>,

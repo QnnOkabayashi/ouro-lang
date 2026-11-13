@@ -1,12 +1,11 @@
 use std::fmt::{Debug, Formatter, Result};
-use std::ops::{Add, AddAssign, SubAssign};
 
-use ouro_index_vec::Idx;
+use ouro_index_vec::{Delta, Idx};
 
-pub trait Unit:
-    Idx + Add<Output = Self> + SubAssign + AddAssign + PartialOrd + Ord + Debug
-{
-    fn len(s: &str) -> Self;
+/// A unit for measuring source code: bytes, UTF-8 chars, or UTF-16 chars.
+pub trait Unit: Idx + Ord + Debug {
+    /// How long `s` is, in this unit.
+    fn len(s: &str) -> Delta<Self>;
 }
 
 /// A span of source code.
@@ -34,24 +33,20 @@ ouro_index_vec::define_index_type! {
     pub struct Utf16Char = u32;
 }
 
-ouro_index_vec::impl_arithmetic!(Byte);
-ouro_index_vec::impl_arithmetic!(Utf8Char);
-ouro_index_vec::impl_arithmetic!(Utf16Char);
-
 impl Unit for Byte {
-    fn len(s: &str) -> Self {
-        Byte::from_usize(s.len())
+    fn len(s: &str) -> Delta<Self> {
+        Delta::from_usize(s.len())
     }
 }
 impl Unit for Utf8Char {
-    fn len(s: &str) -> Self {
-        Utf8Char::from_usize(s.chars().count())
+    fn len(s: &str) -> Delta<Self> {
+        Delta::from_usize(s.chars().count())
     }
 }
 
 impl Unit for Utf16Char {
-    fn len(s: &str) -> Self {
-        Utf16Char::from_usize(s.encode_utf16().count())
+    fn len(s: &str) -> Delta<Self> {
+        Delta::from_usize(s.encode_utf16().count())
     }
 }
 
