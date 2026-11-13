@@ -1,0 +1,22 @@
+---
+source: toolchain/ouro_parse/ouro_parse_test.rs
+expression: "case! { fn a() { -5 + !x * --y } }"
+---
+FileBegin
+Fn "fn" 0..2
+FnIdent "a" 3..4
+FnParams "(" 4..5
+FnParamsEnd ")" 5..6
+FnBodyBegin "{" 7..8
+Expr(IntLit) "5" 10..11
+Expr(Neg) "-" 9..10
+Expr(Ident) "x" 15..16
+Expr(Not) "!" 14..15
+Expr(Ident) "y" 21..22
+Expr(Neg) "-" 20..21
+Expr(Neg) "-" 19..20
+Expr(Mul) "*" 17..18
+Expr(Add) "+" 12..13
+EndOfExpr "}" 23..24
+FnBodyEnd "}" 23..24
+FileEnd

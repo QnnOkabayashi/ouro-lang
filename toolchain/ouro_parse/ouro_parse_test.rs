@@ -72,3 +72,10 @@ fn test_i32_and_type_keywords() {
         }
     });
 }
+
+#[test]
+fn test_unary() {
+    insta::assert_snapshot!(case! {
+        fn a() { -5 + !x * --y }
+    });
+}

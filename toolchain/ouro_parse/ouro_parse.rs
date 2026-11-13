@@ -241,7 +241,7 @@ impl<'a> Parser<'a> {
         let token = self.cursor.advance_1();
         self.parse_factor()?;
         self.nodes.push(token, kind);
-        self.parse_atom()
+        Ok(())
     }
 
     fn parse_atom(&mut self) -> Result<(), Error> {
