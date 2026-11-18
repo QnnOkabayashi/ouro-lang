@@ -16,7 +16,6 @@ pub enum NodeKind {
     StructIdent,
     StructBodyBegin,
     StructFieldIdent,
-    StructFieldComma,
     StructBodyEnd,
     Fn,
     FnIdent,

@@ -368,10 +368,7 @@ impl<'a> Parser<'a> {
         );
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
-        self.nodes.push(
-            self.cursor.eat(TokenImpl::Comma)?,
-            NodeKind::StructFieldComma,
-        );
+        self.cursor.eat(TokenImpl::Comma)?;
         Ok(())
     }
 
