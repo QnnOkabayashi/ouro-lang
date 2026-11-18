@@ -204,17 +204,33 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_expr(&mut self) -> Result<(), Error> {
+        self.parse_sum()?;
+        let kind = match self.cursor.peek() {
+            Some(TokenImpl::Lt) => Some(NodeKind::Lt),
+            Some(TokenImpl::Gt) => Some(NodeKind::Gt),
+            Some(TokenImpl::Le) => Some(NodeKind::Le),
+            Some(TokenImpl::Ge) => Some(NodeKind::Ge),
+            Some(TokenImpl::EqEq) => Some(NodeKind::EqEq),
+            _ => None,
+        };
+        if let Some(kind) = kind {
+            let token = self.cursor.advance_1();
+            self.parse_sum()?;
+            self.nodes.push(token, kind);
+        }
+        if self.cursor.peek().is_some() {
+            self.nodes.push(self.cursor.token, NodeKind::EndOfExpr);
+        }
+        Ok(())
+    }
+
+    fn parse_sum(&mut self) -> Result<(), Error> {
         self.parse_term()?;
         loop {
             let kind = match self.cursor.peek() {
                 Some(TokenImpl::Plus) => NodeKind::Add,
                 Some(TokenImpl::Dash) => NodeKind::Sub,
-                t => {
-                    if t.is_some() {
-                        self.nodes.push(self.cursor.token, NodeKind::EndOfExpr);
-                    }
-                    return Ok(());
-                }
+                _ => return Ok(()),
             };
             let token = self.cursor.advance_1();
             self.parse_term()?;

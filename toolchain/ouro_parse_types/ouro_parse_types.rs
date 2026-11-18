@@ -31,8 +31,11 @@ pub enum NodeKind {
     Const,
     ConstIdent,
     ConstEq,
-
-    // Expressions.
+    Lt,
+    Gt,
+    Le,
+    Ge,
+    EqEq,
     Add,
     Sub,
     Mul,

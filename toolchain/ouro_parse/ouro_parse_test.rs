@@ -116,3 +116,28 @@ fn test_if_in_an_expression() {
         const N = 1 + if k { 2 } else { 3 } + 4;
     });
 }
+
+#[test]
+fn test_comparisons() {
+    insta::assert_snapshot!(case! {
+        const A = 1 + 2 < 3 * 4;
+        const B = a > b;
+        const C = a <= b;
+        const D = a >= b;
+        const E = a == b;
+    });
+}
+
+#[test]
+fn test_comparison_in_if() {
+    insta::assert_snapshot!(case! {
+        fn f(i: i32, n: i32) i32 { if i < n { i } else { n } }
+    });
+}
+
+#[test]
+fn test_comparisons_do_not_chain() {
+    let input = "const A = a < b < c;";
+    let parse = parse(&tokenize(input).tokens);
+    assert!(parse.ok.is_err());
+}

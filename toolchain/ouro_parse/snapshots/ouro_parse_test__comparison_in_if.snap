@@ -1,0 +1,35 @@
+---
+source: toolchain/ouro_parse/ouro_parse_test.rs
+expression: "case! { fn f(i: i32, n: i32) i32 { if i < n { i } else { n } } }"
+---
+FileBegin
+Fn "fn" 0..2
+FnIdent "f" 3..4
+FnParams "(" 4..5
+FnParamsIdent "i" 5..6
+I32Keyword "i32" 8..11
+EndOfExpr "," 11..12
+FnParamsIdent "n" 13..14
+I32Keyword "i32" 16..19
+EndOfExpr ")" 19..20
+FnParamsEnd ")" 19..20
+I32Keyword "i32" 21..24
+EndOfExpr "{" 25..26
+FnBodyBegin "{" 25..26
+If "if" 27..29
+Ident "i" 30..31
+Ident "n" 34..35
+Lt "<" 32..33
+EndOfExpr "{" 36..37
+Block "{" 36..37
+Ident "i" 38..39
+EndOfExpr "}" 40..41
+BlockEnd "}" 40..41
+Else "else" 42..46
+Block "{" 47..48
+Ident "n" 49..50
+EndOfExpr "}" 51..52
+BlockEnd "}" 51..52
+EndOfExpr "}" 53..54
+FnBodyEnd "}" 53..54
+FileEnd
