@@ -283,7 +283,7 @@ impl<'a> Parser<'a> {
                     NodeKind::Expr(ExprKind::TypeKeyword),
                 );
             }
-            Some(TokenImpl::Ampersand) => self.parse_builtin()?,
+            Some(TokenImpl::At) => self.parse_builtin()?,
             actual => {
                 return Err(Error {
                     expected: Expected::OneOf(&[
@@ -293,7 +293,7 @@ impl<'a> Parser<'a> {
                         TokenImpl::StrLit,
                         TokenImpl::I32Keyword,
                         TokenImpl::TypeKeyword,
-                        TokenImpl::Ampersand,
+                        TokenImpl::At,
                     ]),
                     actual,
                 });
@@ -354,7 +354,7 @@ impl<'a> Parser<'a> {
 
     fn parse_builtin(&mut self) -> Result<(), Error> {
         self.nodes
-            .push(self.cursor.advance_1(), NodeKind::BuiltinAmpersand);
+            .push(self.cursor.advance_1(), NodeKind::BuiltinAt);
         self.nodes
             .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::BuiltinIdent);
         self.cursor.skip_whitespace();

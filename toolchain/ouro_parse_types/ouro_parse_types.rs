@@ -53,7 +53,7 @@ pub enum NodeKind {
     ConstIdent,
     ConstEq,
     Expr(ExprKind),
-    BuiltinAmpersand,
+    BuiltinAt,
     BuiltinIdent,
     EndOfExpr,
 }

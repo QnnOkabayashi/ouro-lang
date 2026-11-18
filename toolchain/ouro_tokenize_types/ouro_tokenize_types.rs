@@ -91,7 +91,7 @@ pub enum TokenImpl {
     EqEq,
     RArrow,
     Bang,
-    Ampersand,
+    At,
 
     // Keywords
     Pub,

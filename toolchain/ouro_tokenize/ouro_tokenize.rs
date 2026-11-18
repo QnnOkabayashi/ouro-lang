@@ -103,7 +103,7 @@ enum LogosToken {
     #[token("!")]
     Bang,
     #[token("@")]
-    Ampersand,
+    At,
 
     // Keywords
     #[token("pub")]
@@ -160,7 +160,7 @@ fn to_token_impl(token: Result<LogosToken, Error>) -> TokenImpl {
         Ok(LogosToken::EqEq) => TokenImpl::EqEq,
         Ok(LogosToken::RArrow) => TokenImpl::RArrow,
         Ok(LogosToken::Bang) => TokenImpl::Bang,
-        Ok(LogosToken::Ampersand) => TokenImpl::Ampersand,
+        Ok(LogosToken::At) => TokenImpl::At,
         Ok(LogosToken::Pub) => TokenImpl::Pub,
         Ok(LogosToken::Let) => TokenImpl::Let,
         Ok(LogosToken::Const) => TokenImpl::Const,
