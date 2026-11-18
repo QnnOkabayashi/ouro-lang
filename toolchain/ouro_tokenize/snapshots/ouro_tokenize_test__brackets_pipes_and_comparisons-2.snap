@@ -1,0 +1,21 @@
+---
+source: toolchain/ouro_tokenize/ouro_tokenize_test.rs
+expression: "pprint_tokenize(\"a > b <= c >= d -> e\")"
+---
+Ident 0..1 
+Whitespace 1..2 
+Gt 2..3 
+Whitespace 3..4 
+Ident 4..5 
+Whitespace 5..6 
+Le 6..8 
+Whitespace 8..9 
+Ident 9..10 
+Whitespace 10..11 
+Ge 11..13 
+Whitespace 13..14 
+Ident 14..15 
+Whitespace 15..16 
+RArrow 16..18 
+Whitespace 18..19 
+Ident 19..20

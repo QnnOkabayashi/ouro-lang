@@ -68,3 +68,9 @@ fn builtins() {
     insta::assert_snapshot!(pprint_tokenize("i32 type"));
     insta::assert_snapshot!(pprint_tokenize("api32 typename"));
 }
+
+#[test]
+fn brackets_pipes_and_comparisons() {
+    insta::assert_snapshot!(pprint_tokenize("[a] |x| i < n"));
+    insta::assert_snapshot!(pprint_tokenize("a > b <= c >= d -> e"));
+}

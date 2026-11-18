@@ -92,6 +92,13 @@ pub enum TokenImpl {
     RArrow,
     Bang,
     At,
+    Lt,
+    Gt,
+    Le,
+    Ge,
+    Pipe,
+    OpenBracket,
+    CloseBracket,
 
     // Keywords
     Pub,

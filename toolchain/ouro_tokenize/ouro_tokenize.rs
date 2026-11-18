@@ -104,6 +104,20 @@ enum LogosToken {
     Bang,
     #[token("@")]
     At,
+    #[token("<")]
+    Lt,
+    #[token(">")]
+    Gt,
+    #[token("<=")]
+    Le,
+    #[token(">=")]
+    Ge,
+    #[token("|")]
+    Pipe,
+    #[token("[")]
+    OpenBracket,
+    #[token("]")]
+    CloseBracket,
 
     // Keywords
     #[token("pub")]
@@ -161,6 +175,13 @@ fn to_token_impl(token: Result<LogosToken, Error>) -> TokenImpl {
         Ok(LogosToken::RArrow) => TokenImpl::RArrow,
         Ok(LogosToken::Bang) => TokenImpl::Bang,
         Ok(LogosToken::At) => TokenImpl::At,
+        Ok(LogosToken::Lt) => TokenImpl::Lt,
+        Ok(LogosToken::Gt) => TokenImpl::Gt,
+        Ok(LogosToken::Le) => TokenImpl::Le,
+        Ok(LogosToken::Ge) => TokenImpl::Ge,
+        Ok(LogosToken::Pipe) => TokenImpl::Pipe,
+        Ok(LogosToken::OpenBracket) => TokenImpl::OpenBracket,
+        Ok(LogosToken::CloseBracket) => TokenImpl::CloseBracket,
         Ok(LogosToken::Pub) => TokenImpl::Pub,
         Ok(LogosToken::Let) => TokenImpl::Let,
         Ok(LogosToken::Const) => TokenImpl::Const,
