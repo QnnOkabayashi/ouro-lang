@@ -15,7 +15,7 @@ use lsp_types::{
     lsp_request,
 };
 use ouro_index_vec::{Delta, Idx};
-use ouro_parse_types::{ExprKind, NodeKind, Nodes};
+use ouro_parse_types::{NodeKind, Nodes};
 use tower::ServiceBuilder;
 use tracing::{Level, info};
 
@@ -44,7 +44,7 @@ impl Analysis {
             .nodes
             .nodes
             .iter_enumerated()
-            .filter(|&(_, &kind)| kind == NodeKind::Expr(ExprKind::Ident))
+            .filter(|&(_, &kind)| kind == NodeKind::Ident)
             .enumerate()
             .map(|(i, (node, _))| (parse.nodes.tokens[node], Ref::from_usize(i)))
             .collect();

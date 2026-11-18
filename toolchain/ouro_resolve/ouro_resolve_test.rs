@@ -1,5 +1,5 @@
 use ouro_parse::parse;
-use ouro_parse_types::{ExprKind, NodeKind};
+use ouro_parse_types::NodeKind;
 use ouro_resolve::*;
 use ouro_tokenize::tokenize;
 
@@ -23,7 +23,7 @@ fn pprint_name_resolve(input: &str) -> String {
             write!(out, " {string:?}").unwrap();
         }
 
-        if let NodeKind::Expr(ExprKind::Ident) = node_kind {
+        if let NodeKind::Ident = node_kind {
             let opt_def = iter.next().expect("should align");
             write!(out, " -> {opt_def:?}").unwrap();
         }

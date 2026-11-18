@@ -1,5 +1,5 @@
 use ouro_index_vec::{IndexVec, MaxOr};
-use ouro_parse_types::{ExprKind, Node, NodeKind, Nodes};
+use ouro_parse_types::{Node, NodeKind, Nodes};
 use ouro_tokenize_types::ByteSpans;
 use std::collections::HashMap;
 
@@ -35,19 +35,17 @@ fn inst(node_kind: NodeKind) -> Option<Inst> {
         | NodeKind::ConstIdent => Some(Inst::Def),
 
         // Ref
-        NodeKind::Expr(ExprKind::Ident) => Some(Inst::Ref),
+        NodeKind::Ident => Some(Inst::Ref),
 
         // Open
-        NodeKind::FileBegin
-        | NodeKind::StructBodyBegin
-        | NodeKind::FnParams
-        | NodeKind::Expr(ExprKind::Block) => Some(Inst::Open),
+        NodeKind::FileBegin | NodeKind::StructBodyBegin | NodeKind::FnParams | NodeKind::Block => {
+            Some(Inst::Open)
+        }
 
         // Close
-        NodeKind::FileEnd
-        | NodeKind::StructBodyEnd
-        | NodeKind::FnBodyEnd
-        | NodeKind::Expr(ExprKind::BlockEnd) => Some(Inst::Close),
+        NodeKind::FileEnd | NodeKind::StructBodyEnd | NodeKind::FnBodyEnd | NodeKind::BlockEnd => {
+            Some(Inst::Close)
+        }
 
         // Everything else
         _ => None,

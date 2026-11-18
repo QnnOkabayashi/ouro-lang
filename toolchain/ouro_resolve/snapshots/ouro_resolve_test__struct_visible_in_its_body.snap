@@ -10,11 +10,11 @@ expression: "case! { struct Thing { fn new(a: 1) { Thing } } }"
 5 FnIdent "new"
 6 FnParams "("
 7 FnParamsIdent "a"
-8 Expr(IntLit) "1"
+8 IntLit "1"
 9 EndOfExpr ")"
 10 FnParamsEnd ")"
 11 FnBodyBegin "{"
-12 Expr(Ident) "Thing" -> RefImpl { node: Node(2), next: MaxOr(Ref(4294967295)) }
+12 Ident "Thing" -> RefImpl { node: Node(2), next: MaxOr(Ref(4294967295)) }
 13 EndOfExpr "}"
 14 FnBodyEnd "}"
 15 StructBodyEnd "}"

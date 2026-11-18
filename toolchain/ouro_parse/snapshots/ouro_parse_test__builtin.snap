@@ -8,7 +8,7 @@ ConstIdent "Name" 6..10
 ConstEq "=" 11..12
 BuiltinAt "@" 13..14
 BuiltinIdent "This" 14..18
-Expr(Call) "(" 18..19
-Expr(CallEnd) ")" 19..20
+Call "(" 18..19
+CallEnd ")" 19..20
 EndOfExpr ";" 20..21
 FileEnd

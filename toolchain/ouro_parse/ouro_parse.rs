@@ -1,5 +1,5 @@
 use ouro_index_vec::{Delta, IndexSlice, IndexVec};
-use ouro_parse_types::{ExprKind, NodeKind, Nodes};
+use ouro_parse_types::{NodeKind, Nodes};
 use ouro_tokenize_types::{Token, TokenImpl};
 
 #[derive(Clone, Debug)]
@@ -207,8 +207,8 @@ impl<'a> Parser<'a> {
         self.parse_term()?;
         loop {
             let kind = match self.cursor.peek() {
-                Some(TokenImpl::Plus) => NodeKind::Expr(ExprKind::Add),
-                Some(TokenImpl::Dash) => NodeKind::Expr(ExprKind::Sub),
+                Some(TokenImpl::Plus) => NodeKind::Add,
+                Some(TokenImpl::Dash) => NodeKind::Sub,
                 t => {
                     if t.is_some() {
                         self.nodes.push(self.cursor.token, NodeKind::EndOfExpr);
@@ -226,8 +226,8 @@ impl<'a> Parser<'a> {
         self.parse_factor()?;
         loop {
             let kind = match self.cursor.peek() {
-                Some(TokenImpl::Star) => NodeKind::Expr(ExprKind::Mul),
-                Some(TokenImpl::Slash) => NodeKind::Expr(ExprKind::Div),
+                Some(TokenImpl::Star) => NodeKind::Mul,
+                Some(TokenImpl::Slash) => NodeKind::Div,
                 _ => return Ok(()),
             };
             let token = self.cursor.advance_1();
@@ -238,8 +238,8 @@ impl<'a> Parser<'a> {
 
     fn parse_factor(&mut self) -> Result<(), Error> {
         let kind = match self.cursor.peek() {
-            Some(TokenImpl::Bang) => NodeKind::Expr(ExprKind::Not),
-            Some(TokenImpl::Dash) => NodeKind::Expr(ExprKind::Neg),
+            Some(TokenImpl::Bang) => NodeKind::Not,
+            Some(TokenImpl::Dash) => NodeKind::Neg,
             _ => return self.parse_atom(),
         };
         let token = self.cursor.advance_1();
@@ -251,37 +251,27 @@ impl<'a> Parser<'a> {
     fn parse_atom(&mut self) -> Result<(), Error> {
         match self.cursor.peek() {
             Some(TokenImpl::OpenBrace) => {
-                self.nodes
-                    .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Block));
+                self.nodes.push(self.cursor.advance_1(), NodeKind::Block);
                 self.parse_block_body()?;
-                self.nodes.push(
-                    self.cursor.eat(TokenImpl::CloseBrace)?,
-                    NodeKind::Expr(ExprKind::BlockEnd),
-                );
+                self.nodes
+                    .push(self.cursor.eat(TokenImpl::CloseBrace)?, NodeKind::BlockEnd);
             }
             Some(TokenImpl::Ident) => {
-                self.nodes
-                    .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Ident));
+                self.nodes.push(self.cursor.advance_1(), NodeKind::Ident);
             }
             Some(TokenImpl::IntLit) => {
-                self.nodes
-                    .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::IntLit));
+                self.nodes.push(self.cursor.advance_1(), NodeKind::IntLit);
             }
             Some(TokenImpl::StrLit) => {
-                self.nodes
-                    .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Str));
+                self.nodes.push(self.cursor.advance_1(), NodeKind::Str);
             }
             Some(TokenImpl::I32Keyword) => {
-                self.nodes.push(
-                    self.cursor.advance_1(),
-                    NodeKind::Expr(ExprKind::I32Keyword),
-                );
+                self.nodes
+                    .push(self.cursor.advance_1(), NodeKind::I32Keyword);
             }
             Some(TokenImpl::TypeKeyword) => {
-                self.nodes.push(
-                    self.cursor.advance_1(),
-                    NodeKind::Expr(ExprKind::TypeKeyword),
-                );
+                self.nodes
+                    .push(self.cursor.advance_1(), NodeKind::TypeKeyword);
             }
             Some(TokenImpl::At) => self.parse_builtin()?,
             actual => {
@@ -302,12 +292,9 @@ impl<'a> Parser<'a> {
         loop {
             match self.cursor.peek() {
                 Some(TokenImpl::Dot) => {
+                    self.nodes.push(self.cursor.advance_1(), NodeKind::Dot);
                     self.nodes
-                        .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Dot));
-                    self.nodes.push(
-                        self.cursor.eat(TokenImpl::Ident)?,
-                        NodeKind::Expr(ExprKind::Field),
-                    );
+                        .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::Field);
                 }
                 Some(TokenImpl::OpenParen) => self.parse_call_args()?,
                 _ => return Ok(()),
@@ -316,14 +303,12 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_call_args(&mut self) -> Result<(), Error> {
-        self.nodes
-            .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::Call));
+        self.nodes.push(self.cursor.advance_1(), NodeKind::Call);
         let mut accept_comma = false;
         loop {
             match self.cursor.peek() {
                 Some(TokenImpl::CloseParen) => {
-                    self.nodes
-                        .push(self.cursor.advance_1(), NodeKind::Expr(ExprKind::CallEnd));
+                    self.nodes.push(self.cursor.advance_1(), NodeKind::CallEnd);
                     return Ok(());
                 }
                 Some(TokenImpl::Comma) if accept_comma => {

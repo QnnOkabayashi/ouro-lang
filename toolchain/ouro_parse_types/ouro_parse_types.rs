@@ -8,27 +8,6 @@ ouro_index_vec::define_index_type! {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ExprKind {
-    Add,
-    Sub,
-    Mul,
-    Div,
-    Not,
-    Neg,
-    Block,
-    BlockEnd,
-    Ident,
-    IntLit,
-    Dot,
-    Field,
-    Call,
-    CallEnd,
-    Str,
-    I32Keyword,
-    TypeKeyword,
-}
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum NodeKind {
     FileBegin,
     FileEnd,
@@ -52,7 +31,25 @@ pub enum NodeKind {
     Const,
     ConstIdent,
     ConstEq,
-    Expr(ExprKind),
+
+    // Expressions.
+    Add,
+    Sub,
+    Mul,
+    Div,
+    Not,
+    Neg,
+    Block,
+    BlockEnd,
+    Ident,
+    IntLit,
+    Dot,
+    Field,
+    Call,
+    CallEnd,
+    Str,
+    I32Keyword,
+    TypeKeyword,
     BuiltinAt,
     BuiltinIdent,
     EndOfExpr,
