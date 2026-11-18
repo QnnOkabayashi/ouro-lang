@@ -1,0 +1,43 @@
+---
+source: toolchain/ouro_parse/ouro_parse_test.rs
+expression: "case!\n{\n    struct Shape { kind: bool, data: i32 } struct Trailing\n    { kind: bool, data: i32, } struct WithFn { len: i32, fn get() i32 { 0 } }\n}"
+---
+FileBegin
+Struct "struct" 0..6
+StructIdent "Shape" 7..12
+StructBodyBegin "{" 13..14
+StructFieldIdent "kind" 15..19
+Ident "bool" 21..25
+EndOfExpr "," 25..26
+StructFieldIdent "data" 27..31
+I32Keyword "i32" 33..36
+EndOfExpr "}" 37..38
+StructBodyEnd "}" 37..38
+Struct "struct" 39..45
+StructIdent "Trailing" 46..54
+StructBodyBegin "{" 55..56
+StructFieldIdent "kind" 57..61
+Ident "bool" 63..67
+EndOfExpr "," 67..68
+StructFieldIdent "data" 69..73
+I32Keyword "i32" 75..78
+EndOfExpr "," 78..79
+StructBodyEnd "}" 80..81
+Struct "struct" 82..88
+StructIdent "WithFn" 89..95
+StructBodyBegin "{" 96..97
+StructFieldIdent "len" 98..101
+I32Keyword "i32" 103..106
+EndOfExpr "," 106..107
+Fn "fn" 108..110
+FnIdent "get" 111..114
+FnParams "(" 114..115
+FnParamsEnd ")" 115..116
+I32Keyword "i32" 117..120
+EndOfExpr "{" 121..122
+FnBodyBegin "{" 121..122
+IntLit "0" 123..124
+EndOfExpr "}" 125..126
+FnBodyEnd "}" 125..126
+StructBodyEnd "}" 127..128
+FileEnd

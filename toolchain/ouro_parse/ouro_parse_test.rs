@@ -141,3 +141,19 @@ fn test_comparisons_do_not_chain() {
     let parse = parse(&tokenize(input).tokens);
     assert!(parse.ok.is_err());
 }
+
+#[test]
+fn test_struct_fields() {
+    insta::assert_snapshot!(case! {
+        struct Shape { kind: bool, data: i32 }
+        struct Trailing { kind: bool, data: i32, }
+        struct WithFn { len: i32, fn get() i32 { 0 } }
+    });
+}
+
+#[test]
+fn test_struct_fields_need_commas_between() {
+    let input = "struct S { a: i32 b: i32 }";
+    let parse = parse(&tokenize(input).tokens);
+    assert!(parse.ok.is_err());
+}

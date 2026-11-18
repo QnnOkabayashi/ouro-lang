@@ -368,8 +368,17 @@ impl<'a> Parser<'a> {
         );
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
-        self.cursor.eat(TokenImpl::Comma)?;
-        Ok(())
+        match self.cursor.peek() {
+            Some(TokenImpl::Comma) => {
+                let _ = self.cursor.advance_1();
+                Ok(())
+            }
+            Some(TokenImpl::CloseBrace) | None => Ok(()),
+            actual => Err(Error {
+                expected: Expected::OneOf(&[TokenImpl::Comma, TokenImpl::CloseBrace]),
+                actual,
+            }),
+        }
     }
 
     fn parse_builtin(&mut self) -> Result<(), Error> {
