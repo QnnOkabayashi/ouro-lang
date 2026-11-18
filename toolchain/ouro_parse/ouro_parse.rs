@@ -250,12 +250,8 @@ impl<'a> Parser<'a> {
 
     fn parse_atom(&mut self) -> Result<(), Error> {
         match self.cursor.peek() {
-            Some(TokenImpl::OpenBrace) => {
-                self.nodes.push(self.cursor.advance_1(), NodeKind::Block);
-                self.parse_block_body()?;
-                self.nodes
-                    .push(self.cursor.eat(TokenImpl::CloseBrace)?, NodeKind::BlockEnd);
-            }
+            Some(TokenImpl::OpenBrace) => self.parse_block()?,
+            Some(TokenImpl::If) => self.parse_if()?,
             Some(TokenImpl::Ident) => {
                 self.nodes.push(self.cursor.advance_1(), NodeKind::Ident);
             }
@@ -278,6 +274,7 @@ impl<'a> Parser<'a> {
                 return Err(Error {
                     expected: Expected::OneOf(&[
                         TokenImpl::OpenBrace,
+                        TokenImpl::If,
                         TokenImpl::Ident,
                         TokenImpl::IntLit,
                         TokenImpl::StrLit,
@@ -298,6 +295,31 @@ impl<'a> Parser<'a> {
                 }
                 Some(TokenImpl::OpenParen) => self.parse_call_args()?,
                 _ => return Ok(()),
+            }
+        }
+    }
+
+    fn parse_block(&mut self) -> Result<(), Error> {
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::OpenBrace)?, NodeKind::Block);
+        self.parse_block_body()?;
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::CloseBrace)?, NodeKind::BlockEnd);
+        Ok(())
+    }
+
+    fn parse_if(&mut self) -> Result<(), Error> {
+        loop {
+            self.nodes
+                .push(self.cursor.eat(TokenImpl::If)?, NodeKind::If);
+            self.parse_expr()?;
+            self.parse_block()?;
+            if self.cursor.peek() != Some(TokenImpl::Else) {
+                return Ok(());
+            }
+            self.nodes.push(self.cursor.advance_1(), NodeKind::Else);
+            if self.cursor.peek() != Some(TokenImpl::If) {
+                return self.parse_block();
             }
         }
     }

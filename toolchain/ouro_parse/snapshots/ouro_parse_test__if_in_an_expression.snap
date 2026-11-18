@@ -1,0 +1,26 @@
+---
+source: toolchain/ouro_parse/ouro_parse_test.rs
+expression: "case! { const N = 1 + if k { 2 } else { 3 } + 4; }"
+---
+FileBegin
+Const "const" 0..5
+ConstIdent "N" 6..7
+ConstEq "=" 8..9
+IntLit "1" 10..11
+If "if" 14..16
+Ident "k" 17..18
+EndOfExpr "{" 19..20
+Block "{" 19..20
+IntLit "2" 21..22
+EndOfExpr "}" 23..24
+BlockEnd "}" 23..24
+Else "else" 25..29
+Block "{" 30..31
+IntLit "3" 32..33
+EndOfExpr "}" 34..35
+BlockEnd "}" 34..35
+Add "+" 12..13
+IntLit "4" 38..39
+Add "+" 36..37
+EndOfExpr ";" 39..40
+FileEnd

@@ -41,6 +41,8 @@ pub enum NodeKind {
     Neg,
     Block,
     BlockEnd,
+    If,
+    Else,
     Ident,
     IntLit,
     Dot,

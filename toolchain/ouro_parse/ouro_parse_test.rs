@@ -88,3 +88,31 @@ fn test_fn_return_type() {
         }
     });
 }
+
+#[test]
+fn test_if_else() {
+    insta::assert_snapshot!(case! {
+        fn f(k: bool) i32 { if k { 1 } else { 2 } }
+    });
+}
+
+#[test]
+fn test_if_without_else() {
+    insta::assert_snapshot!(case! {
+        fn f(k: bool) { if k { g() } }
+    });
+}
+
+#[test]
+fn test_else_if() {
+    insta::assert_snapshot!(case! {
+        fn f(a: bool, b: bool) i32 { if a { 1 } else if b { 2 } else { 3 } }
+    });
+}
+
+#[test]
+fn test_if_in_an_expression() {
+    insta::assert_snapshot!(case! {
+        const N = 1 + if k { 2 } else { 3 } + 4;
+    });
+}

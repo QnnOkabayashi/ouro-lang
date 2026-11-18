@@ -1,0 +1,25 @@
+---
+source: toolchain/ouro_parse/ouro_parse_test.rs
+expression: "case! { fn f(k: bool) { if k { g() } } }"
+---
+FileBegin
+Fn "fn" 0..2
+FnIdent "f" 3..4
+FnParams "(" 4..5
+FnParamsIdent "k" 5..6
+Ident "bool" 8..12
+EndOfExpr ")" 12..13
+FnParamsEnd ")" 12..13
+FnBodyBegin "{" 14..15
+If "if" 16..18
+Ident "k" 19..20
+EndOfExpr "{" 21..22
+Block "{" 21..22
+Ident "g" 23..24
+Call "(" 24..25
+CallEnd ")" 25..26
+EndOfExpr "}" 27..28
+BlockEnd "}" 27..28
+EndOfExpr "}" 29..30
+FnBodyEnd "}" 29..30
+FileEnd
