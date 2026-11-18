@@ -132,8 +132,6 @@ enum LogosToken {
     Fn,
     #[token("struct")]
     Struct,
-    #[token("comptime")]
-    Comptime,
     #[token("if")]
     If,
     #[token("else")]
@@ -190,7 +188,6 @@ fn to_token_impl(token: Result<LogosToken, Error>) -> TokenImpl {
         Ok(LogosToken::Const) => TokenImpl::Const,
         Ok(LogosToken::Fn) => TokenImpl::Fn,
         Ok(LogosToken::Struct) => TokenImpl::Struct,
-        Ok(LogosToken::Comptime) => TokenImpl::Comptime,
         Ok(LogosToken::If) => TokenImpl::If,
         Ok(LogosToken::Else) => TokenImpl::Else,
         Ok(LogosToken::I32Keyword) => TokenImpl::I32Keyword,

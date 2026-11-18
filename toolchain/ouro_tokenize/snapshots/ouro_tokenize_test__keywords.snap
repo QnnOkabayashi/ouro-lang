@@ -1,9 +1,9 @@
 ---
 source: toolchain/ouro_tokenize/ouro_tokenize_test.rs
-expression: "pprint_tokenize(\"let fn comptime\")"
+expression: "pprint_tokenize(\"let fn struct\")"
 ---
 Let 0..3 
 Whitespace 3..4 
 Fn 4..6 
 Whitespace 6..7 
-Comptime 7..15
+Struct 7..13

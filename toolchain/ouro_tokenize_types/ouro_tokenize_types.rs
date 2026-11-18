@@ -107,7 +107,6 @@ pub enum TokenImpl {
     Const,
     Fn,
     Struct,
-    Comptime,
     If,
     Else,
 

@@ -59,8 +59,8 @@ fn newline_terminated_strings() {
 
 #[test]
 fn keywords() {
-    insta::assert_snapshot!(pprint_tokenize("let fn comptime"));
-    insta::assert_snapshot!(pprint_tokenize("letter fn_ comptime_"));
+    insta::assert_snapshot!(pprint_tokenize("let fn struct"));
+    insta::assert_snapshot!(pprint_tokenize("letter fn_ struct_"));
 }
 
 #[test]
