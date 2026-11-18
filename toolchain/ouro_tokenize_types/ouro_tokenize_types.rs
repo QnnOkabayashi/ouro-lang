@@ -92,6 +92,7 @@ pub enum TokenImpl {
     RArrow,
     Bang,
     At,
+    Ampersand,
     Lt,
     Gt,
     Le,

@@ -1,0 +1,16 @@
+---
+source: toolchain/ouro_tokenize/ouro_tokenize_test.rs
+expression: "pprint_tokenize(\"&b &mut b @This()\")"
+---
+Ampersand 0..1 
+Ident 1..2 
+Whitespace 2..3 
+Ampersand 3..4 
+Ident 4..7 
+Whitespace 7..8 
+Ident 8..9 
+Whitespace 9..10 
+At 10..11 
+Ident 11..15 
+OpenParen 15..16 
+CloseParen 16..17

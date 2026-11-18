@@ -73,4 +73,5 @@ fn builtins() {
 fn brackets_pipes_and_comparisons() {
     insta::assert_snapshot!(pprint_tokenize("[a] |x| i < n"));
     insta::assert_snapshot!(pprint_tokenize("a > b <= c >= d -> e"));
+    insta::assert_snapshot!(pprint_tokenize("&b &mut b @This()"));
 }

@@ -104,6 +104,8 @@ enum LogosToken {
     Bang,
     #[token("@")]
     At,
+    #[token("&")]
+    Ampersand,
     #[token("<")]
     Lt,
     #[token(">")]
@@ -175,6 +177,7 @@ fn to_token_impl(token: Result<LogosToken, Error>) -> TokenImpl {
         Ok(LogosToken::RArrow) => TokenImpl::RArrow,
         Ok(LogosToken::Bang) => TokenImpl::Bang,
         Ok(LogosToken::At) => TokenImpl::At,
+        Ok(LogosToken::Ampersand) => TokenImpl::Ampersand,
         Ok(LogosToken::Lt) => TokenImpl::Lt,
         Ok(LogosToken::Gt) => TokenImpl::Gt,
         Ok(LogosToken::Le) => TokenImpl::Le,
