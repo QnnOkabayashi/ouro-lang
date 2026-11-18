@@ -14,6 +14,7 @@ pub enum Expected {
     OneOf(&'static [TokenImpl]),
 }
 
+#[derive(Copy, Clone)]
 struct Cursor<'a> {
     tokens: &'a IndexSlice<Token, [TokenImpl]>,
     token: Token,
@@ -343,6 +344,7 @@ impl<'a> Parser<'a> {
     fn parse_call_args(&mut self) -> Result<(), Error> {
         self.nodes.push(self.cursor.advance_1(), NodeKind::Call);
         let mut accept_comma = false;
+        let mut in_kwargs = false;
         loop {
             match self.cursor.peek() {
                 Some(TokenImpl::CloseParen) => {
@@ -353,7 +355,27 @@ impl<'a> Parser<'a> {
                     let _ = self.cursor.advance_1();
                     accept_comma = false;
                 }
-                _ => {
+                peek => {
+                    let mut lookahead = self.cursor;
+                    let _ = lookahead.advance_1();
+                    let second = lookahead.peek();
+                    if peek == Some(TokenImpl::Ident) && second == Some(TokenImpl::Colon) {
+                        self.nodes
+                            .push(self.cursor.advance_1(), NodeKind::CallArgIdent);
+                        let _colon = self.cursor.advance_1();
+                        in_kwargs = true;
+                    } else if in_kwargs {
+                        return Err(match peek {
+                            Some(TokenImpl::Ident) => Error {
+                                expected: Expected::Just(TokenImpl::Colon),
+                                actual: second,
+                            },
+                            actual => Error {
+                                expected: Expected::Just(TokenImpl::Ident),
+                                actual,
+                            },
+                        });
+                    }
                     self.parse_expr()?;
                     accept_comma = true;
                 }

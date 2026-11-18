@@ -50,6 +50,7 @@ pub enum NodeKind {
     Dot,
     Field,
     Call,
+    CallArgIdent,
     CallEnd,
     Str,
     I32Keyword,

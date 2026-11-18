@@ -157,3 +157,28 @@ fn test_struct_fields_need_commas_between() {
     let parse = parse(&tokenize(input).tokens);
     assert!(parse.ok.is_err());
 }
+
+#[test]
+fn test_named_call_args() {
+    insta::assert_snapshot!(case! {
+        const A = get(b, 3, p: trivial);
+        const B = Shape(kind: true, data: 5);
+        const C = Empty();
+        fn make(k: bool) Shape { Shape(kind: k, data: Box(5)) }
+    });
+}
+
+#[test]
+fn test_named_call_arg_in_if_condition() {
+    insta::assert_snapshot!(case! {
+        fn f() i32 { if g(S(a: 1)) { 1 } else { 2 } }
+    });
+}
+
+#[test]
+fn test_positional_after_named_call_arg() {
+    for input in ["const A = f(a: 1, 2);", "const A = f(a: 1, b);"] {
+        let parse = parse(&tokenize(input).tokens);
+        assert!(parse.ok.is_err(), "{input}");
+    }
+}
