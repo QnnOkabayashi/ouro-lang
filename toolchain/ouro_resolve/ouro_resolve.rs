@@ -9,15 +9,15 @@ ouro_index_vec::define_index_type! {
 
 #[derive(Copy, Clone, Debug)]
 pub enum RefTarget {
-    Unresolved { scope_start: Node },
+    Unresolved { scope_start: Node, depth: u32 },
     Item { def_node: Node },
-    Local { def_node: Node },
+    Local { def_node: Node, de_bruijn: u32 },
 }
 
 impl RefTarget {
     pub fn def_node(self) -> Option<Node> {
         match self {
-            RefTarget::Item { def_node } | RefTarget::Local { def_node } => Some(def_node),
+            RefTarget::Item { def_node } | RefTarget::Local { def_node, .. } => Some(def_node),
             RefTarget::Unresolved { .. } => None,
         }
     }
@@ -47,6 +47,7 @@ struct DedupEntry {
 
 pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
     let mut scope_start = Node::from_raw(0);
+    let mut local_depth = 0;
     let mut stack = Vec::new();
     let mut dedup: HashMap<&str, DedupEntry> = HashMap::new();
     let mut refs = IndexVec::new();
@@ -66,13 +67,17 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                     def_node: node,
                 });
                 scope_start = node;
+                local_depth += 1;
             }
             NodeKind::Ident => {
                 let entry = dedup
                     .entry(spans.to_span(nodes.tokens[node]).lookup(source))
                     .or_default();
                 entry.head = MaxOr::new(refs.push(RefImpl {
-                    target: RefTarget::Unresolved { scope_start },
+                    target: RefTarget::Unresolved {
+                        scope_start,
+                        depth: local_depth,
+                    },
                     next: entry.head,
                 }));
             }
@@ -119,6 +124,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                 while let Some(head_ref) = entry.head.into_non_max() {
                     let RefTarget::Unresolved {
                         scope_start: ref_scope_start,
+                        depth: ref_depth,
                     } = refs[head_ref].target
                     else {
                         unreachable!("pending list only contains unresolved refs");
@@ -127,7 +133,10 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                         break;
                     }
                     refs[head_ref].target = if is_local {
-                        RefTarget::Local { def_node }
+                        RefTarget::Local {
+                            def_node,
+                            de_bruijn: ref_depth - local_depth,
+                        }
                     } else {
                         RefTarget::Item { def_node }
                     };
@@ -138,6 +147,9 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                     refs[last_ref].next = first_ref;
                 }
                 scope_start = prev_scope_start;
+                if is_local {
+                    local_depth -= 1;
+                }
             },
             _ => {}
         }

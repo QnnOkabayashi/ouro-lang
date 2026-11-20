@@ -16,13 +16,13 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 11 LetEq "="
 12 Ident "add" -> Item { def_node: Node(23) }
 13 Call "("
-14 Ident "a" -> Local { def_node: Node(5) }
-15 Ident "a" -> Local { def_node: Node(5) }
+14 Ident "a" -> Local { def_node: Node(5), de_bruijn: 1 }
+15 Ident "a" -> Local { def_node: Node(5), de_bruijn: 1 }
 16 Mul "*"
-17 Ident "b" -> Local { def_node: Node(7) }
+17 Ident "b" -> Local { def_node: Node(7), de_bruijn: 0 }
 18 CallEnd ")"
 19 LetIdent "c"
-20 Ident "c" -> Local { def_node: Node(19) }
+20 Ident "c" -> Local { def_node: Node(19), de_bruijn: 0 }
 21 FnBodyEnd "}"
 22 Fn "fn"
 23 FnIdent "add"
@@ -33,10 +33,10 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 28 FnParamIdent "b"
 29 FnParamsEnd ")"
 30 FnBodyBegin "{"
-31 Ident "a" -> Local { def_node: Node(26) }
-32 Ident "b" -> Local { def_node: Node(28) }
+31 Ident "a" -> Local { def_node: Node(26), de_bruijn: 1 }
+32 Ident "b" -> Local { def_node: Node(28), de_bruijn: 0 }
 33 Add "+"
-34 Ident "c" -> Unresolved { scope_start: Node(28) }
+34 Ident "c" -> Unresolved { scope_start: Node(28), depth: 2 }
 35 Add "+"
 36 FnBodyEnd "}"
 37 FileEnd

@@ -133,3 +133,12 @@ fn test_ref_rings() {
     assert_eq!(ring(Ref::from_raw(3)), vec![3]);
     assert_eq!(ring(Ref::from_raw(4)), vec![4]);
 }
+
+#[test]
+fn test_de_bruijn_across_params_blocks_and_shadowing() {
+    insta::assert_snapshot!(case! {
+        fn id(T: type, x: T) T {
+            { let a = 1; x } + { let x = x + 1; x }
+        }
+    });
+}

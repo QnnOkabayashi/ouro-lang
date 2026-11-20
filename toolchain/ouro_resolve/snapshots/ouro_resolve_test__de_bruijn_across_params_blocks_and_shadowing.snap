@@ -1,0 +1,34 @@
+---
+source: toolchain/ouro_resolve/ouro_resolve_test.rs
+expression: "case! { fn id(T: type, x: T) T { { let a = 1; x } + { let x = x + 1; x } } }"
+---
+0 FileBegin
+1 Fn "fn"
+2 FnIdent "id"
+3 FnParams "("
+4 TypeKeyword "type"
+5 FnParamIdent "T"
+6 Ident "T" -> Local { def_node: Node(5), de_bruijn: 0 }
+7 FnParamIdent "x"
+8 FnParamsEnd ")"
+9 Ident "T" -> Local { def_node: Node(5), de_bruijn: 1 }
+10 FnBodyBegin "{"
+11 Block "{"
+12 Let "let"
+13 LetEq "="
+14 IntLit "1"
+15 LetIdent "a"
+16 Ident "x" -> Local { def_node: Node(7), de_bruijn: 1 }
+17 BlockEnd "}"
+18 Block "{"
+19 Let "let"
+20 LetEq "="
+21 Ident "x" -> Local { def_node: Node(7), de_bruijn: 0 }
+22 IntLit "1"
+23 Add "+"
+24 LetIdent "x"
+25 Ident "x" -> Local { def_node: Node(24), de_bruijn: 0 }
+26 BlockEnd "}"
+27 Add "+"
+28 FnBodyEnd "}"
+29 FileEnd
