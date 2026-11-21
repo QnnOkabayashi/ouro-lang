@@ -8,44 +8,40 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 3 FnParams "("
 4 FnParamIdent "a"
 5 I32Keyword "i32"
-6 EndOfExpr ","
+6 FnParamEnd ","
 7 FnParamIdent "b"
 8 I32Keyword "i32"
-9 EndOfExpr ")"
+9 FnParamEnd ")"
 10 FnParamsEnd ")"
 11 FnBodyBegin "{"
 12 Let "let"
 13 LetIdent "c"
 14 LetEq "="
-15 Ident "add" -> RefImpl { node: Node(29), next: MaxOr(Ref(4294967295)) }
+15 Ident "add" -> RefImpl { node: Node(26), next: MaxOr(Ref(4294967295)) }
 16 Call "("
 17 Ident "a" -> RefImpl { node: Node(4), next: MaxOr(Ref(4294967295)) }
 18 Ident "a" -> RefImpl { node: Node(4), next: MaxOr(Ref(1)) }
 19 Mul "*"
-20 EndOfExpr ","
-21 Ident "b" -> RefImpl { node: Node(7), next: MaxOr(Ref(4294967295)) }
-22 EndOfExpr ")"
-23 CallEnd ")"
-24 EndOfExpr ";"
-25 Ident "c" -> RefImpl { node: Node(13), next: MaxOr(Ref(4294967295)) }
-26 EndOfExpr "}"
-27 FnBodyEnd "}"
-28 Fn "fn"
-29 FnIdent "add"
-30 FnParams "("
-31 FnParamIdent "a"
+20 Ident "b" -> RefImpl { node: Node(7), next: MaxOr(Ref(4294967295)) }
+21 CallEnd ")"
+22 LetEnd ";"
+23 Ident "c" -> RefImpl { node: Node(13), next: MaxOr(Ref(4294967295)) }
+24 FnBodyEnd "}"
+25 Fn "fn"
+26 FnIdent "add"
+27 FnParams "("
+28 FnParamIdent "a"
+29 I32Keyword "i32"
+30 FnParamEnd ","
+31 FnParamIdent "b"
 32 I32Keyword "i32"
-33 EndOfExpr ","
-34 FnParamIdent "b"
-35 I32Keyword "i32"
-36 EndOfExpr ")"
-37 FnParamsEnd ")"
-38 FnBodyBegin "{"
-39 Ident "a" -> RefImpl { node: Node(31), next: MaxOr(Ref(4294967295)) }
-40 Ident "b" -> RefImpl { node: Node(34), next: MaxOr(Ref(4294967295)) }
-41 Add "+"
-42 Ident "c" -> RefImpl { node: Node(30), next: MaxOr(Ref(4294967295)) }
-43 Add "+"
-44 EndOfExpr "}"
-45 FnBodyEnd "}"
-46 FileEnd
+33 FnParamEnd ")"
+34 FnParamsEnd ")"
+35 FnBodyBegin "{"
+36 Ident "a" -> RefImpl { node: Node(28), next: MaxOr(Ref(4294967295)) }
+37 Ident "b" -> RefImpl { node: Node(31), next: MaxOr(Ref(4294967295)) }
+38 Add "+"
+39 Ident "c" -> RefImpl { node: Node(27), next: MaxOr(Ref(4294967295)) }
+40 Add "+"
+41 FnBodyEnd "}"
+42 FileEnd

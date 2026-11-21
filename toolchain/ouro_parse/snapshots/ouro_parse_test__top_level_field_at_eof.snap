@@ -1,0 +1,9 @@
+---
+source: toolchain/ouro_parse/ouro_parse_test.rs
+expression: "case! { x: i32 }"
+---
+FileBegin
+StructFieldIdent "x" 0..1
+I32Keyword "i32" 3..6
+StructFieldEnd "i32" 3..6
+FileEnd

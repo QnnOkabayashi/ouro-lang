@@ -11,5 +11,5 @@ Call "(" 20..21
 CallEnd ")" 21..22
 Call "(" 22..23
 CallEnd ")" 23..24
-EndOfExpr ";" 24..25
+ConstEnd ";" 24..25
 FileEnd

@@ -8,23 +8,19 @@ FnIdent "f" 3..4
 FnParams "(" 4..5
 FnParamIdent "k" 5..6
 Ident "bool" 8..12
-EndOfExpr ")" 12..13
+FnParamEnd ")" 12..13
 FnParamsEnd ")" 12..13
 I32Keyword "i32" 14..17
-EndOfExpr "{" 18..19
 FnBodyBegin "{" 18..19
 If "if" 20..22
 Ident "k" 23..24
-EndOfExpr "{" 25..26
 Block "{" 25..26
 IntLit "1" 27..28
-EndOfExpr "}" 29..30
 BlockEnd "}" 29..30
 Else "else" 31..35
 Block "{" 36..37
 IntLit "2" 38..39
-EndOfExpr "}" 40..41
 BlockEnd "}" 40..41
-EndOfExpr "}" 42..43
+IfEnd "}" 40..41
 FnBodyEnd "}" 42..43
 FileEnd

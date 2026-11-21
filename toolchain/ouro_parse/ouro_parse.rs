@@ -80,6 +80,14 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn end_token(&self) -> Token {
+        if self.cursor.peek().is_some() {
+            self.cursor.token
+        } else {
+            *self.nodes.tokens.last().unwrap()
+        }
+    }
+
     fn parse_file(&mut self) -> Result<(), Error> {
         self.nodes.push(self.cursor.token, NodeKind::FileBegin);
         self.parse_struct_body()?;
@@ -186,6 +194,7 @@ impl<'a> Parser<'a> {
             .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::FnParamIdent);
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
+        self.nodes.push(self.end_token(), NodeKind::FnParamEnd);
         Ok(())
     }
 
@@ -206,7 +215,8 @@ impl<'a> Parser<'a> {
         self.nodes
             .push(self.cursor.eat(TokenImpl::Eq)?, NodeKind::LetEq);
         self.parse_expr()?;
-        let _ = self.cursor.eat(TokenImpl::Semi)?;
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Semi)?, NodeKind::LetEnd);
         Ok(())
     }
 
@@ -217,7 +227,8 @@ impl<'a> Parser<'a> {
         self.nodes
             .push(self.cursor.eat(TokenImpl::Eq)?, NodeKind::ConstEq);
         self.parse_expr()?;
-        let _ = self.cursor.eat(TokenImpl::Semi)?;
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::Semi)?, NodeKind::ConstEnd);
         Ok(())
     }
 
@@ -235,9 +246,6 @@ impl<'a> Parser<'a> {
             let token = self.cursor.advance_1();
             self.parse_sum()?;
             self.nodes.push(token, kind);
-        }
-        if self.cursor.peek().is_some() {
-            self.nodes.push(self.cursor.token, NodeKind::EndOfExpr);
         }
         Ok(())
     }
@@ -351,6 +359,8 @@ impl<'a> Parser<'a> {
             self.nodes.push(self.cursor.advance_1(), NodeKind::Else);
             self.parse_block()?;
         }
+        let end_token = *self.nodes.tokens.last().unwrap();
+        self.nodes.push(end_token, NodeKind::IfEnd);
         Ok(())
     }
 
@@ -403,6 +413,8 @@ impl<'a> Parser<'a> {
         );
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
+        self.nodes
+            .push(self.end_token(), NodeKind::StructFieldEnd);
         Ok(())
     }
 

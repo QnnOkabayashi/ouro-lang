@@ -17,6 +17,5 @@ Neg "-" 20..21
 Neg "-" 19..20
 Mul "*" 17..18
 Add "+" 12..13
-EndOfExpr "}" 23..24
 FnBodyEnd "}" 23..24
 FileEnd

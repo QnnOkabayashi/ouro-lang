@@ -8,10 +8,10 @@ FnIdent "Vec" 3..6
 FnParams "(" 6..7
 FnParamIdent "T" 7..8
 TypeKeyword "type" 10..14
-EndOfExpr "," 14..15
+FnParamEnd "," 14..15
 FnParamIdent "len" 16..19
 I32Keyword "i32" 21..24
-EndOfExpr ")" 24..25
+FnParamEnd ")" 24..25
 FnParamsEnd ")" 24..25
 FnBodyBegin "{" 26..27
 FnBodyEnd "}" 27..28

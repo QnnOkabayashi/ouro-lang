@@ -7,5 +7,5 @@ Const "const" 0..5
 ConstIdent "Name" 6..10
 ConstEq "=" 11..12
 Str "\"Quinn\"" 13..20
-EndOfExpr ";" 20..21
+ConstEnd ";" 20..21
 FileEnd

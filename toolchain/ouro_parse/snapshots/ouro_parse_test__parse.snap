@@ -13,7 +13,6 @@ IntLit "2" 13..14
 IntLit "3" 17..18
 Mul "*" 15..16
 Add "+" 11..12
-EndOfExpr "}" 19..20
 FnBodyEnd "}" 19..20
 Struct "struct" 21..27
 StructIdent "Foo" 28..31
@@ -30,9 +29,8 @@ Let "let" 61..64
 LetIdent "a" 65..66
 LetEq "=" 67..68
 IntLit "4" 69..70
-EndOfExpr ";" 70..71
+LetEnd ";" 70..71
 IntLit "0b11_11" 72..79
-EndOfExpr "}" 80..81
 FnBodyEnd "}" 80..81
 StructBodyEnd "}" 82..83
 StructBodyEnd "}" 84..85

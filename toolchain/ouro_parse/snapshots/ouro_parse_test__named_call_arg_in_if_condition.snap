@@ -8,7 +8,6 @@ FnIdent "f" 3..4
 FnParams "(" 4..5
 FnParamsEnd ")" 5..6
 I32Keyword "i32" 7..10
-EndOfExpr "{" 11..12
 FnBodyBegin "{" 11..12
 If "if" 13..15
 Ident "g" 16..17
@@ -17,20 +16,15 @@ Ident "S" 18..19
 Call "(" 19..20
 CallArgIdent "a" 20..21
 IntLit "1" 23..24
-EndOfExpr ")" 24..25
 CallEnd ")" 24..25
-EndOfExpr ")" 25..26
 CallEnd ")" 25..26
-EndOfExpr "{" 27..28
 Block "{" 27..28
 IntLit "1" 29..30
-EndOfExpr "}" 31..32
 BlockEnd "}" 31..32
 Else "else" 33..37
 Block "{" 38..39
 IntLit "2" 40..41
-EndOfExpr "}" 42..43
 BlockEnd "}" 42..43
-EndOfExpr "}" 44..45
+IfEnd "}" 42..43
 FnBodyEnd "}" 44..45
 FileEnd

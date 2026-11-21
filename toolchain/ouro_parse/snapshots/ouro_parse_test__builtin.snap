@@ -10,5 +10,5 @@ BuiltinAt "@" 13..14
 BuiltinIdent "This" 14..18
 Call "(" 18..19
 CallEnd ")" 19..20
-EndOfExpr ";" 20..21
+ConstEnd ";" 20..21
 FileEnd

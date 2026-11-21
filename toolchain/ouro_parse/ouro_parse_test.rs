@@ -182,3 +182,8 @@ fn test_positional_after_named_call_arg() {
         assert!(parse.ok.is_err(), "{input}");
     }
 }
+
+#[test]
+fn test_top_level_field_at_eof() {
+    insta::assert_snapshot!(case! { x: i32 });
+}
