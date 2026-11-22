@@ -104,10 +104,10 @@ fn test_if_without_else() {
 }
 
 #[test]
-fn test_else_if() {
-    insta::assert_snapshot!(case! {
-        fn f(a: bool, b: bool) i32 { if a { 1 } else if b { 2 } else { 3 } }
-    });
+fn test_else_if_needs_braces() {
+    let input = "fn f(a: bool, b: bool) i32 { if a { 1 } else if b { 2 } else { 3 } }";
+    let parse = parse(&tokenize(input).tokens);
+    assert!(parse.ok.is_err());
 }
 
 #[test]

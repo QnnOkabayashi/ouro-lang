@@ -326,19 +326,15 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_if(&mut self) -> Result<(), Error> {
-        loop {
-            self.nodes
-                .push(self.cursor.eat(TokenImpl::If)?, NodeKind::If);
-            self.parse_expr()?;
-            self.parse_block()?;
-            if self.cursor.peek() != Some(TokenImpl::Else) {
-                return Ok(());
-            }
+        self.nodes
+            .push(self.cursor.eat(TokenImpl::If)?, NodeKind::If);
+        self.parse_expr()?;
+        self.parse_block()?;
+        if self.cursor.peek() == Some(TokenImpl::Else) {
             self.nodes.push(self.cursor.advance_1(), NodeKind::Else);
-            if self.cursor.peek() != Some(TokenImpl::If) {
-                return self.parse_block();
-            }
+            self.parse_block()?;
         }
+        Ok(())
     }
 
     fn parse_call_args(&mut self) -> Result<(), Error> {
