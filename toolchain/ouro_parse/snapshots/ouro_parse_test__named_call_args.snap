@@ -40,7 +40,7 @@ EndOfExpr ";" 88..89
 Fn "fn" 90..92
 FnIdent "make" 93..97
 FnParams "(" 97..98
-FnParamsIdent "k" 98..99
+FnParamIdent "k" 98..99
 Ident "bool" 101..105
 EndOfExpr ")" 105..106
 FnParamsEnd ")" 105..106

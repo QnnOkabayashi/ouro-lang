@@ -20,7 +20,7 @@ pub enum NodeKind {
     Fn,
     FnIdent,
     FnParams,
-    FnParamsIdent,
+    FnParamIdent,
     FnParamsEnd,
     FnBodyBegin,
     FnBodyEnd,

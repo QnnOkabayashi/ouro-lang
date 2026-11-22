@@ -30,7 +30,7 @@ fn inst(node_kind: NodeKind) -> Option<Inst> {
         // Def
         NodeKind::StructIdent
         | NodeKind::FnIdent
-        | NodeKind::FnParamsIdent
+        | NodeKind::FnParamIdent
         | NodeKind::LetIdent
         | NodeKind::ConstIdent => Some(Inst::Def),
 

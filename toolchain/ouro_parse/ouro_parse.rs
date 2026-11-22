@@ -166,7 +166,7 @@ impl<'a> Parser<'a> {
 
     fn parse_fn_param(&mut self) -> Result<(), Error> {
         self.nodes
-            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::FnParamsIdent);
+            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::FnParamIdent);
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
         Ok(())

@@ -6,7 +6,7 @@ FileBegin
 Fn "fn" 0..2
 FnIdent "f" 3..4
 FnParams "(" 4..5
-FnParamsIdent "k" 5..6
+FnParamIdent "k" 5..6
 Ident "bool" 8..12
 EndOfExpr ")" 12..13
 FnParamsEnd ")" 12..13

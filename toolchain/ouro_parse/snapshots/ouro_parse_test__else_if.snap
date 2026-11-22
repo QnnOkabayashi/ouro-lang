@@ -6,10 +6,10 @@ FileBegin
 Fn "fn" 0..2
 FnIdent "f" 3..4
 FnParams "(" 4..5
-FnParamsIdent "a" 5..6
+FnParamIdent "a" 5..6
 Ident "bool" 8..12
 EndOfExpr "," 12..13
-FnParamsIdent "b" 14..15
+FnParamIdent "b" 14..15
 Ident "bool" 17..21
 EndOfExpr ")" 21..22
 FnParamsEnd ")" 21..22

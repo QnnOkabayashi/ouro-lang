@@ -6,10 +6,10 @@ FileBegin
 Fn "fn" 0..2
 FnIdent "Vec" 3..6
 FnParams "(" 6..7
-FnParamsIdent "T" 7..8
+FnParamIdent "T" 7..8
 TypeKeyword "type" 10..14
 EndOfExpr "," 14..15
-FnParamsIdent "len" 16..19
+FnParamIdent "len" 16..19
 I32Keyword "i32" 21..24
 EndOfExpr ")" 24..25
 FnParamsEnd ")" 24..25
