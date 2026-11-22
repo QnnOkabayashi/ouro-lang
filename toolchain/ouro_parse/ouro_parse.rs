@@ -96,7 +96,24 @@ impl<'a> Parser<'a> {
             }
             match self.cursor.peek() {
                 Some(TokenImpl::Fn) => self.parse_fn()?,
-                Some(TokenImpl::Ident) => self.parse_field_decl()?,
+                Some(TokenImpl::Ident) => {
+                    self.parse_field_decl()?;
+                    match self.cursor.peek() {
+                        Some(TokenImpl::Comma) => {
+                            let _ = self.cursor.advance_1();
+                        }
+                        Some(TokenImpl::CloseBrace) | None => return Ok(()),
+                        actual => {
+                            return Err(Error {
+                                expected: Expected::OneOf(&[
+                                    TokenImpl::Comma,
+                                    TokenImpl::CloseBrace,
+                                ]),
+                                actual,
+                            });
+                        }
+                    }
+                }
                 Some(TokenImpl::Const) => self.parse_const()?,
                 Some(TokenImpl::Struct) => self.parse_struct_decl()?,
                 _ => return Ok(()),
@@ -386,17 +403,7 @@ impl<'a> Parser<'a> {
         );
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
-        match self.cursor.peek() {
-            Some(TokenImpl::Comma) => {
-                let _ = self.cursor.advance_1();
-                Ok(())
-            }
-            Some(TokenImpl::CloseBrace) | None => Ok(()),
-            actual => Err(Error {
-                expected: Expected::OneOf(&[TokenImpl::Comma, TokenImpl::CloseBrace]),
-                actual,
-            }),
-        }
+        Ok(())
     }
 
     fn parse_builtin(&mut self) -> Result<(), Error> {
