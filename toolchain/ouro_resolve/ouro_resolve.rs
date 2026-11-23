@@ -15,7 +15,7 @@ pub struct RefImpl {
 
 enum StackEntry {
     Open { scope_edge: Node },
-    Def { def_node: Node },
+    Def { scope_edge: Node, def_node: Node },
 }
 
 #[derive(Default)]
@@ -34,12 +34,18 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
 
     for (node, &node_kind) in nodes.nodes.iter_enumerated() {
         match node_kind {
-            NodeKind::StructIdent
-            | NodeKind::FnIdent
-            | NodeKind::FnParamIdent
-            | NodeKind::LetIdent
-            | NodeKind::ConstIdent => {
-                stack.push(StackEntry::Def { def_node: node });
+            NodeKind::StructIdent | NodeKind::FnIdent | NodeKind::ConstIdent => {
+                stack.push(StackEntry::Def {
+                    scope_edge: scope_start,
+                    def_node: node,
+                });
+            }
+            NodeKind::FnParamIdent | NodeKind::LetIdent => {
+                stack.push(StackEntry::Def {
+                    scope_edge: scope_start,
+                    def_node: node,
+                });
+                scope_start = node;
             }
             NodeKind::Ident => {
                 let entry = dedup
@@ -68,7 +74,10 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                         scope_start = scope_edge;
                         break;
                     }
-                    StackEntry::Def { def_node } => {
+                    StackEntry::Def {
+                        scope_edge,
+                        def_node,
+                    } => {
                         let name = spans.to_span(nodes.tokens[def_node]).lookup(source);
                         let entry = dedup.entry(name).or_default();
                         if entry.last_scope.into_non_max() == Some(scope_start) {
@@ -84,6 +93,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                             refs[head_ref].node = def_node;
                             entry.head = next[head_ref];
                         }
+                        scope_start = scope_edge;
                     }
                 }
             },

@@ -1,0 +1,31 @@
+---
+source: toolchain/ouro_resolve/ouro_resolve_test.rs
+expression: "case! { fn f(x: i32) { let x = x + 1; let x = { let a = 1; x }; x } }"
+---
+0 FileBegin
+1 Fn "fn"
+2 FnIdent "f"
+3 FnParams "("
+4 I32Keyword "i32"
+5 FnParamIdent "x"
+6 FnParamsEnd ")"
+7 FnBodyBegin "{"
+8 Let "let"
+9 LetEq "="
+10 Ident "x" -> RefImpl { node: Node(5) }
+11 IntLit "1"
+12 Add "+"
+13 LetIdent "x"
+14 Let "let"
+15 LetEq "="
+16 Block "{"
+17 Let "let"
+18 LetEq "="
+19 IntLit "1"
+20 LetIdent "a"
+21 Ident "x" -> RefImpl { node: Node(13) }
+22 BlockEnd "}"
+23 LetIdent "x"
+24 Ident "x" -> RefImpl { node: Node(23) }
+25 FnBodyEnd "}"
+26 FileEnd

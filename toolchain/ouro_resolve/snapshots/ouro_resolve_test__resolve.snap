@@ -36,7 +36,7 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 31 Ident "a" -> RefImpl { node: Node(26) }
 32 Ident "b" -> RefImpl { node: Node(28) }
 33 Add "+"
-34 Ident "c" -> RefImpl { node: Node(24) }
+34 Ident "c" -> RefImpl { node: Node(28) }
 35 Add "+"
 36 FnBodyEnd "}"
 37 FileEnd

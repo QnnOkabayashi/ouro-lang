@@ -98,3 +98,14 @@ fn test_duplicate_definitions() {
             .is_empty()
     );
 }
+
+#[test]
+fn test_let_shadowing() {
+    insta::assert_snapshot!(case! {
+        fn f(x: i32) {
+            let x = x + 1;
+            let x = { let a = 1; x };
+            x
+        }
+    });
+}
