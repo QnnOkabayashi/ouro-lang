@@ -13,39 +13,9 @@ pub struct RefImpl {
     pub node: Node,
 }
 
-#[derive(Copy, Clone)]
-enum Inst {
-    Ref,
-    Def,
-    Open,
-    Close,
-}
-
-fn inst(node_kind: NodeKind) -> Option<Inst> {
-    match node_kind {
-        // Def
-        NodeKind::StructIdent
-        | NodeKind::FnIdent
-        | NodeKind::FnParamIdent
-        | NodeKind::LetIdent
-        | NodeKind::ConstIdent => Some(Inst::Def),
-
-        // Ref
-        NodeKind::Ident => Some(Inst::Ref),
-
-        // Open
-        NodeKind::FileBegin | NodeKind::StructBodyBegin | NodeKind::FnParams | NodeKind::Block => {
-            Some(Inst::Open)
-        }
-
-        // Close
-        NodeKind::FileEnd | NodeKind::StructBodyEnd | NodeKind::FnBodyEnd | NodeKind::BlockEnd => {
-            Some(Inst::Close)
-        }
-
-        // Everything else
-        _ => None,
-    }
+enum StackEntry {
+    Open { scope_edge: Node },
+    Def { def_node: Node },
 }
 
 #[derive(Default)]
@@ -62,52 +32,62 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
     let mut next: IndexVec<Ref, MaxOr<Ref>> = IndexVec::new();
     let mut duplicates = Vec::new();
 
-    for (node, node_kind) in nodes.nodes.iter_enumerated() {
-        match inst(*node_kind) {
-            None => {}
-            Some(Inst::Def) => stack.push(node),
-            Some(Inst::Ref) => {
+    for (node, &node_kind) in nodes.nodes.iter_enumerated() {
+        match node_kind {
+            NodeKind::StructIdent
+            | NodeKind::FnIdent
+            | NodeKind::FnParamIdent
+            | NodeKind::LetIdent
+            | NodeKind::ConstIdent => {
+                stack.push(StackEntry::Def { def_node: node });
+            }
+            NodeKind::Ident => {
                 let entry = dedup
                     .entry(spans.to_span(nodes.tokens[node]).lookup(source))
                     .or_default();
                 next.push(entry.head);
                 entry.head = MaxOr::new(refs.push(RefImpl { node: scope_start }));
             }
-            Some(Inst::Open) => {
-                stack.push(scope_start);
+            NodeKind::FileBegin
+            | NodeKind::StructBodyBegin
+            | NodeKind::FnParams
+            | NodeKind::Block => {
+                stack.push(StackEntry::Open {
+                    scope_edge: scope_start,
+                });
                 scope_start = node;
             }
-            Some(Inst::Close) => {
-                loop {
-                    let popped_node = stack.pop().expect("shouldn't run out of elements because we stop as soon as we hit matching open");
-                    match inst(nodes.nodes[popped_node]) {
-                        Some(Inst::Open) => {
-                            scope_start = popped_node;
-                            break;
+            NodeKind::FileEnd
+            | NodeKind::StructBodyEnd
+            | NodeKind::FnBodyEnd
+            | NodeKind::BlockEnd => loop {
+                match stack.pop().expect(
+                    "shouldn't run out of elements because we stop as soon as we hit matching open",
+                ) {
+                    StackEntry::Open { scope_edge } => {
+                        scope_start = scope_edge;
+                        break;
+                    }
+                    StackEntry::Def { def_node } => {
+                        let name = spans.to_span(nodes.tokens[def_node]).lookup(source);
+                        let entry = dedup.entry(name).or_default();
+                        if entry.last_scope.into_non_max() == Some(scope_start) {
+                            duplicates.push(def_node);
+                            continue;
                         }
-                        Some(Inst::Def) => {
-                            let source = spans.to_span(nodes.tokens[popped_node]).lookup(source);
-                            let entry = dedup.entry(source).or_default();
-                            if entry.last_scope.into_non_max() == Some(scope_start) {
-                                duplicates.push(popped_node);
-                                continue;
-                            }
-                            entry.last_scope = MaxOr::new(scope_start);
+                        entry.last_scope = MaxOr::new(scope_start);
 
-                            while let Some(head_ref) = entry.head.into_non_max() {
-                                if refs[head_ref].node < scope_start {
-                                    break;
-                                }
-                                refs[head_ref].node = popped_node;
-                                entry.head = next[head_ref];
+                        while let Some(head_ref) = entry.head.into_non_max() {
+                            if refs[head_ref].node < scope_start {
+                                break;
                             }
+                            refs[head_ref].node = def_node;
+                            entry.head = next[head_ref];
                         }
-                        _ => unreachable!(
-                            "should never reach here because we only push nodes that are classified as Def or Open"
-                        ),
                     }
                 }
-            }
+            },
+            _ => {}
         }
     }
 
