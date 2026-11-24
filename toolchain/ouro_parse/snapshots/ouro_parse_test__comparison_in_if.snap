@@ -6,11 +6,11 @@ FileBegin
 Fn "fn" 0..2
 FnIdent "f" 3..4
 FnParams "(" 4..5
-FnParamIdent "i" 5..6
 I32Keyword "i32" 8..11
+FnParamIdent "i" 5..6
 FnParamEnd "," 11..12
-FnParamIdent "n" 13..14
 I32Keyword "i32" 16..19
+FnParamIdent "n" 13..14
 FnParamEnd ")" 19..20
 FnParamsEnd ")" 19..20
 I32Keyword "i32" 21..24

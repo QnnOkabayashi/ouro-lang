@@ -190,10 +190,10 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_fn_param(&mut self) -> Result<(), Error> {
-        self.nodes
-            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::FnParamIdent);
+        let fn_param_ident = self.cursor.eat(TokenImpl::Ident)?;
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
+        self.nodes.push(fn_param_ident, NodeKind::FnParamIdent);
         self.nodes.push(self.end_token(), NodeKind::FnParamEnd);
         Ok(())
     }
@@ -210,11 +210,11 @@ impl<'a> Parser<'a> {
 
     fn parse_let(&mut self) -> Result<(), Error> {
         self.nodes.push(self.cursor.advance_1(), NodeKind::Let);
-        self.nodes
-            .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::LetIdent);
+        let let_ident = self.cursor.eat(TokenImpl::Ident)?;
         self.nodes
             .push(self.cursor.eat(TokenImpl::Eq)?, NodeKind::LetEq);
         self.parse_expr()?;
+        self.nodes.push(let_ident, NodeKind::LetIdent);
         self.nodes
             .push(self.cursor.eat(TokenImpl::Semi)?, NodeKind::LetEnd);
         Ok(())

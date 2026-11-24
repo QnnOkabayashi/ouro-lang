@@ -26,9 +26,9 @@ FnParams "(" 56..57
 FnParamsEnd ")" 57..58
 FnBodyBegin "{" 59..60
 Let "let" 61..64
-LetIdent "a" 65..66
 LetEq "=" 67..68
 IntLit "4" 69..70
+LetIdent "a" 65..66
 LetEnd ";" 70..71
 IntLit "0b11_11" 72..79
 FnBodyEnd "}" 80..81
