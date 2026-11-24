@@ -8,10 +8,8 @@ FnIdent "id" 3..5
 FnParams "(" 5..6
 TypeKeyword "type" 9..13
 FnParamIdent "T" 6..7
-FnParamEnd "," 13..14
 Ident "T" 18..19
 FnParamIdent "x" 15..16
-FnParamEnd ")" 19..20
 FnParamsEnd ")" 19..20
 Ident "T" 21..22
 FnBodyBegin "{" 23..24

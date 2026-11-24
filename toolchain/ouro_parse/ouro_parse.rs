@@ -194,7 +194,6 @@ impl<'a> Parser<'a> {
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
         self.nodes.push(fn_param_ident, NodeKind::FnParamIdent);
-        self.nodes.push(self.end_token(), NodeKind::FnParamEnd);
         Ok(())
     }
 
@@ -215,8 +214,7 @@ impl<'a> Parser<'a> {
             .push(self.cursor.eat(TokenImpl::Eq)?, NodeKind::LetEq);
         self.parse_expr()?;
         self.nodes.push(let_ident, NodeKind::LetIdent);
-        self.nodes
-            .push(self.cursor.eat(TokenImpl::Semi)?, NodeKind::LetEnd);
+        self.cursor.eat(TokenImpl::Semi)?;
         Ok(())
     }
 

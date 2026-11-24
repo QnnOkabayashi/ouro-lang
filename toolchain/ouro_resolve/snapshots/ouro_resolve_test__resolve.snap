@@ -8,40 +8,35 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 3 FnParams "("
 4 I32Keyword "i32"
 5 FnParamIdent "a"
-6 FnParamEnd ","
-7 I32Keyword "i32"
-8 FnParamIdent "b"
-9 FnParamEnd ")"
-10 FnParamsEnd ")"
-11 FnBodyBegin "{"
-12 Let "let"
-13 LetEq "="
-14 Ident "add" -> RefImpl { node: Node(26), next: MaxOr(Ref(4294967295)) }
-15 Call "("
-16 Ident "a" -> RefImpl { node: Node(5), next: MaxOr(Ref(4294967295)) }
-17 Ident "a" -> RefImpl { node: Node(5), next: MaxOr(Ref(1)) }
-18 Mul "*"
-19 Ident "b" -> RefImpl { node: Node(8), next: MaxOr(Ref(4294967295)) }
-20 CallEnd ")"
-21 LetIdent "c"
-22 LetEnd ";"
-23 Ident "c" -> RefImpl { node: Node(21), next: MaxOr(Ref(4294967295)) }
-24 FnBodyEnd "}"
-25 Fn "fn"
-26 FnIdent "add"
-27 FnParams "("
-28 I32Keyword "i32"
-29 FnParamIdent "a"
-30 FnParamEnd ","
-31 I32Keyword "i32"
-32 FnParamIdent "b"
-33 FnParamEnd ")"
-34 FnParamsEnd ")"
-35 FnBodyBegin "{"
-36 Ident "a" -> RefImpl { node: Node(29), next: MaxOr(Ref(4294967295)) }
-37 Ident "b" -> RefImpl { node: Node(32), next: MaxOr(Ref(4294967295)) }
-38 Add "+"
-39 Ident "c" -> RefImpl { node: Node(27), next: MaxOr(Ref(4294967295)) }
-40 Add "+"
-41 FnBodyEnd "}"
-42 FileEnd
+6 I32Keyword "i32"
+7 FnParamIdent "b"
+8 FnParamsEnd ")"
+9 FnBodyBegin "{"
+10 Let "let"
+11 LetEq "="
+12 Ident "add" -> RefImpl { node: Node(23), next: MaxOr(Ref(4294967295)) }
+13 Call "("
+14 Ident "a" -> RefImpl { node: Node(5), next: MaxOr(Ref(4294967295)) }
+15 Ident "a" -> RefImpl { node: Node(5), next: MaxOr(Ref(1)) }
+16 Mul "*"
+17 Ident "b" -> RefImpl { node: Node(7), next: MaxOr(Ref(4294967295)) }
+18 CallEnd ")"
+19 LetIdent "c"
+20 Ident "c" -> RefImpl { node: Node(19), next: MaxOr(Ref(4294967295)) }
+21 FnBodyEnd "}"
+22 Fn "fn"
+23 FnIdent "add"
+24 FnParams "("
+25 I32Keyword "i32"
+26 FnParamIdent "a"
+27 I32Keyword "i32"
+28 FnParamIdent "b"
+29 FnParamsEnd ")"
+30 FnBodyBegin "{"
+31 Ident "a" -> RefImpl { node: Node(26), next: MaxOr(Ref(4294967295)) }
+32 Ident "b" -> RefImpl { node: Node(28), next: MaxOr(Ref(4294967295)) }
+33 Add "+"
+34 Ident "c" -> RefImpl { node: Node(24), next: MaxOr(Ref(4294967295)) }
+35 Add "+"
+36 FnBodyEnd "}"
+37 FileEnd

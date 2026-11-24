@@ -37,7 +37,6 @@ FnIdent "make" 93..97
 FnParams "(" 97..98
 Ident "bool" 101..105
 FnParamIdent "k" 98..99
-FnParamEnd ")" 105..106
 FnParamsEnd ")" 105..106
 Ident "Shape" 107..112
 FnBodyBegin "{" 113..114

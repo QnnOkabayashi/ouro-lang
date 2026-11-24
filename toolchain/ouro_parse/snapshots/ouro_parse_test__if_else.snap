@@ -8,7 +8,6 @@ FnIdent "f" 3..4
 FnParams "(" 4..5
 Ident "bool" 8..12
 FnParamIdent "k" 5..6
-FnParamEnd ")" 12..13
 FnParamsEnd ")" 12..13
 I32Keyword "i32" 14..17
 FnBodyBegin "{" 18..19
