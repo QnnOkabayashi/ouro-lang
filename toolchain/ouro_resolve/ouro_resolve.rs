@@ -11,11 +11,7 @@ ouro_index_vec::define_index_type! {
 pub struct RefImpl {
     /// Either points to a Def or where the scope opened.
     pub node: Node,
-
-    /// Linked list of other references to the same def.
-    pub next: MaxOr<Ref>,
 }
-const _: () = assert!(size_of::<RefImpl>() == 8);
 
 #[derive(Copy, Clone)]
 enum Inst {
@@ -63,6 +59,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
     let mut stack = Vec::new();
     let mut dedup: HashMap<&str, DedupEntry> = HashMap::new();
     let mut refs = IndexVec::new();
+    let mut next: IndexVec<Ref, MaxOr<Ref>> = IndexVec::new();
     let mut duplicates = Vec::new();
 
     for (node, node_kind) in nodes.nodes.iter_enumerated() {
@@ -73,10 +70,8 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                 let entry = dedup
                     .entry(spans.to_span(nodes.tokens[node]).lookup(source))
                     .or_default();
-                entry.head = MaxOr::new(refs.push(RefImpl {
-                    node: top_start,
-                    next: entry.head,
-                }));
+                next.push(entry.head);
+                entry.head = MaxOr::new(refs.push(RefImpl { node: top_start }));
             }
             Some(Inst::Open) => {
                 stack.push(top_start);
@@ -104,7 +99,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                                     break;
                                 }
                                 refs[head_ref].node = popped_node;
-                                entry.head = refs[head_ref].next;
+                                entry.head = next[head_ref];
                             }
                         }
                         _ => unreachable!(

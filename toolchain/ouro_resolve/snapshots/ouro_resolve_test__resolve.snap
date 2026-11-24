@@ -14,15 +14,15 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 9 FnBodyBegin "{"
 10 Let "let"
 11 LetEq "="
-12 Ident "add" -> RefImpl { node: Node(23), next: MaxOr(Ref(4294967295)) }
+12 Ident "add" -> RefImpl { node: Node(23) }
 13 Call "("
-14 Ident "a" -> RefImpl { node: Node(5), next: MaxOr(Ref(4294967295)) }
-15 Ident "a" -> RefImpl { node: Node(5), next: MaxOr(Ref(1)) }
+14 Ident "a" -> RefImpl { node: Node(5) }
+15 Ident "a" -> RefImpl { node: Node(5) }
 16 Mul "*"
-17 Ident "b" -> RefImpl { node: Node(7), next: MaxOr(Ref(4294967295)) }
+17 Ident "b" -> RefImpl { node: Node(7) }
 18 CallEnd ")"
 19 LetIdent "c"
-20 Ident "c" -> RefImpl { node: Node(19), next: MaxOr(Ref(4294967295)) }
+20 Ident "c" -> RefImpl { node: Node(19) }
 21 FnBodyEnd "}"
 22 Fn "fn"
 23 FnIdent "add"
@@ -33,10 +33,10 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 28 FnParamIdent "b"
 29 FnParamsEnd ")"
 30 FnBodyBegin "{"
-31 Ident "a" -> RefImpl { node: Node(26), next: MaxOr(Ref(4294967295)) }
-32 Ident "b" -> RefImpl { node: Node(28), next: MaxOr(Ref(4294967295)) }
+31 Ident "a" -> RefImpl { node: Node(26) }
+32 Ident "b" -> RefImpl { node: Node(28) }
 33 Add "+"
-34 Ident "c" -> RefImpl { node: Node(24), next: MaxOr(Ref(4294967295)) }
+34 Ident "c" -> RefImpl { node: Node(24) }
 35 Add "+"
 36 FnBodyEnd "}"
 37 FileEnd
