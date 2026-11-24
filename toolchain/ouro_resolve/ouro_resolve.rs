@@ -14,8 +14,13 @@ pub struct RefImpl {
 }
 
 enum StackEntry {
-    Open { scope_edge: Node },
-    Def { scope_edge: Node, def_node: Node },
+    Open {
+        prev_scope_start: Node,
+    },
+    Def {
+        prev_scope_start: Node,
+        def_node: Node,
+    },
 }
 
 #[derive(Default)]
@@ -36,13 +41,13 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
         match node_kind {
             NodeKind::StructIdent | NodeKind::FnIdent | NodeKind::ConstIdent => {
                 stack.push(StackEntry::Def {
-                    scope_edge: scope_start,
+                    prev_scope_start: scope_start,
                     def_node: node,
                 });
             }
             NodeKind::FnParamIdent | NodeKind::LetIdent => {
                 stack.push(StackEntry::Def {
-                    scope_edge: scope_start,
+                    prev_scope_start: scope_start,
                     def_node: node,
                 });
                 scope_start = node;
@@ -59,7 +64,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
             | NodeKind::FnParams
             | NodeKind::Block => {
                 stack.push(StackEntry::Open {
-                    scope_edge: scope_start,
+                    prev_scope_start: scope_start,
                 });
                 scope_start = node;
             }
@@ -70,12 +75,12 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                 match stack.pop().expect(
                     "shouldn't run out of elements because we stop as soon as we hit matching open",
                 ) {
-                    StackEntry::Open { scope_edge } => {
-                        scope_start = scope_edge;
+                    StackEntry::Open { prev_scope_start } => {
+                        scope_start = prev_scope_start;
                         break;
                     }
                     StackEntry::Def {
-                        scope_edge,
+                        prev_scope_start,
                         def_node,
                     } => {
                         let name = spans.to_span(nodes.tokens[def_node]).lookup(source);
@@ -93,7 +98,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                             refs[head_ref].node = def_node;
                             entry.head = next[head_ref];
                         }
-                        scope_start = scope_edge;
+                        scope_start = prev_scope_start;
                     }
                 }
             },
