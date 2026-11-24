@@ -52,23 +52,30 @@ fn inst(node_kind: NodeKind) -> Option<Inst> {
     }
 }
 
+#[derive(Default)]
+struct DedupEntry {
+    head: MaxOr<Ref>,
+    last_scope: MaxOr<Node>,
+}
+
 pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
     let mut top_start = Node::from_raw(0);
     let mut stack = Vec::new();
-    let mut dedup = HashMap::new();
+    let mut dedup: HashMap<&str, DedupEntry> = HashMap::new();
     let mut refs = IndexVec::new();
+    let mut duplicates = Vec::new();
 
     for (node, node_kind) in nodes.nodes.iter_enumerated() {
         match inst(*node_kind) {
             None => {}
             Some(Inst::Def) => stack.push(node),
             Some(Inst::Ref) => {
-                let head = dedup
+                let entry = dedup
                     .entry(spans.to_span(nodes.tokens[node]).lookup(source))
-                    .or_insert(MaxOr::max());
-                *head = MaxOr::new(refs.push(RefImpl {
+                    .or_default();
+                entry.head = MaxOr::new(refs.push(RefImpl {
                     node: top_start,
-                    next: *head,
+                    next: entry.head,
                 }));
             }
             Some(Inst::Open) => {
@@ -85,16 +92,19 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                         }
                         Some(Inst::Def) => {
                             let source = spans.to_span(nodes.tokens[popped_node]).lookup(source);
-                            let Some(head) = dedup.get_mut(source) else {
+                            let entry = dedup.entry(source).or_default();
+                            if entry.last_scope.into_non_max() == Some(top_start) {
+                                duplicates.push(popped_node);
                                 continue;
-                            };
+                            }
+                            entry.last_scope = MaxOr::new(top_start);
 
-                            while let Some(head_ref) = head.into_non_max() {
+                            while let Some(head_ref) = entry.head.into_non_max() {
                                 if refs[head_ref].node < top_start {
                                     break;
                                 }
                                 refs[head_ref].node = popped_node;
-                                *head = refs[head_ref].next;
+                                entry.head = refs[head_ref].next;
                             }
                         }
                         _ => unreachable!(
@@ -106,10 +116,11 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
         }
     }
 
-    Resolve { refs }
+    Resolve { refs, duplicates }
 }
 
 #[derive(Debug)]
 pub struct Resolve {
     pub refs: IndexVec<Ref, RefImpl>,
+    pub duplicates: Vec<Node>,
 }

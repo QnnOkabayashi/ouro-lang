@@ -204,3 +204,9 @@ impl<I: Idx> MaxOr<I> {
         MaxOr(I::from_usize(u32::MAX as usize))
     }
 }
+
+impl<I: Idx> Default for MaxOr<I> {
+    fn default() -> Self {
+        MaxOr::max()
+    }
+}

@@ -70,3 +70,31 @@ fn test_params_can_refer_to_prior_params() {
         fn foo(T: type, n: T) {}
     });
 }
+
+#[test]
+fn test_duplicate_definitions() {
+    let resolve_src = |input: &str| {
+        let tokenize = tokenize(input);
+        let parse = parse(&tokenize.tokens);
+        parse.ok.as_ref().unwrap();
+        resolve(&parse.nodes, &tokenize.spans, input)
+    };
+
+    assert_eq!(resolve_src("fn foo() {} fn foo() {}").duplicates.len(), 1);
+    assert_eq!(
+        resolve_src("fn foo() {} fn foo() {} fn bar() { foo() }")
+            .duplicates
+            .len(),
+        1
+    );
+    assert!(
+        resolve_src("struct A { fn foo() {} } fn foo() {}")
+            .duplicates
+            .is_empty()
+    );
+    assert!(
+        resolve_src("struct A { fn foo() {} } struct B { fn foo() {} }")
+            .duplicates
+            .is_empty()
+    );
+}
