@@ -413,8 +413,7 @@ impl<'a> Parser<'a> {
         );
         self.cursor.eat(TokenImpl::Colon)?;
         self.parse_expr()?;
-        self.nodes
-            .push(self.end_token(), NodeKind::StructFieldEnd);
+        self.nodes.push(self.end_token(), NodeKind::StructFieldEnd);
         Ok(())
     }
 
