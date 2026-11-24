@@ -55,7 +55,7 @@ struct DedupEntry {
 }
 
 pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
-    let mut top_start = Node::from_raw(0);
+    let mut scope_start = Node::from_raw(0);
     let mut stack = Vec::new();
     let mut dedup: HashMap<&str, DedupEntry> = HashMap::new();
     let mut refs = IndexVec::new();
@@ -71,31 +71,31 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                     .entry(spans.to_span(nodes.tokens[node]).lookup(source))
                     .or_default();
                 next.push(entry.head);
-                entry.head = MaxOr::new(refs.push(RefImpl { node: top_start }));
+                entry.head = MaxOr::new(refs.push(RefImpl { node: scope_start }));
             }
             Some(Inst::Open) => {
-                stack.push(top_start);
-                top_start = node;
+                stack.push(scope_start);
+                scope_start = node;
             }
             Some(Inst::Close) => {
                 loop {
                     let popped_node = stack.pop().expect("shouldn't run out of elements because we stop as soon as we hit matching open");
                     match inst(nodes.nodes[popped_node]) {
                         Some(Inst::Open) => {
-                            top_start = popped_node;
+                            scope_start = popped_node;
                             break;
                         }
                         Some(Inst::Def) => {
                             let source = spans.to_span(nodes.tokens[popped_node]).lookup(source);
                             let entry = dedup.entry(source).or_default();
-                            if entry.last_scope.into_non_max() == Some(top_start) {
+                            if entry.last_scope.into_non_max() == Some(scope_start) {
                                 duplicates.push(popped_node);
                                 continue;
                             }
-                            entry.last_scope = MaxOr::new(top_start);
+                            entry.last_scope = MaxOr::new(scope_start);
 
                             while let Some(head_ref) = entry.head.into_non_max() {
-                                if refs[head_ref].node < top_start {
+                                if refs[head_ref].node < scope_start {
                                     break;
                                 }
                                 refs[head_ref].node = popped_node;
