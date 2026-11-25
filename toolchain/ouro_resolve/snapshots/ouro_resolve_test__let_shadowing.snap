@@ -6,7 +6,7 @@ expression: "case! { fn f(x: i32) { let x = x + 1; let x = { let a = 1; x }; x }
 1 Fn "fn"
 2 FnIdent "f"
 3 FnParams "("
-4 I32Keyword "i32"
+4 Ident "i32" -> Unresolved { scope_start: Node(3), depth: 0 }
 5 FnParamIdent "x"
 6 FnParamsEnd ")"
 7 FnBodyBegin "{"

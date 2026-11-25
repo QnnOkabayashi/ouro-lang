@@ -6,9 +6,9 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 1 Fn "fn"
 2 FnIdent "foo"
 3 FnParams "("
-4 I32Keyword "i32"
+4 Ident "i32" -> Unresolved { scope_start: Node(3), depth: 0 }
 5 FnParamIdent "a"
-6 I32Keyword "i32"
+6 Ident "i32" -> Unresolved { scope_start: Node(5), depth: 1 }
 7 FnParamIdent "b"
 8 FnParamsEnd ")"
 9 FnBodyBegin "{"
@@ -27,9 +27,9 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 22 Fn "fn"
 23 FnIdent "add"
 24 FnParams "("
-25 I32Keyword "i32"
+25 Ident "i32" -> Unresolved { scope_start: Node(24), depth: 0 }
 26 FnParamIdent "a"
-27 I32Keyword "i32"
+27 Ident "i32" -> Unresolved { scope_start: Node(26), depth: 1 }
 28 FnParamIdent "b"
 29 FnParamsEnd ")"
 30 FnBodyBegin "{"

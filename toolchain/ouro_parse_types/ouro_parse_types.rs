@@ -56,8 +56,6 @@ pub enum NodeKind {
     CallArgIdent,
     CallEnd,
     Str,
-    I32Keyword,
-    TypeKeyword,
     BuiltinAt,
     BuiltinIdent,
 }

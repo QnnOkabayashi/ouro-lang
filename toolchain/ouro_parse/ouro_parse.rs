@@ -301,14 +301,6 @@ impl<'a> Parser<'a> {
             Some(TokenImpl::StrLit) => {
                 self.nodes.push(self.cursor.advance_1(), NodeKind::Str);
             }
-            Some(TokenImpl::I32Keyword) => {
-                self.nodes
-                    .push(self.cursor.advance_1(), NodeKind::I32Keyword);
-            }
-            Some(TokenImpl::TypeKeyword) => {
-                self.nodes
-                    .push(self.cursor.advance_1(), NodeKind::TypeKeyword);
-            }
             Some(TokenImpl::At) => self.parse_builtin()?,
             actual => {
                 return Err(Error {
@@ -318,8 +310,6 @@ impl<'a> Parser<'a> {
                         TokenImpl::Ident,
                         TokenImpl::IntLit,
                         TokenImpl::StrLit,
-                        TokenImpl::I32Keyword,
-                        TokenImpl::TypeKeyword,
                         TokenImpl::At,
                     ]),
                     actual,

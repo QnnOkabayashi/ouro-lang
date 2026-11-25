@@ -4,6 +4,6 @@ expression: "case! { x: i32 }"
 ---
 FileBegin
 StructFieldIdent "x" 0..1
-I32Keyword "i32" 3..6
+Ident "i32" 3..6
 StructFieldEnd "i32" 3..6
 FileEnd

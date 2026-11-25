@@ -137,12 +137,6 @@ enum LogosToken {
     #[token("else")]
     Else,
 
-    // Builtin values
-    #[token("i32")]
-    I32Keyword,
-    #[token("type")]
-    TypeKeyword,
-
     // Other
     #[token("//", advance_to_end_of_line)]
     Comment,
@@ -190,8 +184,6 @@ fn to_token_impl(token: Result<LogosToken, Error>) -> TokenImpl {
         Ok(LogosToken::Struct) => TokenImpl::Struct,
         Ok(LogosToken::If) => TokenImpl::If,
         Ok(LogosToken::Else) => TokenImpl::Else,
-        Ok(LogosToken::I32Keyword) => TokenImpl::I32Keyword,
-        Ok(LogosToken::TypeKeyword) => TokenImpl::TypeKeyword,
         Ok(LogosToken::Comment) => TokenImpl::Comment,
         Ok(LogosToken::Newline) => TokenImpl::Newline,
         Ok(LogosToken::Whitespace) => TokenImpl::Whitespace,

@@ -110,10 +110,6 @@ pub enum TokenImpl {
     If,
     Else,
 
-    // Builtin values
-    I32Keyword,
-    TypeKeyword,
-
     // Other
     Comment,
     Newline,

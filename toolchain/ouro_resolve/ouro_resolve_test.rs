@@ -128,10 +128,10 @@ fn test_ref_rings() {
         out
     };
 
-    // Refs in order: 0=x, 1=x, 2=x (all param x), 3=x (let x), 4=y (let y)
-    assert_eq!(ring(Ref::from_raw(0)), vec![0, 2, 1]);
-    assert_eq!(ring(Ref::from_raw(3)), vec![3]);
+    // Refs in order: 0=i32, 1=x, 2=x, 3=x (all param x), 4=x (let x), 5=y (let y)
+    assert_eq!(ring(Ref::from_raw(1)), vec![1, 3, 2]);
     assert_eq!(ring(Ref::from_raw(4)), vec![4]);
+    assert_eq!(ring(Ref::from_raw(5)), vec![5]);
 }
 
 #[test]
