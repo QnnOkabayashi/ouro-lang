@@ -95,12 +95,18 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                 }
                 entry.last_scope = MaxOr::new(scope_start);
 
+                let first_ref = entry.head;
+                let mut last_ref = MaxOr::max();
                 while let Some(head_ref) = entry.head.into_non_max() {
                     if refs[head_ref].node < scope_start {
                         break;
                     }
                     refs[head_ref].node = def_node;
                     entry.head = refs[head_ref].next;
+                    last_ref = MaxOr::new(head_ref);
+                }
+                if let Some(last_ref) = last_ref.into_non_max() {
+                    refs[last_ref].next = first_ref;
                 }
                 scope_start = prev_scope_start;
             },

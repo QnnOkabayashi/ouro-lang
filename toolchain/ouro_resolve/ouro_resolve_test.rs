@@ -109,3 +109,27 @@ fn test_let_shadowing() {
         }
     });
 }
+
+#[test]
+fn test_ref_rings() {
+    let input = "fn f(x: i32) { let y = x + x; let x = x; x + y }";
+    let tokenize = tokenize(input);
+    let parse = parse(&tokenize.tokens);
+    parse.ok.as_ref().unwrap();
+    let res = resolve(&parse.nodes, &tokenize.spans, input);
+
+    let ring = |start: Ref| {
+        let mut out = vec![start.raw()];
+        let mut cur = res.refs[start].next.into_non_max().unwrap();
+        while cur != start {
+            out.push(cur.raw());
+            cur = res.refs[cur].next.into_non_max().unwrap();
+        }
+        out
+    };
+
+    // Refs in order: 0=x, 1=x, 2=x (all param x), 3=x (let x), 4=y (let y)
+    assert_eq!(ring(Ref::from_raw(0)), vec![0, 2, 1]);
+    assert_eq!(ring(Ref::from_raw(3)), vec![3]);
+    assert_eq!(ring(Ref::from_raw(4)), vec![4]);
+}
