@@ -11,6 +11,7 @@ ouro_index_vec::define_index_type! {
 pub struct RefImpl {
     /// Either points to a Def or where the scope opened.
     pub node: Node,
+    pub next: MaxOr<Ref>,
 }
 
 enum StackEntry {
@@ -34,7 +35,6 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
     let mut stack = Vec::new();
     let mut dedup: HashMap<&str, DedupEntry> = HashMap::new();
     let mut refs = IndexVec::new();
-    let mut next: IndexVec<Ref, MaxOr<Ref>> = IndexVec::new();
     let mut duplicates = Vec::new();
 
     for (node, &node_kind) in nodes.nodes.iter_enumerated() {
@@ -56,8 +56,10 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                 let entry = dedup
                     .entry(spans.to_span(nodes.tokens[node]).lookup(source))
                     .or_default();
-                next.push(entry.head);
-                entry.head = MaxOr::new(refs.push(RefImpl { node: scope_start }));
+                entry.head = MaxOr::new(refs.push(RefImpl {
+                    node: scope_start,
+                    next: entry.head,
+                }));
             }
             NodeKind::FileBegin
             | NodeKind::StructBodyBegin
@@ -98,7 +100,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                         break;
                     }
                     refs[head_ref].node = def_node;
-                    entry.head = next[head_ref];
+                    entry.head = refs[head_ref].next;
                 }
                 scope_start = prev_scope_start;
             },

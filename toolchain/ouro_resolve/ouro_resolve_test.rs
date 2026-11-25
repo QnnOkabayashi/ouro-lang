@@ -25,7 +25,7 @@ fn pprint_name_resolve(input: &str) -> String {
 
         if let NodeKind::Ident = node_kind {
             let opt_def = iter.next().expect("should align");
-            write!(out, " -> {opt_def:?}").unwrap();
+            write!(out, " -> RefImpl {{ node: {:?} }}", opt_def.node).unwrap();
         }
         writeln!(out).unwrap();
     }
