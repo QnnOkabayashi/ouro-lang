@@ -34,17 +34,13 @@ pub struct RefImpl {
 }
 
 enum StackEntry {
-    Open {
-        prev_scope_start: Node,
-    },
-    Item {
-        def_node: Node,
-        item: Item,
-    },
-    Local {
-        prev_scope_start: Node,
-        def_node: Node,
-    },
+    Open { prev_scope_start: Node },
+    Def { def_node: Node, kind: DefKind },
+}
+
+enum DefKind {
+    Item(Item),
+    Local { prev_scope_start: Node },
 }
 
 #[derive(Default)]
@@ -89,15 +85,17 @@ impl<'a> Resolver<'a> {
         self.next_node += Delta::ONE;
         match node_kind {
             NodeKind::StructIdent | NodeKind::FnIdent | NodeKind::ConstIdent => {
-                self.stack.push(StackEntry::Item {
+                self.stack.push(StackEntry::Def {
                     def_node: node,
-                    item: self.out.items.push(node),
+                    kind: DefKind::Item(self.out.items.push(node)),
                 });
             }
             NodeKind::FnParamIdent | NodeKind::LetIdent => {
-                self.stack.push(StackEntry::Local {
-                    prev_scope_start: self.scope_start,
+                self.stack.push(StackEntry::Def {
                     def_node: node,
+                    kind: DefKind::Local {
+                        prev_scope_start: self.scope_start,
+                    },
                 });
                 self.scope_start = node;
                 self.local_depth += 1;
@@ -125,23 +123,19 @@ impl<'a> Resolver<'a> {
             | NodeKind::StructBodyEnd
             | NodeKind::FnBodyEnd
             | NodeKind::BlockEnd => loop {
-                let (prev_scope_start, def_node, item) = match self.stack.pop().expect(
+                let (def_node, def_kind) = match self.stack.pop().expect(
                     "shouldn't run out of elements because we stop as soon as we hit matching open",
                 ) {
                     StackEntry::Open { prev_scope_start } => {
                         self.scope_start = prev_scope_start;
                         break;
                     }
-                    StackEntry::Item { def_node, item } => (self.scope_start, def_node, Some(item)),
-                    StackEntry::Local {
-                        prev_scope_start,
-                        def_node,
-                    } => (prev_scope_start, def_node, None),
+                    StackEntry::Def { def_node, kind } => (def_node, kind),
                 };
 
                 let entry = self.dedup.entry(self.name(def_node)).or_default();
 
-                if let Some(item) = item {
+                if let DefKind::Item(item) = def_kind {
                     if entry.last_scope.into_non_max() == Some(self.scope_start) {
                         self.out.duplicates.push(item);
                         continue;
@@ -162,9 +156,9 @@ impl<'a> Resolver<'a> {
                     if ref_scope_start < self.scope_start {
                         break;
                     }
-                    self.out.refs[head_ref].target = match item {
-                        Some(item) => RefTarget::Item { def_node, item },
-                        None => RefTarget::Local {
+                    self.out.refs[head_ref].target = match def_kind {
+                        DefKind::Item(item) => RefTarget::Item { def_node, item },
+                        DefKind::Local { .. } => RefTarget::Local {
                             def_node,
                             de_bruijn: ref_depth - self.local_depth,
                         },
@@ -175,8 +169,8 @@ impl<'a> Resolver<'a> {
                 if let Some(last_ref) = last_ref.into_non_max() {
                     self.out.refs[last_ref].next = first_ref;
                 }
-                self.scope_start = prev_scope_start;
-                if item.is_none() {
+                if let DefKind::Local { prev_scope_start } = def_kind {
+                    self.scope_start = prev_scope_start;
                     self.local_depth -= 1;
                 }
             },
