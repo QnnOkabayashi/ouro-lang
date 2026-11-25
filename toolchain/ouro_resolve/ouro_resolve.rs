@@ -33,7 +33,10 @@ enum StackEntry {
     Open {
         prev_scope_start: Node,
     },
-    Def {
+    Item {
+        def_node: Node,
+    },
+    Local {
         prev_scope_start: Node,
         def_node: Node,
     },
@@ -56,13 +59,10 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
     for (node, &node_kind) in nodes.nodes.iter_enumerated() {
         match node_kind {
             NodeKind::StructIdent | NodeKind::FnIdent | NodeKind::ConstIdent => {
-                stack.push(StackEntry::Def {
-                    prev_scope_start: scope_start,
-                    def_node: node,
-                });
+                stack.push(StackEntry::Item { def_node: node });
             }
             NodeKind::FnParamIdent | NodeKind::LetIdent => {
-                stack.push(StackEntry::Def {
+                stack.push(StackEntry::Local {
                     prev_scope_start: scope_start,
                     def_node: node,
                 });
@@ -94,23 +94,23 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
             | NodeKind::StructBodyEnd
             | NodeKind::FnBodyEnd
             | NodeKind::BlockEnd => loop {
-                let (prev_scope_start, def_node) = match stack.pop().expect(
+                let (prev_scope_start, def_node, is_local) = match stack.pop().expect(
                     "shouldn't run out of elements because we stop as soon as we hit matching open",
                 ) {
                     StackEntry::Open { prev_scope_start } => {
                         scope_start = prev_scope_start;
                         break;
                     }
-                    StackEntry::Def {
+                    StackEntry::Item { def_node } => (scope_start, def_node, false),
+                    StackEntry::Local {
                         prev_scope_start,
                         def_node,
-                    } => (prev_scope_start, def_node),
+                    } => (prev_scope_start, def_node, true),
                 };
 
                 let name = spans.to_span(nodes.tokens[def_node]).lookup(source);
                 let entry = dedup.entry(name).or_default();
 
-                let is_local = scope_start == def_node;
                 if !is_local {
                     if entry.last_scope.into_non_max() == Some(scope_start) {
                         duplicates.push(def_node);
