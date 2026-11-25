@@ -1,6 +1,6 @@
-use ouro_index_vec::{IndexVec, MaxOr};
+use ouro_index_vec::{Delta, IndexSlice, IndexVec, MaxOr};
 use ouro_parse_types::{Node, NodeKind, Nodes};
-use ouro_tokenize_types::ByteSpans;
+use ouro_tokenize_types::{ByteSpans, Token};
 use std::collections::HashMap;
 
 ouro_index_vec::define_index_type! {
@@ -53,37 +53,60 @@ struct DedupEntry {
     last_scope: MaxOr<Node>,
 }
 
-pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
-    let mut scope_start = Node::from_raw(0);
-    let mut local_depth = 0;
-    let mut stack = Vec::new();
-    let mut dedup: HashMap<&str, DedupEntry> = HashMap::new();
-    let mut out = Resolve::default();
+struct Resolver<'a> {
+    tokens: &'a IndexSlice<Node, [Token]>,
+    spans: &'a ByteSpans,
+    source: &'a str,
+    next_node: Node,
+    scope_start: Node,
+    local_depth: u32,
+    stack: Vec<StackEntry>,
+    dedup: HashMap<&'a str, DedupEntry>,
+    out: Resolve,
+}
 
-    for (node, &node_kind) in nodes.nodes.iter_enumerated() {
+impl<'a> Resolver<'a> {
+    fn new(tokens: &'a IndexSlice<Node, [Token]>, spans: &'a ByteSpans, source: &'a str) -> Self {
+        Resolver {
+            tokens,
+            spans,
+            source,
+            next_node: Node::from_raw(0),
+            scope_start: Node::from_raw(0),
+            local_depth: 0,
+            stack: Vec::new(),
+            dedup: HashMap::new(),
+            out: Resolve::default(),
+        }
+    }
+
+    fn step(&mut self, node_kind: NodeKind) {
+        let node = self.next_node;
+        self.next_node += Delta::ONE;
         match node_kind {
             NodeKind::StructIdent | NodeKind::FnIdent | NodeKind::ConstIdent => {
-                stack.push(StackEntry::Item {
+                self.stack.push(StackEntry::Item {
                     def_node: node,
-                    item: out.items.push(node),
+                    item: self.out.items.push(node),
                 });
             }
             NodeKind::FnParamIdent | NodeKind::LetIdent => {
-                stack.push(StackEntry::Local {
-                    prev_scope_start: scope_start,
+                self.stack.push(StackEntry::Local {
+                    prev_scope_start: self.scope_start,
                     def_node: node,
                 });
-                scope_start = node;
-                local_depth += 1;
+                self.scope_start = node;
+                self.local_depth += 1;
             }
             NodeKind::Ident => {
-                let entry = dedup
-                    .entry(spans.to_span(nodes.tokens[node]).lookup(source))
+                let entry = self
+                    .dedup
+                    .entry(self.spans.to_span(self.tokens[node]).lookup(self.source))
                     .or_default();
-                entry.head = MaxOr::new(out.refs.push(RefImpl {
+                entry.head = MaxOr::new(self.out.refs.push(RefImpl {
                     target: RefTarget::Unresolved {
-                        scope_start,
-                        depth: local_depth,
+                        scope_start: self.scope_start,
+                        depth: self.local_depth,
                     },
                     next: entry.head,
                 }));
@@ -92,38 +115,41 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
             | NodeKind::StructBodyBegin
             | NodeKind::FnParams
             | NodeKind::Block => {
-                stack.push(StackEntry::Open {
-                    prev_scope_start: scope_start,
+                self.stack.push(StackEntry::Open {
+                    prev_scope_start: self.scope_start,
                 });
-                scope_start = node;
+                self.scope_start = node;
             }
             NodeKind::FileEnd
             | NodeKind::StructBodyEnd
             | NodeKind::FnBodyEnd
             | NodeKind::BlockEnd => loop {
-                let (prev_scope_start, def_node, item) = match stack.pop().expect(
+                let (prev_scope_start, def_node, item) = match self.stack.pop().expect(
                     "shouldn't run out of elements because we stop as soon as we hit matching open",
                 ) {
                     StackEntry::Open { prev_scope_start } => {
-                        scope_start = prev_scope_start;
+                        self.scope_start = prev_scope_start;
                         break;
                     }
-                    StackEntry::Item { def_node, item } => (scope_start, def_node, Some(item)),
+                    StackEntry::Item { def_node, item } => (self.scope_start, def_node, Some(item)),
                     StackEntry::Local {
                         prev_scope_start,
                         def_node,
                     } => (prev_scope_start, def_node, None),
                 };
 
-                let name = spans.to_span(nodes.tokens[def_node]).lookup(source);
-                let entry = dedup.entry(name).or_default();
+                let name = self
+                    .spans
+                    .to_span(self.tokens[def_node])
+                    .lookup(self.source);
+                let entry = self.dedup.entry(name).or_default();
 
                 if let Some(item) = item {
-                    if entry.last_scope.into_non_max() == Some(scope_start) {
-                        out.duplicates.push(item);
+                    if entry.last_scope.into_non_max() == Some(self.scope_start) {
+                        self.out.duplicates.push(item);
                         continue;
                     }
-                    entry.last_scope = MaxOr::new(scope_start);
+                    entry.last_scope = MaxOr::new(self.scope_start);
                 }
 
                 let first_ref = entry.head;
@@ -132,36 +158,42 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                     let RefTarget::Unresolved {
                         scope_start: ref_scope_start,
                         depth: ref_depth,
-                    } = out.refs[head_ref].target
+                    } = self.out.refs[head_ref].target
                     else {
                         unreachable!("pending list only contains unresolved refs");
                     };
-                    if ref_scope_start < scope_start {
+                    if ref_scope_start < self.scope_start {
                         break;
                     }
-                    out.refs[head_ref].target = match item {
+                    self.out.refs[head_ref].target = match item {
                         Some(item) => RefTarget::Item { def_node, item },
                         None => RefTarget::Local {
                             def_node,
-                            de_bruijn: ref_depth - local_depth,
+                            de_bruijn: ref_depth - self.local_depth,
                         },
                     };
-                    entry.head = out.refs[head_ref].next;
+                    entry.head = self.out.refs[head_ref].next;
                     last_ref = MaxOr::new(head_ref);
                 }
                 if let Some(last_ref) = last_ref.into_non_max() {
-                    out.refs[last_ref].next = first_ref;
+                    self.out.refs[last_ref].next = first_ref;
                 }
-                scope_start = prev_scope_start;
+                self.scope_start = prev_scope_start;
                 if item.is_none() {
-                    local_depth -= 1;
+                    self.local_depth -= 1;
                 }
             },
             _ => {}
         }
     }
+}
 
-    out
+pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
+    let mut resolver = Resolver::new(&nodes.tokens, spans, source);
+    for &node_kind in &nodes.nodes {
+        resolver.step(node_kind);
+    }
+    resolver.out
 }
 
 #[derive(Debug, Default)]
