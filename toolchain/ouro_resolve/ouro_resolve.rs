@@ -72,7 +72,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
             | NodeKind::StructBodyEnd
             | NodeKind::FnBodyEnd
             | NodeKind::BlockEnd => loop {
-                match stack.pop().expect(
+                let (prev_scope_start, def_node) = match stack.pop().expect(
                     "shouldn't run out of elements because we stop as soon as we hit matching open",
                 ) {
                     StackEntry::Open { prev_scope_start } => {
@@ -82,25 +82,25 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                     StackEntry::Def {
                         prev_scope_start,
                         def_node,
-                    } => {
-                        let name = spans.to_span(nodes.tokens[def_node]).lookup(source);
-                        let entry = dedup.entry(name).or_default();
-                        if entry.last_scope.into_non_max() == Some(scope_start) {
-                            duplicates.push(def_node);
-                            continue;
-                        }
-                        entry.last_scope = MaxOr::new(scope_start);
+                    } => (prev_scope_start, def_node),
+                };
 
-                        while let Some(head_ref) = entry.head.into_non_max() {
-                            if refs[head_ref].node < scope_start {
-                                break;
-                            }
-                            refs[head_ref].node = def_node;
-                            entry.head = next[head_ref];
-                        }
-                        scope_start = prev_scope_start;
-                    }
+                let name = spans.to_span(nodes.tokens[def_node]).lookup(source);
+                let entry = dedup.entry(name).or_default();
+                if entry.last_scope.into_non_max() == Some(scope_start) {
+                    duplicates.push(def_node);
+                    continue;
                 }
+                entry.last_scope = MaxOr::new(scope_start);
+
+                while let Some(head_ref) = entry.head.into_non_max() {
+                    if refs[head_ref].node < scope_start {
+                        break;
+                    }
+                    refs[head_ref].node = def_node;
+                    entry.head = next[head_ref];
+                }
+                scope_start = prev_scope_start;
             },
             _ => {}
         }
