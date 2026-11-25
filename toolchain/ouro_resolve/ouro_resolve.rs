@@ -80,6 +80,10 @@ impl<'a> Resolver<'a> {
         }
     }
 
+    fn name(&self, node: Node) -> &'a str {
+        self.spans.to_span(self.tokens[node]).lookup(self.source)
+    }
+
     fn step(&mut self, node_kind: NodeKind) {
         let node = self.next_node;
         self.next_node += Delta::ONE;
@@ -99,10 +103,7 @@ impl<'a> Resolver<'a> {
                 self.local_depth += 1;
             }
             NodeKind::Ident => {
-                let entry = self
-                    .dedup
-                    .entry(self.spans.to_span(self.tokens[node]).lookup(self.source))
-                    .or_default();
+                let entry = self.dedup.entry(self.name(node)).or_default();
                 entry.head = MaxOr::new(self.out.refs.push(RefImpl {
                     target: RefTarget::Unresolved {
                         scope_start: self.scope_start,
@@ -138,11 +139,7 @@ impl<'a> Resolver<'a> {
                     } => (prev_scope_start, def_node, None),
                 };
 
-                let name = self
-                    .spans
-                    .to_span(self.tokens[def_node])
-                    .lookup(self.source);
-                let entry = self.dedup.entry(name).or_default();
+                let entry = self.dedup.entry(self.name(def_node)).or_default();
 
                 if let Some(item) = item {
                     if entry.last_scope.into_non_max() == Some(self.scope_start) {
