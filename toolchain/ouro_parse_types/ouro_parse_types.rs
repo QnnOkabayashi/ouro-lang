@@ -1,9 +1,10 @@
 //! Nodes produced by the parser.
 
-use ouro_index_vec::IndexVec;
-use ouro_tokenize_types::Token;
+use ouro_index_vec::{IndexSlice, IndexVec};
+use ouro_tokenize_types::{ByteSpans, Token};
 
 ouro_index_vec::define_index_type! {
+    #[derive(Default)]
     pub struct Node = u32;
 }
 
@@ -75,5 +76,26 @@ impl Nodes {
     pub fn push(&mut self, token: Token, node_kind: NodeKind) {
         self.nodes.push(node_kind);
         self.tokens.push(token);
+    }
+
+    pub fn source<'a>(&'a self, spans: &'a ByteSpans, source: &'a str) -> NodeSource<'a> {
+        NodeSource {
+            tokens: &self.tokens,
+            spans,
+            source,
+        }
+    }
+}
+
+#[derive(Copy, Clone)]
+pub struct NodeSource<'a> {
+    pub tokens: &'a IndexSlice<Node, [Token]>,
+    pub spans: &'a ByteSpans,
+    pub source: &'a str,
+}
+
+impl<'a> NodeSource<'a> {
+    pub fn text(&self, node: Node) -> &'a str {
+        self.spans.to_span(self.tokens[node]).lookup(self.source)
     }
 }

@@ -1,6 +1,6 @@
-use ouro_index_vec::{Delta, IndexSlice, IndexVec, MaxOr};
-use ouro_parse_types::{Node, NodeKind, Nodes};
-use ouro_tokenize_types::{ByteSpans, Token};
+use ouro_index_vec::{Delta, IndexVec, MaxOr};
+use ouro_parse_types::{Node, NodeKind, NodeSource, Nodes};
+use ouro_tokenize_types::ByteSpans;
 use std::collections::HashMap;
 
 ouro_index_vec::define_index_type! {
@@ -49,10 +49,8 @@ struct DedupEntry {
     last_scope: MaxOr<Node>,
 }
 
+#[derive(Default)]
 struct Resolver<'a> {
-    tokens: &'a IndexSlice<Node, [Token]>,
-    spans: &'a ByteSpans,
-    source: &'a str,
     next_node: Node,
     scope_start: Node,
     local_depth: u32,
@@ -62,25 +60,7 @@ struct Resolver<'a> {
 }
 
 impl<'a> Resolver<'a> {
-    fn new(tokens: &'a IndexSlice<Node, [Token]>, spans: &'a ByteSpans, source: &'a str) -> Self {
-        Resolver {
-            tokens,
-            spans,
-            source,
-            next_node: Node::from_raw(0),
-            scope_start: Node::from_raw(0),
-            local_depth: 0,
-            stack: Vec::new(),
-            dedup: HashMap::new(),
-            out: Resolve::default(),
-        }
-    }
-
-    fn name(&self, node: Node) -> &'a str {
-        self.spans.to_span(self.tokens[node]).lookup(self.source)
-    }
-
-    fn step(&mut self, node_kind: NodeKind) {
+    fn step(&mut self, node_kind: NodeKind, source: NodeSource<'a>) {
         let node = self.next_node;
         self.next_node += Delta::ONE;
         match node_kind {
@@ -101,7 +81,7 @@ impl<'a> Resolver<'a> {
                 self.local_depth += 1;
             }
             NodeKind::Ident => {
-                let entry = self.dedup.entry(self.name(node)).or_default();
+                let entry = self.dedup.entry(source.text(node)).or_default();
                 entry.head = MaxOr::new(self.out.refs.push(RefImpl {
                     target: RefTarget::Unresolved {
                         scope_start: self.scope_start,
@@ -133,7 +113,7 @@ impl<'a> Resolver<'a> {
                     StackEntry::Def { def_node, kind } => (def_node, kind),
                 };
 
-                let entry = self.dedup.entry(self.name(def_node)).or_default();
+                let entry = self.dedup.entry(source.text(def_node)).or_default();
 
                 if let DefKind::Item(item) = def_kind {
                     if entry.last_scope.into_non_max() == Some(self.scope_start) {
@@ -180,9 +160,10 @@ impl<'a> Resolver<'a> {
 }
 
 pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
-    let mut resolver = Resolver::new(&nodes.tokens, spans, source);
+    let mut resolver = Resolver::default();
+    let node_source = nodes.source(spans, source);
     for &node_kind in &nodes.nodes {
-        resolver.step(node_kind);
+        resolver.step(node_kind, node_source);
     }
     resolver.out
 }

@@ -13,13 +13,11 @@ fn pprint_name_resolve(input: &str) -> String {
     let mut iter = resolve.refs.into_iter();
 
     let mut out = String::new();
+    let node_source = parse.nodes.source(&tokenize.spans, input);
     for (node, &node_kind) in parse.nodes.nodes.iter_enumerated() {
         write!(out, "{} {node_kind:?}", node.raw()).unwrap();
         if node_kind.has_token() {
-            let string = tokenize
-                .spans
-                .to_span(parse.nodes.tokens[node])
-                .lookup(input);
+            let string = node_source.text(node);
             write!(out, " {string:?}").unwrap();
         }
 
