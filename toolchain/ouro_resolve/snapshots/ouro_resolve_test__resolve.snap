@@ -14,7 +14,7 @@ expression: "case!\n{\n    fn foo(a: i32, b: i32) { let c = add(a * a, b); c } f
 9 FnBodyBegin "{"
 10 Let "let"
 11 LetEq "="
-12 Ident "add" -> Item { def_node: Node(23) }
+12 Ident "add" -> Item { def_node: Node(23), item: Item(1) }
 13 Call "("
 14 Ident "a" -> Local { def_node: Node(5), de_bruijn: 1 }
 15 Ident "a" -> Local { def_node: Node(5), de_bruijn: 1 }

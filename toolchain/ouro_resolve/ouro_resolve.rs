@@ -7,17 +7,21 @@ ouro_index_vec::define_index_type! {
     pub struct Ref = u32;
 }
 
+ouro_index_vec::define_index_type! {
+    pub struct Item = u32;
+}
+
 #[derive(Copy, Clone, Debug)]
 pub enum RefTarget {
     Unresolved { scope_start: Node, depth: u32 },
-    Item { def_node: Node },
+    Item { def_node: Node, item: Item },
     Local { def_node: Node, de_bruijn: u32 },
 }
 
 impl RefTarget {
     pub fn def_node(self) -> Option<Node> {
         match self {
-            RefTarget::Item { def_node } | RefTarget::Local { def_node, .. } => Some(def_node),
+            RefTarget::Item { def_node, .. } | RefTarget::Local { def_node, .. } => Some(def_node),
             RefTarget::Unresolved { .. } => None,
         }
     }
@@ -35,6 +39,7 @@ enum StackEntry {
     },
     Item {
         def_node: Node,
+        item: Item,
     },
     Local {
         prev_scope_start: Node,
@@ -54,12 +59,16 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
     let mut stack = Vec::new();
     let mut dedup: HashMap<&str, DedupEntry> = HashMap::new();
     let mut refs = IndexVec::new();
+    let mut items = IndexVec::new();
     let mut duplicates = Vec::new();
 
     for (node, &node_kind) in nodes.nodes.iter_enumerated() {
         match node_kind {
             NodeKind::StructIdent | NodeKind::FnIdent | NodeKind::ConstIdent => {
-                stack.push(StackEntry::Item { def_node: node });
+                stack.push(StackEntry::Item {
+                    def_node: node,
+                    item: items.push(node),
+                });
             }
             NodeKind::FnParamIdent | NodeKind::LetIdent => {
                 stack.push(StackEntry::Local {
@@ -94,24 +103,24 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
             | NodeKind::StructBodyEnd
             | NodeKind::FnBodyEnd
             | NodeKind::BlockEnd => loop {
-                let (prev_scope_start, def_node, is_local) = match stack.pop().expect(
+                let (prev_scope_start, def_node, item) = match stack.pop().expect(
                     "shouldn't run out of elements because we stop as soon as we hit matching open",
                 ) {
                     StackEntry::Open { prev_scope_start } => {
                         scope_start = prev_scope_start;
                         break;
                     }
-                    StackEntry::Item { def_node } => (scope_start, def_node, false),
+                    StackEntry::Item { def_node, item } => (scope_start, def_node, Some(item)),
                     StackEntry::Local {
                         prev_scope_start,
                         def_node,
-                    } => (prev_scope_start, def_node, true),
+                    } => (prev_scope_start, def_node, None),
                 };
 
                 let name = spans.to_span(nodes.tokens[def_node]).lookup(source);
                 let entry = dedup.entry(name).or_default();
 
-                if !is_local {
+                if item.is_some() {
                     if entry.last_scope.into_non_max() == Some(scope_start) {
                         duplicates.push(def_node);
                         continue;
@@ -132,13 +141,12 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                     if ref_scope_start < scope_start {
                         break;
                     }
-                    refs[head_ref].target = if is_local {
-                        RefTarget::Local {
+                    refs[head_ref].target = match item {
+                        Some(item) => RefTarget::Item { def_node, item },
+                        None => RefTarget::Local {
                             def_node,
                             de_bruijn: ref_depth - local_depth,
-                        }
-                    } else {
-                        RefTarget::Item { def_node }
+                        },
                     };
                     entry.head = refs[head_ref].next;
                     last_ref = MaxOr::new(head_ref);
@@ -147,7 +155,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                     refs[last_ref].next = first_ref;
                 }
                 scope_start = prev_scope_start;
-                if is_local {
+                if item.is_none() {
                     local_depth -= 1;
                 }
             },
@@ -155,11 +163,16 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
         }
     }
 
-    Resolve { refs, duplicates }
+    Resolve {
+        refs,
+        items,
+        duplicates,
+    }
 }
 
 #[derive(Debug)]
 pub struct Resolve {
     pub refs: IndexVec<Ref, RefImpl>,
+    pub items: IndexVec<Item, Node>,
     pub duplicates: Vec<Node>,
 }
