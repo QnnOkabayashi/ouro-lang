@@ -58,16 +58,14 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
     let mut local_depth = 0;
     let mut stack = Vec::new();
     let mut dedup: HashMap<&str, DedupEntry> = HashMap::new();
-    let mut refs = IndexVec::new();
-    let mut items = IndexVec::new();
-    let mut duplicates = Vec::new();
+    let mut out = Resolve::default();
 
     for (node, &node_kind) in nodes.nodes.iter_enumerated() {
         match node_kind {
             NodeKind::StructIdent | NodeKind::FnIdent | NodeKind::ConstIdent => {
                 stack.push(StackEntry::Item {
                     def_node: node,
-                    item: items.push(node),
+                    item: out.items.push(node),
                 });
             }
             NodeKind::FnParamIdent | NodeKind::LetIdent => {
@@ -82,7 +80,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                 let entry = dedup
                     .entry(spans.to_span(nodes.tokens[node]).lookup(source))
                     .or_default();
-                entry.head = MaxOr::new(refs.push(RefImpl {
+                entry.head = MaxOr::new(out.refs.push(RefImpl {
                     target: RefTarget::Unresolved {
                         scope_start,
                         depth: local_depth,
@@ -122,7 +120,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
 
                 if item.is_some() {
                     if entry.last_scope.into_non_max() == Some(scope_start) {
-                        duplicates.push(def_node);
+                        out.duplicates.push(def_node);
                         continue;
                     }
                     entry.last_scope = MaxOr::new(scope_start);
@@ -134,25 +132,25 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                     let RefTarget::Unresolved {
                         scope_start: ref_scope_start,
                         depth: ref_depth,
-                    } = refs[head_ref].target
+                    } = out.refs[head_ref].target
                     else {
                         unreachable!("pending list only contains unresolved refs");
                     };
                     if ref_scope_start < scope_start {
                         break;
                     }
-                    refs[head_ref].target = match item {
+                    out.refs[head_ref].target = match item {
                         Some(item) => RefTarget::Item { def_node, item },
                         None => RefTarget::Local {
                             def_node,
                             de_bruijn: ref_depth - local_depth,
                         },
                     };
-                    entry.head = refs[head_ref].next;
+                    entry.head = out.refs[head_ref].next;
                     last_ref = MaxOr::new(head_ref);
                 }
                 if let Some(last_ref) = last_ref.into_non_max() {
-                    refs[last_ref].next = first_ref;
+                    out.refs[last_ref].next = first_ref;
                 }
                 scope_start = prev_scope_start;
                 if item.is_none() {
@@ -163,14 +161,10 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
         }
     }
 
-    Resolve {
-        refs,
-        items,
-        duplicates,
-    }
+    out
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Resolve {
     pub refs: IndexVec<Ref, RefImpl>,
     pub items: IndexVec<Item, Node>,
