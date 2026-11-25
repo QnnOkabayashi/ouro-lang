@@ -118,9 +118,9 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                 let name = spans.to_span(nodes.tokens[def_node]).lookup(source);
                 let entry = dedup.entry(name).or_default();
 
-                if item.is_some() {
+                if let Some(item) = item {
                     if entry.last_scope.into_non_max() == Some(scope_start) {
-                        out.duplicates.push(def_node);
+                        out.duplicates.push(item);
                         continue;
                     }
                     entry.last_scope = MaxOr::new(scope_start);
@@ -168,5 +168,5 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
 pub struct Resolve {
     pub refs: IndexVec<Ref, RefImpl>,
     pub items: IndexVec<Item, Node>,
-    pub duplicates: Vec<Node>,
+    pub duplicates: Vec<Item>,
 }
