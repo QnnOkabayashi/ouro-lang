@@ -13,7 +13,7 @@ expression: "case! { struct Thing { fn new(a: 1) { Thing } } }"
 8 FnParamIdent "a"
 9 FnParamsEnd ")"
 10 FnBodyBegin "{"
-11 Ident "Thing" -> RefImpl { node: Node(2) }
+11 Ident "Thing" -> Item { def_node: Node(2) }
 12 FnBodyEnd "}"
 13 StructBodyEnd "}"
 14 FileEnd

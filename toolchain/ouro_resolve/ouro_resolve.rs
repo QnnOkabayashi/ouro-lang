@@ -7,10 +7,25 @@ ouro_index_vec::define_index_type! {
     pub struct Ref = u32;
 }
 
+#[derive(Copy, Clone, Debug)]
+pub enum RefTarget {
+    Unresolved { scope_start: Node },
+    Item { def_node: Node },
+    Local { def_node: Node },
+}
+
+impl RefTarget {
+    pub fn def_node(self) -> Option<Node> {
+        match self {
+            RefTarget::Item { def_node } | RefTarget::Local { def_node } => Some(def_node),
+            RefTarget::Unresolved { .. } => None,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct RefImpl {
-    /// Either points to a Def or where the scope opened.
-    pub node: Node,
+    pub target: RefTarget,
     pub next: MaxOr<Ref>,
 }
 
@@ -57,7 +72,7 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
                     .entry(spans.to_span(nodes.tokens[node]).lookup(source))
                     .or_default();
                 entry.head = MaxOr::new(refs.push(RefImpl {
-                    node: scope_start,
+                    target: RefTarget::Unresolved { scope_start },
                     next: entry.head,
                 }));
             }
@@ -89,19 +104,33 @@ pub fn resolve(nodes: &Nodes, spans: &ByteSpans, source: &str) -> Resolve {
 
                 let name = spans.to_span(nodes.tokens[def_node]).lookup(source);
                 let entry = dedup.entry(name).or_default();
-                if entry.last_scope.into_non_max() == Some(scope_start) {
-                    duplicates.push(def_node);
-                    continue;
+
+                let is_local = scope_start == def_node;
+                if !is_local {
+                    if entry.last_scope.into_non_max() == Some(scope_start) {
+                        duplicates.push(def_node);
+                        continue;
+                    }
+                    entry.last_scope = MaxOr::new(scope_start);
                 }
-                entry.last_scope = MaxOr::new(scope_start);
 
                 let first_ref = entry.head;
                 let mut last_ref = MaxOr::max();
                 while let Some(head_ref) = entry.head.into_non_max() {
-                    if refs[head_ref].node < scope_start {
+                    let RefTarget::Unresolved {
+                        scope_start: ref_scope_start,
+                    } = refs[head_ref].target
+                    else {
+                        unreachable!("pending list only contains unresolved refs");
+                    };
+                    if ref_scope_start < scope_start {
                         break;
                     }
-                    refs[head_ref].node = def_node;
+                    refs[head_ref].target = if is_local {
+                        RefTarget::Local { def_node }
+                    } else {
+                        RefTarget::Item { def_node }
+                    };
                     entry.head = refs[head_ref].next;
                     last_ref = MaxOr::new(head_ref);
                 }

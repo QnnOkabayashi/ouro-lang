@@ -145,7 +145,10 @@ async fn main() {
                     info!("parse failures, cannot do further resolution");
                     return future::ready(Ok(None));
                 };
-                let node = resolve.refs[syn_ref].node;
+                let Some(node) = resolve.refs[syn_ref].target.def_node() else {
+                    info!("unresolved ref");
+                    return future::ready(Ok(None));
+                };
                 let def_token = analysis.nodes.tokens[node];
                 let row_col_delta = analysis.source_map.token_to_position(def_token);
                 let pos = Position {
