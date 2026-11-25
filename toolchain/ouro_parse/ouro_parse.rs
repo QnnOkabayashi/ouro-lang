@@ -319,7 +319,7 @@ impl<'a> Parser<'a> {
         loop {
             match self.cursor.peek() {
                 Some(TokenImpl::Dot) => {
-                    self.nodes.push(self.cursor.advance_1(), NodeKind::Dot);
+                    let _dot = self.cursor.advance_1();
                     self.nodes
                         .push(self.cursor.eat(TokenImpl::Ident)?, NodeKind::Field);
                 }

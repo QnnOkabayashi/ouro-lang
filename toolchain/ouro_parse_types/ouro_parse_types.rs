@@ -50,7 +50,6 @@ pub enum NodeKind {
     IfEnd,
     Ident,
     IntLit,
-    Dot,
     Field,
     Call,
     CallArgIdent,
